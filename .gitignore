@@ -1,0 +1,30 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## Node / Frontend
+node_modules/
+dist/
+frontend/.env
+frontend/.env.local
+
+## Env & secrets
+*.env
+appsettings.*.local.json
+secrets.json
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
