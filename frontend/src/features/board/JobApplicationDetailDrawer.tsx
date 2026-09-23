@@ -1,3 +1,4 @@
+import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
@@ -28,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { APPLICATION_STATUSES, type ApplicationStatus, type JobApplicationDetail } from '../../api/types';
 import { getErrorMessage } from '../../utils/errors';
 import { formatDate, formatDateTime } from '../../utils/format';
+import { InterviewFormDialog, type InterviewDialogState } from '../interviews/InterviewFormDialog';
 import { STATUS_COLORS } from './boardUtils';
 import { useBoardQuery, useDeleteJobApplication, useJobApplicationQuery, useMoveJobApplication } from './useBoard';
 
@@ -60,6 +62,7 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
   const moveMutation = useMoveJobApplication();
   const deleteMutation = useDeleteJobApplication();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [interviewDialog, setInterviewDialog] = useState<InterviewDialogState>(null);
 
   if (detailQuery.isPending) {
     return (
@@ -164,13 +167,24 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
             <LongText text={d.notes} empty={t('board.detail.noNotes')} />
           </Section>
 
-          <Section title={`${t('nav.interviews')} (${d.interviews.length})`}>
+          <Section
+            title={`${t('nav.interviews')} (${d.interviews.length})`}
+            action={
+              <Button size="small" startIcon={<AddIcon />} onClick={() => setInterviewDialog({ interview: null, jobApplicationId: d.id })}>
+                {t('interviews.add')}
+              </Button>
+            }
+          >
             {d.interviews.length === 0 ? (
               <EmptyText>{t('board.detail.noInterviews')}</EmptyText>
             ) : (
               <Stack spacing={1}>
                 {d.interviews.map((iv) => (
-                  <Box key={iv.id} sx={{ p: 1.25, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+                  <Box
+                    key={iv.id}
+                    onClick={() => setInterviewDialog({ interview: iv })}
+                    sx={{ p: 1.25, border: '1px solid', borderColor: 'divider', borderRadius: 2, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+                  >
                     <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600, flexGrow: 1 }}>
                         {t(`interviewType.${iv.type}`)} · {t(`interviewFormat.${iv.format}`)}
@@ -236,6 +250,8 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
         </Stack>
       </Box>
 
+      <InterviewFormDialog state={interviewDialog} onClose={() => setInterviewDialog(null)} />
+
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
         <DialogTitle>{t('board.deleteTitle')}</DialogTitle>
         <DialogContent>
@@ -269,12 +285,15 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <Box>
-      <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 700, display: 'block', mb: 1 }}>
-        {title}
-      </Typography>
+      <Stack direction="row" sx={{ alignItems: 'center', mb: 1 }}>
+        <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 700, flexGrow: 1 }}>
+          {title}
+        </Typography>
+        {action}
+      </Stack>
       {children}
     </Box>
   );

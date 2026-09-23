@@ -23,7 +23,12 @@ tests/
 ├── JobHunter.Application.Tests
 └── JobHunter.Integration.Tests
 
-frontend/                      React + TypeScript + Vite (Faz 7'de eklenecek)
+frontend/src/
+├── api/                       Axios istemcisi (token yenileme), endpoint fonksiyonlari, DTO tipleri
+├── components/                Ortak bilesenler (SchemaFormDialog, ConfirmDialog, Notify)
+├── features/                  Sayfa modulleri: board, cvs, profile, interviews
+├── auth/ layout/ i18n/        Oturum, uygulama iskeleti, TR/EN ceviriler
+└── utils/                     Hata mesaji, tarih/saat bicimlendirme
 ```
 
 ## Gelistirme Fazlari
@@ -36,8 +41,14 @@ frontend/                      React + TypeScript + Vite (Faz 7'de eklenecek)
 | Faz 3 | Kanban pipeline: JobApplication, durum gecmisi, surukle-birak siralama | Tamamlandi |
 | Faz 4 | CV yonetimi: yukleme/indirme/yeniden adlandirma/soft delete, basvuru → CV iliskisi | Tamamlandi |
 | Faz 5 | Aday profili: iletisim/tercihler, yetenekler, deneyim, egitim, diller, hazir cevap bankasi, varsayilan CV | Tamamlandi |
+| Faz 5b | Profil detaylari: adres, dogum tarihi, cinsiyet, medeni durum, uyruk, askerlik, ehliyet, seyahat/sigara/engellilik; sertifikalar, referanslar, ek bilgiler (etiket-deger); alan bazli otomasyon politikalari (Auto / AskFirst / Never). TC kimlik no bilincli olarak saklanmaz | Tamamlandi |
 | Faz 6 | Mulakatlar (takvim, sonuc, otomatik Interview sutunu) + yapilacaklar (basvuru/mulakat baglantili) | Tamamlandi |
-| Faz 7 | Frontend (React + TypeScript + Vite + MUI + TanStack Query + i18n TR/EN) | Devam ediyor (7a: iskelet + auth) |
+| Faz 7 | Frontend (React + TypeScript + Vite + MUI + TanStack Query + i18n TR/EN) | Devam ediyor |
+| 7a | Iskelet, login/register, refresh token (httpOnly cookie), korumali rotalar, TR/EN | Tamamlandi |
+| 7b | Kanban panosu: surukle-birak (@dnd-kit, optimistic update), kart ekle/duzenle/sil, detay paneli | Tamamlandi |
+| 7c | CV sayfasi (surukle-birak yukleme, PDF onizleme, varsayilan CV) + Profil sayfasi (9 sekme, alan yaninda otomasyon politikasi) | Tamamlandi |
+| 7d | Mulakatlar sayfasi (Yaklasan / Gecmis / aylik Takvim, sonuc girme, karttan mulakat ekleme) | Tamamlandi |
+| 7d | Yapilacaklar sayfasi + PWA | Sirada |
 
 ## API Endpoint'leri
 
@@ -70,6 +81,13 @@ frontend/                      React + TypeScript + Vite (Faz 7'de eklenecek)
 | PUT / DELETE | `/api/profile/languages/{id}` | Dil guncelle / sil |
 | POST | `/api/profile/screening-answers` | Hazir cevap ekle |
 | PUT / DELETE | `/api/profile/screening-answers/{id}` | Hazir cevap guncelle / sil |
+| POST | `/api/profile/certificates` | Sertifika ekle |
+| PUT / DELETE | `/api/profile/certificates/{id}` | Sertifika guncelle / sil |
+| POST | `/api/profile/references` | Referans ekle |
+| PUT / DELETE | `/api/profile/references/{id}` | Referans guncelle / sil |
+| POST | `/api/profile/custom-fields` | Ek bilgi (etiket-deger + politika) ekle |
+| PUT / DELETE | `/api/profile/custom-fields/{id}` | Ek bilgi guncelle / sil |
+| PUT | `/api/profile/field-policies` | Otomasyon politikalarini kismi guncelle (`{ "policies": { "Gender": "Never" } }`) |
 | GET | `/api/interviews` | Mulakat listesi (`from`, `to`, `jobApplicationId`, `outcome` filtreleri) |
 | GET | `/api/interviews/upcoming?days=14` | Yaklasan, sonucu bekleyen mulakatlar |
 | GET | `/api/interviews/{id}` | Mulakat detayi |

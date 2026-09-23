@@ -15,8 +15,9 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import AddIcon from '@mui/icons-material/Add';
 import { Alert, Box, Button, CircularProgress, Snackbar, Stack, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { jobApplicationKeys } from '../../api/jobApplications';
 import { APPLICATION_STATUSES, type ApplicationStatus, type JobApplicationSummary } from '../../api/types';
 import { getErrorMessage } from '../../utils/errors';
@@ -48,6 +49,16 @@ export function BoardPage() {
   const [formState, setFormState] = useState<FormDialogState | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const lastDragEndAt = useRef(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Baska sayfalardan (orn. Mulakatlar) "/?open=<id>" ile gelinince o kartin detayini ac, sonra parametreyi temizle.
+  const openParam = searchParams.get('open');
+  useEffect(() => {
+    if (openParam) {
+      setOpenId(openParam);
+      setSearchParams({}, { replace: true });
+    }
+  }, [openParam, setSearchParams]);
 
   const serverColumns = useMemo(() => groupByStatus(boardQuery.data ?? []), [boardQuery.data]);
   const columns = dragColumns ?? serverColumns;

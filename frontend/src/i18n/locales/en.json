@@ -61,7 +61,8 @@
     "url": "Enter a valid link (http:// or https://).",
     "email": "Enter a valid email address.",
     "dateRange": "End date can't be before the start date.",
-    "endDateOrCurrent": "Enter an end date or tick \"I currently work here\"."
+    "endDateOrCurrent": "Enter an end date or tick \"I currently work here\".",
+    "numberRange": "Enter a number between {{min}} and {{max}}."
   },
   "status": {
     "Wishlist": "Wishlist",
@@ -370,5 +371,47 @@
     "nameHint": "e.g. Backend Developer CV (EN)",
     "deleteTitle": "Delete CV?",
     "deleteMessage": "\"{{name}}\" will be removed from the list. Past applications that used this CV are not affected."
+  },
+  "interviews": {
+    "subtitle": "Your scheduled and past interviews. Adding an interview moves the application card to the \"Interview\" column.",
+    "new": "New interview",
+    "add": "Add",
+    "edit": "Edit interview",
+    "created": "Interview added.",
+    "views": {
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "calendar": "Calendar"
+    },
+    "fields": {
+      "application": "Application",
+      "scheduledAt": "Date & time",
+      "duration": "Duration (min)",
+      "type": "Type",
+      "format": "Format",
+      "meetingUrl": "Meeting link",
+      "location": "Location / address",
+      "interviewers": "Interviewers",
+      "preparationNotes": "Preparation notes",
+      "feedbackNotes": "Feedback / evaluation"
+    },
+    "hints": {
+      "interviewers": "e.g. Jane D. (HR), John S. (Tech Lead)"
+    },
+    "noApplications": "Add an application to the board first.",
+    "join": "Join meeting",
+    "todayLabel": "Today",
+    "tomorrow": "Tomorrow",
+    "today": "Today",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "emptyUpcoming": "No upcoming interviews.",
+    "emptyPast": "No past interviews.",
+    "show": "Show",
+    "awaitingResult_one": "{{count}} past interview has no result yet.",
+    "awaitingResult_other": "{{count}} past interviews have no result yet.",
+    "outcomeSet": "Result: {{outcome}}",
+    "deleteTitle": "Delete interview?",
+    "deleteMessage": "The {{company}} interview will be permanently deleted."
   }
 }

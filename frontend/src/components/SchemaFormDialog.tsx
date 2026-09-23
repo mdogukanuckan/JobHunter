@@ -30,9 +30,12 @@ export type FormValues = Record<string, FormValue>;
 export interface FieldDef {
   name: string;
   label: string;
-  type: 'text' | 'multiline' | 'date' | 'select' | 'checkbox' | 'tags' | 'url' | 'email' | 'tel';
+  type: 'text' | 'multiline' | 'date' | 'datetime' | 'number' | 'select' | 'checkbox' | 'tags' | 'url' | 'email' | 'tel';
   required?: boolean;
   maxLength?: number;
+  /** 'number' icin sinirlar. */
+  min?: number;
+  max?: number;
   options?: { value: string; label: string }[];
   /** 'tags' icin oneri listesi. */
   suggestions?: string[];
@@ -55,6 +58,16 @@ interface Props {
   onSubmit: (values: FormValues) => void;
   onClose: () => void;
 }
+
+/** Alan tipi -> <input type>. */
+const INPUT_TYPES: Partial<Record<FieldDef['type'], string>> = {
+  date: 'date',
+  datetime: 'datetime-local',
+  number: 'number',
+  url: 'url',
+  email: 'email',
+  tel: 'tel',
+};
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -93,6 +106,11 @@ function FormBody({ title, fields, initialValues, validate, loading, serverError
       if (f.required && s === '') return t('validation.required');
       if (s !== '' && f.type === 'url' && !isHttpUrl(s)) return t('validation.url');
       if (s !== '' && f.type === 'email' && !EMAIL_RE.test(s)) return t('validation.email');
+      if (s !== '' && f.type === 'number') {
+        const n = Number(s);
+        if (!Number.isFinite(n) || (f.min !== undefined && n < f.min) || (f.max !== undefined && n > f.max))
+          return t('validation.numberRange', { min: f.min ?? '-', max: f.max ?? '-' });
+      }
     }
     return null;
   };
@@ -189,16 +207,16 @@ function FormBody({ title, fields, initialValues, validate, loading, serverError
                 key={f.name}
                 sx={{ gridColumn: span }}
                 {...common}
-                type={f.type === 'multiline' || f.type === 'text' ? 'text' : f.type}
+                type={INPUT_TYPES[f.type] ?? 'text'}
                 multiline={f.type === 'multiline'}
                 minRows={f.type === 'multiline' ? 3 : undefined}
                 maxRows={f.type === 'multiline' ? 10 : undefined}
-                value={disabled && f.type === 'date' ? '' : (values[f.name] as string)}
+                value={disabled && (f.type === 'date' || f.type === 'datetime') ? '' : (values[f.name] as string)}
                 onChange={(e) => set(f.name, e.target.value)}
                 slotProps={{
-                  htmlInput: { maxLength: f.maxLength },
+                  htmlInput: { maxLength: f.maxLength, min: f.min, max: f.max },
                   // Tarih alaninda etiket her zaman yukarida dursun (tarayici "gg.aa.yyyy" gosteriyor).
-                  inputLabel: f.type === 'date' ? { shrink: true } : undefined,
+                  inputLabel: f.type === 'date' || f.type === 'datetime' ? { shrink: true } : undefined,
                 }}
               />
             );

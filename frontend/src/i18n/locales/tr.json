@@ -61,7 +61,8 @@
     "url": "Geçerli bir bağlantı gir (http:// veya https://).",
     "email": "Geçerli bir e-posta adresi gir.",
     "dateRange": "Bitiş tarihi başlangıçtan önce olamaz.",
-    "endDateOrCurrent": "Bitiş tarihi gir veya \"Halen burada çalışıyorum\"u işaretle."
+    "endDateOrCurrent": "Bitiş tarihi gir veya \"Halen burada çalışıyorum\"u işaretle.",
+    "numberRange": "{{min}} ile {{max}} arasında bir sayı gir."
   },
   "status": {
     "Wishlist": "İstek listesi",
@@ -370,5 +371,47 @@
     "nameHint": "ör. Backend Developer CV (EN)",
     "deleteTitle": "CV silinsin mi?",
     "deleteMessage": "\"{{name}}\" listeden kaldırılacak. Bu CV ile yapılmış geçmiş başvurular etkilenmez."
+  },
+  "interviews": {
+    "subtitle": "Planlanan ve geçmiş mülakatların. Yeni mülakat eklenince başvuru kartı \"Mülakat\" sütununa taşınır.",
+    "new": "Yeni mülakat",
+    "add": "Ekle",
+    "edit": "Mülakatı düzenle",
+    "created": "Mülakat eklendi.",
+    "views": {
+      "upcoming": "Yaklaşan",
+      "past": "Geçmiş",
+      "calendar": "Takvim"
+    },
+    "fields": {
+      "application": "Başvuru",
+      "scheduledAt": "Tarih ve saat",
+      "duration": "Süre (dk)",
+      "type": "Tür",
+      "format": "Biçim",
+      "meetingUrl": "Toplantı linki",
+      "location": "Yer / adres",
+      "interviewers": "Görüşmeciler",
+      "preparationNotes": "Hazırlık notları",
+      "feedbackNotes": "Geri bildirim / değerlendirme"
+    },
+    "hints": {
+      "interviewers": "ör. Ayşe Y. (İK), Mehmet K. (Tech Lead)"
+    },
+    "noApplications": "Önce panoya bir başvuru ekle.",
+    "join": "Toplantıya katıl",
+    "todayLabel": "Bugün",
+    "tomorrow": "Yarın",
+    "today": "Bugün",
+    "prevMonth": "Önceki ay",
+    "nextMonth": "Sonraki ay",
+    "emptyUpcoming": "Yaklaşan mülakat yok.",
+    "emptyPast": "Geçmiş mülakat yok.",
+    "show": "Göster",
+    "awaitingResult_one": "Tarihi geçmiş {{count}} mülakatın sonucu girilmemiş.",
+    "awaitingResult_other": "Tarihi geçmiş {{count}} mülakatın sonucu girilmemiş.",
+    "outcomeSet": "Sonuç: {{outcome}}",
+    "deleteTitle": "Mülakat silinsin mi?",
+    "deleteMessage": "{{company}} mülakatı kalıcı olarak silinecek."
   }
 }
