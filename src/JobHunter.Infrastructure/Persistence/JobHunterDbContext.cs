@@ -1,9 +1,10 @@
+using JobHunter.Application.Common.Interfaces;
 using JobHunter.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobHunter.Infrastructure.Persistence;
 
-public class JobHunterDbContext : DbContext
+public class JobHunterDbContext : DbContext, IApplicationDbContext
 {
     public JobHunterDbContext(DbContextOptions<JobHunterDbContext> options) : base(options) { }
 

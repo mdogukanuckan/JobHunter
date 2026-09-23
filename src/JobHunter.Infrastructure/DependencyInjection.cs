@@ -1,3 +1,6 @@
+using JobHunter.Application.Auth.Interfaces;
+using JobHunter.Application.Common.Interfaces;
+using JobHunter.Infrastructure.Auth;
 using JobHunter.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +14,11 @@ public static class DependencyInjection
     {
         services.AddDbContext<JobHunterDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<JobHunterDbContext>());
+
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         return services;
     }
