@@ -3,11 +3,18 @@ using JobHunter.Application.Profiles.Dtos;
 using JobHunter.Application.Profiles.Exceptions;
 using JobHunter.Application.Profiles.Interfaces;
 using JobHunter.Domain.Entities;
+using JobHunter.Domain.Enums;
+using JobHunter.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobHunter.Application.Profiles.Services;
 
-public class CandidateProfileService : ICandidateProfileService
+/// <summary>
+/// Aday profili servisi. Dosya buyudugu icin partial class olarak bolundu:
+/// bu dosya ana profil + deneyim/egitim/dil/hazir cevap; CandidateProfileService.Extras.cs
+/// sertifika, referans, ek bilgi ve otomasyon politikalari (Faz 5b).
+/// </summary>
+public partial class CandidateProfileService : ICandidateProfileService
 {
     private const int MaxSkills = 100;
     private const int MaxSkillLength = 100;
@@ -42,6 +49,10 @@ public class CandidateProfileService : ICandidateProfileService
             .Include(p => p.Educations)
             .Include(p => p.Languages)
             .Include(p => p.ScreeningAnswers)
+            .Include(p => p.Certificates)
+            .Include(p => p.References)
+            .Include(p => p.CustomFields)
+            .Include(p => p.FieldPolicies)
             .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken)
             ?? throw new KeyNotFoundException("Profil henuz olusturulmamis.");
 
@@ -54,6 +65,8 @@ public class CandidateProfileService : ICandidateProfileService
 
         if (request.ExpectedSalary is not null && string.IsNullOrWhiteSpace(request.SalaryCurrency))
             throw new ProfileValidationException("Maas beklentisi icin para birimi (SalaryCurrency) gerekli.");
+
+        ValidatePersonalDetails(request);
 
         if (request.DefaultCvId is { } cvId)
         {
@@ -94,6 +107,26 @@ public class CandidateProfileService : ICandidateProfileService
         profile.WorkAuthorization = Clean(request.WorkAuthorization);
         profile.Skills = NormalizeList(request.Skills, MaxSkills, MaxSkillLength, "yetenek");
         profile.DefaultCvId = request.DefaultCvId;
+
+        // ----- Faz 5b -----
+        profile.District = Clean(request.District);
+        profile.AddressLine = Clean(request.AddressLine);
+        profile.PostalCode = Clean(request.PostalCode);
+        profile.DateOfBirth = request.DateOfBirth;
+        profile.Gender = request.Gender;
+        profile.MaritalStatus = request.MaritalStatus;
+        profile.Nationality = Clean(request.Nationality);
+        profile.MilitaryServiceStatus = request.MilitaryServiceStatus;
+        // Tecil tarihi sadece "tecilli" durumunda anlamli; baska durumda eski deger kalmasin.
+        profile.MilitaryPostponedUntil = request.MilitaryServiceStatus == MilitaryServiceStatus.Postponed
+            ? request.MilitaryPostponedUntil
+            : null;
+        profile.DriverLicenseClasses = NormalizeDriverLicenseClasses(request.DriverLicenseClasses);
+        // Ehliyet sinifi yoksa ehliyet yili da anlamsiz.
+        profile.DriverLicenseYear = profile.DriverLicenseClasses.Count > 0 ? request.DriverLicenseYear : null;
+        profile.CanTravel = request.CanTravel;
+        profile.IsSmoker = request.IsSmoker;
+        profile.HasDisability = request.HasDisability;
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -398,6 +431,20 @@ public class CandidateProfileService : ICandidateProfileService
         p.PhoneNumber,
         p.City,
         p.Country,
+        p.District,
+        p.AddressLine,
+        p.PostalCode,
+        p.DateOfBirth,
+        p.Gender,
+        p.MaritalStatus,
+        p.Nationality,
+        p.MilitaryServiceStatus,
+        p.MilitaryPostponedUntil,
+        p.DriverLicenseClasses,
+        p.DriverLicenseYear,
+        p.CanTravel,
+        p.IsSmoker,
+        p.HasDisability,
         p.LinkedInUrl,
         p.GitHubUrl,
         p.PortfolioUrl,
@@ -424,6 +471,12 @@ public class CandidateProfileService : ICandidateProfileService
             .Select(ToResponse).ToList(),
         p.Languages.OrderBy(x => x.Name).Select(ToResponse).ToList(),
         p.ScreeningAnswers.OrderBy(x => x.CreatedAt).Select(ToResponse).ToList(),
+        p.Certificates
+            .OrderByDescending(x => x.IssueDate ?? DateOnly.MinValue)
+            .Select(ToResponse).ToList(),
+        p.References.OrderBy(x => x.CreatedAt).Select(ToResponse).ToList(),
+        p.CustomFields.OrderBy(x => x.Label).Select(ToResponse).ToList(),
+        EffectivePolicies(p.FieldPolicies),
         p.CreatedAt,
         p.UpdatedAt);
 

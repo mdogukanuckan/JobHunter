@@ -17,6 +17,10 @@ public interface IApplicationDbContext
     DbSet<ScreeningAnswer> ScreeningAnswers { get; }
     DbSet<Interview> Interviews { get; }
     DbSet<TodoItem> TodoItems { get; }
+    DbSet<Certificate> Certificates { get; }
+    DbSet<ProfileReference> ProfileReferences { get; }
+    DbSet<ProfileCustomField> ProfileCustomFields { get; }
+    DbSet<ProfileFieldPolicy> ProfileFieldPolicies { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

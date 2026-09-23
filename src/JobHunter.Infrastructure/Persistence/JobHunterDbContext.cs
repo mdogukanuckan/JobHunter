@@ -20,6 +20,10 @@ public class JobHunterDbContext : DbContext, IApplicationDbContext
     public DbSet<ScreeningAnswer> ScreeningAnswers => Set<ScreeningAnswer>();
     public DbSet<Interview> Interviews => Set<Interview>();
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<Certificate> Certificates => Set<Certificate>();
+    public DbSet<ProfileReference> ProfileReferences => Set<ProfileReference>();
+    public DbSet<ProfileCustomField> ProfileCustomFields => Set<ProfileCustomField>();
+    public DbSet<ProfileFieldPolicy> ProfileFieldPolicies => Set<ProfileFieldPolicy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

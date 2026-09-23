@@ -36,7 +36,17 @@
     "create": "Oluştur",
     "edit": "Düzenle",
     "delete": "Sil",
-    "close": "Kapat"
+    "close": "Kapat",
+    "tagsHint": "Yazıp Enter'a bas; birden fazla eklenebilir.",
+    "notSpecified": "Belirtilmedi",
+    "yes": "Evet",
+    "no": "Hayır",
+    "all": "Tümü",
+    "discard": "Vazgeç",
+    "savedMessage": "Kaydedildi.",
+    "deletedMessage": "Silindi.",
+    "deleteConfirmTitle": "Silinsin mi?",
+    "deleteConfirmMessage": "\"{{name}}\" kalıcı olarak silinecek."
   },
   "notFound": {
     "title": "Sayfa bulunamadı",
@@ -48,7 +58,10 @@
   },
   "validation": {
     "required": "Bu alan zorunlu.",
-    "url": "Geçerli bir bağlantı gir (http:// veya https://)."
+    "url": "Geçerli bir bağlantı gir (http:// veya https://).",
+    "email": "Geçerli bir e-posta adresi gir.",
+    "dateRange": "Bitiş tarihi başlangıçtan önce olamaz.",
+    "endDateOrCurrent": "Bitiş tarihi gir veya \"Halen burada çalışıyorum\"u işaretle."
   },
   "status": {
     "Wishlist": "İstek listesi",
@@ -125,5 +138,237 @@
       "minutes_one": "{{count}} dk",
       "minutes_other": "{{count}} dk"
     }
+  },
+  "workMode": {
+    "Remote": "Uzaktan",
+    "Hybrid": "Hibrit",
+    "OnSite": "Ofisten",
+    "Flexible": "Esnek"
+  },
+  "gender": {
+    "Female": "Kadın",
+    "Male": "Erkek",
+    "Other": "Diğer",
+    "PreferNotToSay": "Belirtmek istemiyorum"
+  },
+  "maritalStatus": {
+    "Single": "Bekar",
+    "Married": "Evli",
+    "Divorced": "Boşanmış",
+    "Widowed": "Dul",
+    "PreferNotToSay": "Belirtmek istemiyorum"
+  },
+  "military": {
+    "Completed": "Yapıldı",
+    "Exempt": "Muaf",
+    "Postponed": "Tecilli",
+    "NotCompleted": "Yapılmadı",
+    "NotApplicable": "Muhatap değil"
+  },
+  "languageLevel": {
+    "A1": "A1 – Başlangıç",
+    "A2": "A2 – Temel",
+    "B1": "B1 – Orta",
+    "B2": "B2 – İyi",
+    "C1": "C1 – İleri",
+    "C2": "C2 – Uzman",
+    "Native": "Ana dil"
+  },
+  "degree": {
+    "HighSchool": "Lise",
+    "Associate": "Ön lisans",
+    "Bachelor": "Lisans",
+    "Master": "Yüksek lisans",
+    "Doctorate": "Doktora",
+    "Certificate": "Sertifika programı",
+    "Other": "Diğer"
+  },
+  "policy": {
+    "title": "Otomasyon",
+    "Auto": "Otomatik",
+    "AskFirst": "Önce sor",
+    "Never": "Asla",
+    "AutoHint": "Formlarda sormadan doldurulur",
+    "AskFirstHint": "Onay adımında sana sorulur",
+    "NeverHint": "Asla doldurulmaz",
+    "intro": "Otomasyon başvuru formlarını doldururken her bilgiyi nasıl kullanacağını buradan belirlersin. Aynı ayarları profil alanlarının yanındaki küçük ikonlardan da değiştirebilirsin.",
+    "defaultIs": "Varsayılan: {{value}}",
+    "nationalIdNote": "TC kimlik numarası güvenlik nedeniyle sistemde saklanmaz. İsteyen bir form çıkarsa otomasyon onay adımında senden isteyecek.",
+    "fields": {
+      "DateOfBirth": "Doğum tarihi",
+      "Gender": "Cinsiyet",
+      "MaritalStatus": "Medeni durum",
+      "Nationality": "Uyruk",
+      "MilitaryService": "Askerlik durumu",
+      "DriverLicense": "Ehliyet",
+      "Address": "Adres",
+      "Travel": "Seyahat engeli",
+      "Smoking": "Sigara kullanımı",
+      "Disability": "Engellilik durumu",
+      "ExpectedSalary": "Maaş beklentisi",
+      "References": "Referanslar"
+    }
+  },
+  "profile": {
+    "subtitle": "Başvuru formlarında istenen bilgilerin tek kaynağı. Otomasyon formları buradan dolduracak.",
+    "notCreated": "Profilin henüz oluşturulmamış. Bilgileri doldurup kaydettiğinde ya da ilk kaydı eklediğinde otomatik oluşturulur.",
+    "unsaved": "Kaydedilmemiş değişiklikler var",
+    "present": "Halen",
+    "tabs": {
+      "general": "Genel",
+      "personal": "Kişisel",
+      "experience": "Deneyim",
+      "education": "Eğitim & Sertifika",
+      "languages": "Diller",
+      "references": "Referanslar",
+      "answers": "Hazır cevaplar",
+      "extra": "Ek bilgiler",
+      "automation": "Otomasyon",
+      "educationOnly": "Eğitim",
+      "certificates": "Sertifikalar"
+    },
+    "sections": {
+      "summary": "Özet",
+      "contact": "İletişim",
+      "preferences": "Çalışma tercihleri",
+      "defaultCv": "Varsayılan CV",
+      "personal": "Kişisel bilgiler",
+      "military": "Askerlik",
+      "driverLicense": "Ehliyet",
+      "address": "Adres",
+      "other": "Diğer"
+    },
+    "fields": {
+      "headline": "Unvan",
+      "yearsOfExperience": "Deneyim (yıl)",
+      "summary": "Hakkımda",
+      "skills": "Yetenekler",
+      "phoneNumber": "Telefon",
+      "portfolioUrl": "Portfolyo / web sitesi",
+      "expectedSalary": "Maaş beklentisi",
+      "currency": "Para birimi",
+      "noticePeriodDays": "İhbar süresi (gün)",
+      "preferredWorkMode": "Çalışma şekli",
+      "workAuthorization": "Çalışma izni",
+      "openToRelocation": "Şehir/ülke değiştirmeye açığım",
+      "requiresVisaSponsorship": "Vize sponsorluğu gerekiyor",
+      "defaultCv": "Varsayılan CV",
+      "dateOfBirth": "Doğum tarihi",
+      "nationality": "Uyruk",
+      "gender": "Cinsiyet",
+      "maritalStatus": "Medeni durum",
+      "militaryServiceStatus": "Askerlik durumu",
+      "militaryPostponedUntil": "Tecil bitiş tarihi",
+      "driverLicenseClasses": "Ehliyet sınıfları",
+      "driverLicenseYear": "Ehliyet alış yılı",
+      "country": "Ülke",
+      "city": "Şehir",
+      "district": "İlçe",
+      "postalCode": "Posta kodu",
+      "addressLine": "Açık adres",
+      "canTravel": "Seyahat edebilir misin?",
+      "isSmoker": "Sigara kullanıyor musun?",
+      "hasDisability": "Engellilik durumun var mı?",
+      "title": "Pozisyon / unvan",
+      "startDate": "Başlangıç",
+      "endDate": "Bitiş",
+      "isCurrent": "Halen burada çalışıyorum",
+      "description": "Açıklama",
+      "school": "Okul",
+      "degree": "Derece",
+      "fieldOfStudy": "Bölüm",
+      "endDateOrExpected": "Mezuniyet (veya beklenen)",
+      "gpa": "Not ortalaması",
+      "certificateName": "Sertifika adı",
+      "issuer": "Veren kurum",
+      "issueDate": "Alınış tarihi",
+      "expiryDate": "Geçerlilik bitişi",
+      "credentialId": "Sertifika no",
+      "credentialUrl": "Doğrulama linki",
+      "languageName": "Dil",
+      "level": "Seviye",
+      "relationship": "İlişki",
+      "question": "Soru",
+      "answer": "Cevap",
+      "tags": "Etiketler",
+      "label": "Etiket",
+      "value": "Değer"
+    },
+    "placeholders": {
+      "headline": "ör. Backend Developer (.NET)",
+      "workAuthorization": "ör. T.C. vatandaşı, AB çalışma izni yok",
+      "nationality": "ör. T.C."
+    },
+    "hints": {
+      "expectedSalary": "Aylık net tutar önerilir",
+      "defaultCv": "Yeni başvurularda ve otomasyonda varsayılan olarak kullanılır.",
+      "noCvs": "Henüz CV yok. CV'ler sayfasından yükleyebilirsin.",
+      "driverLicense": "Birden fazla sınıf seçilebilir.",
+      "gpa": "ör. 3.20/4.00 veya 78/100",
+      "noExpiry": "Süresizse boş bırak",
+      "relationship": "ör. Eski yöneticim",
+      "answers": "Formlarda sık çıkan sorulara hazır cevaplar. Otomasyon formdaki soruyu bunlarla eşleştirecek; etiketler eşleştirmeye yardım eder.",
+      "customFields": "Sabit alanlarda olmayan, nadir sorulan bilgiler (ör. kan grubu). Her birinin otomasyon ayarı ayrıdır.",
+      "label": "ör. Kan grubu"
+    },
+    "add": {
+      "experience": "Deneyim ekle",
+      "education": "Eğitim ekle",
+      "certificate": "Sertifika ekle",
+      "language": "Dil ekle",
+      "reference": "Referans ekle",
+      "answer": "Cevap ekle",
+      "customField": "Bilgi ekle"
+    },
+    "empty": {
+      "experience": "Henüz iş deneyimi eklenmedi.",
+      "education": "Henüz eğitim bilgisi eklenmedi.",
+      "certificate": "Henüz sertifika eklenmedi.",
+      "language": "Henüz dil eklenmedi.",
+      "reference": "Henüz referans eklenmedi.",
+      "answer": "Henüz hazır cevap yok.",
+      "answerFiltered": "Bu etikette cevap yok.",
+      "customField": "Henüz ek bilgi yok."
+    },
+    "errors": {
+      "currencyRequired": "Maaş beklentisi için para birimi seç."
+    },
+    "tagSuggestions": [
+      "maaş",
+      "motivasyon",
+      "neden biz",
+      "güçlü yönler",
+      "zayıf yönler",
+      "kariyer hedefi",
+      "başlangıç tarihi",
+      "ihbar süresi",
+      "uzaktan çalışma",
+      "taşınma",
+      "vize",
+      "yan haklar"
+    ]
+  },
+  "cvs": {
+    "subtitle": "Başvurularda kullanacağın CV'ler. Yıldızlı olan varsayılandır.",
+    "dropTitle": "CV dosyasını buraya sürükle veya tıklayıp seç",
+    "dropHint": "PDF veya DOCX, en fazla {{mb}} MB",
+    "errors": {
+      "type": "Sadece PDF ve DOCX dosyaları yüklenebilir.",
+      "size": "Dosya en fazla {{mb}} MB olabilir."
+    },
+    "uploaded": "{{name}} yüklendi.",
+    "empty": "Henüz CV yüklemedin.",
+    "default": "Varsayılan",
+    "setDefault": "Varsayılan yap",
+    "unsetDefault": "Varsayılanı kaldır",
+    "defaultSet": "{{name}} varsayılan CV oldu.",
+    "defaultCleared": "Varsayılan CV kaldırıldı.",
+    "preview": "Önizle",
+    "download": "İndir",
+    "rename": "Yeniden adlandır",
+    "name": "Görünen ad",
+    "nameHint": "ör. Backend Developer CV (EN)",
+    "deleteTitle": "CV silinsin mi?",
+    "deleteMessage": "\"{{name}}\" listeden kaldırılacak. Bu CV ile yapılmış geçmiş başvurular etkilenmez."
   }
 }

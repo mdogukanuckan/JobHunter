@@ -1,6 +1,7 @@
 using JobHunter.Application.Profiles.Dtos;
 using JobHunter.Application.Profiles.Exceptions;
 using JobHunter.Application.Profiles.Interfaces;
+using JobHunter.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -88,6 +89,55 @@ public class ProfileController : ControllerBase
     [HttpDelete("screening-answers/{id:guid}")]
     public Task<IActionResult> DeleteScreeningAnswer(Guid id, CancellationToken ct)
         => HandleDelete(() => _service.DeleteScreeningAnswerAsync(id, ct));
+
+    // ---------- Sertifikalar ----------
+
+    [HttpPost("certificates")]
+    public Task<ActionResult<CertificateResponse>> AddCertificate(CertificateRequest request, CancellationToken ct)
+        => Handle(() => _service.AddCertificateAsync(request, ct), created: true);
+
+    [HttpPut("certificates/{id:guid}")]
+    public Task<ActionResult<CertificateResponse>> UpdateCertificate(Guid id, CertificateRequest request, CancellationToken ct)
+        => Handle(() => _service.UpdateCertificateAsync(id, request, ct));
+
+    [HttpDelete("certificates/{id:guid}")]
+    public Task<IActionResult> DeleteCertificate(Guid id, CancellationToken ct)
+        => HandleDelete(() => _service.DeleteCertificateAsync(id, ct));
+
+    // ---------- Referanslar ----------
+
+    [HttpPost("references")]
+    public Task<ActionResult<ReferenceResponse>> AddReference(ReferenceRequest request, CancellationToken ct)
+        => Handle(() => _service.AddReferenceAsync(request, ct), created: true);
+
+    [HttpPut("references/{id:guid}")]
+    public Task<ActionResult<ReferenceResponse>> UpdateReference(Guid id, ReferenceRequest request, CancellationToken ct)
+        => Handle(() => _service.UpdateReferenceAsync(id, request, ct));
+
+    [HttpDelete("references/{id:guid}")]
+    public Task<IActionResult> DeleteReference(Guid id, CancellationToken ct)
+        => HandleDelete(() => _service.DeleteReferenceAsync(id, ct));
+
+    // ---------- Ek bilgiler ----------
+
+    [HttpPost("custom-fields")]
+    public Task<ActionResult<CustomFieldResponse>> AddCustomField(CustomFieldRequest request, CancellationToken ct)
+        => Handle(() => _service.AddCustomFieldAsync(request, ct), created: true);
+
+    [HttpPut("custom-fields/{id:guid}")]
+    public Task<ActionResult<CustomFieldResponse>> UpdateCustomField(Guid id, CustomFieldRequest request, CancellationToken ct)
+        => Handle(() => _service.UpdateCustomFieldAsync(id, request, ct));
+
+    [HttpDelete("custom-fields/{id:guid}")]
+    public Task<IActionResult> DeleteCustomField(Guid id, CancellationToken ct)
+        => HandleDelete(() => _service.DeleteCustomFieldAsync(id, ct));
+
+    // ---------- Otomasyon politikalari ----------
+
+    /// <summary>Kismi guncelleme: { "policies": { "Gender": "Never" } } sadece Gender'i degistirir.</summary>
+    [HttpPut("field-policies")]
+    public Task<ActionResult<IReadOnlyDictionary<string, AutofillPolicy>>> UpdateFieldPolicies(UpdateFieldPoliciesRequest request, CancellationToken ct)
+        => Handle(() => _service.UpdateFieldPoliciesAsync(request, ct));
 
     // ---------- Ortak hata cevirisi ----------
     // 14 endpoint'te ayni try/catch'i tekrarlamamak icin tek yerde toplandi:

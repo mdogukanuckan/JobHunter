@@ -36,7 +36,17 @@
     "create": "Create",
     "edit": "Edit",
     "delete": "Delete",
-    "close": "Close"
+    "close": "Close",
+    "tagsHint": "Type and press Enter; you can add several.",
+    "notSpecified": "Not specified",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "discard": "Discard",
+    "savedMessage": "Saved.",
+    "deletedMessage": "Deleted.",
+    "deleteConfirmTitle": "Delete?",
+    "deleteConfirmMessage": "\"{{name}}\" will be permanently deleted."
   },
   "notFound": {
     "title": "Page not found",
@@ -48,7 +58,10 @@
   },
   "validation": {
     "required": "This field is required.",
-    "url": "Enter a valid link (http:// or https://)."
+    "url": "Enter a valid link (http:// or https://).",
+    "email": "Enter a valid email address.",
+    "dateRange": "End date can't be before the start date.",
+    "endDateOrCurrent": "Enter an end date or tick \"I currently work here\"."
   },
   "status": {
     "Wishlist": "Wishlist",
@@ -125,5 +138,237 @@
       "minutes_one": "{{count}} min",
       "minutes_other": "{{count}} min"
     }
+  },
+  "workMode": {
+    "Remote": "Remote",
+    "Hybrid": "Hybrid",
+    "OnSite": "On-site",
+    "Flexible": "Flexible"
+  },
+  "gender": {
+    "Female": "Female",
+    "Male": "Male",
+    "Other": "Other",
+    "PreferNotToSay": "Prefer not to say"
+  },
+  "maritalStatus": {
+    "Single": "Single",
+    "Married": "Married",
+    "Divorced": "Divorced",
+    "Widowed": "Widowed",
+    "PreferNotToSay": "Prefer not to say"
+  },
+  "military": {
+    "Completed": "Completed",
+    "Exempt": "Exempt",
+    "Postponed": "Postponed",
+    "NotCompleted": "Not completed",
+    "NotApplicable": "Not applicable"
+  },
+  "languageLevel": {
+    "A1": "A1 – Beginner",
+    "A2": "A2 – Elementary",
+    "B1": "B1 – Intermediate",
+    "B2": "B2 – Upper intermediate",
+    "C1": "C1 – Advanced",
+    "C2": "C2 – Proficient",
+    "Native": "Native"
+  },
+  "degree": {
+    "HighSchool": "High school",
+    "Associate": "Associate",
+    "Bachelor": "Bachelor's",
+    "Master": "Master's",
+    "Doctorate": "Doctorate",
+    "Certificate": "Certificate program",
+    "Other": "Other"
+  },
+  "policy": {
+    "title": "Automation",
+    "Auto": "Auto",
+    "AskFirst": "Ask first",
+    "Never": "Never",
+    "AutoHint": "Filled in without asking",
+    "AskFirstHint": "You'll be asked at the approval step",
+    "NeverHint": "Never filled in",
+    "intro": "Choose how automation uses each piece of information when filling in application forms. You can also change these from the small icons next to profile fields.",
+    "defaultIs": "Default: {{value}}",
+    "nationalIdNote": "For security, your national ID number is never stored. If a form asks for it, automation will ask you at the approval step.",
+    "fields": {
+      "DateOfBirth": "Date of birth",
+      "Gender": "Gender",
+      "MaritalStatus": "Marital status",
+      "Nationality": "Nationality",
+      "MilitaryService": "Military service",
+      "DriverLicense": "Driver's license",
+      "Address": "Address",
+      "Travel": "Travel availability",
+      "Smoking": "Smoking",
+      "Disability": "Disability",
+      "ExpectedSalary": "Expected salary",
+      "References": "References"
+    }
+  },
+  "profile": {
+    "subtitle": "The single source for information application forms ask for. Automation will fill in forms from here.",
+    "notCreated": "Your profile hasn't been created yet. It's created automatically when you save your details or add your first entry.",
+    "unsaved": "You have unsaved changes",
+    "present": "Present",
+    "tabs": {
+      "general": "General",
+      "personal": "Personal",
+      "experience": "Experience",
+      "education": "Education & Certificates",
+      "languages": "Languages",
+      "references": "References",
+      "answers": "Saved answers",
+      "extra": "Extra info",
+      "automation": "Automation",
+      "educationOnly": "Education",
+      "certificates": "Certificates"
+    },
+    "sections": {
+      "summary": "Summary",
+      "contact": "Contact",
+      "preferences": "Work preferences",
+      "defaultCv": "Default CV",
+      "personal": "Personal details",
+      "military": "Military service",
+      "driverLicense": "Driver's license",
+      "address": "Address",
+      "other": "Other"
+    },
+    "fields": {
+      "headline": "Headline",
+      "yearsOfExperience": "Experience (years)",
+      "summary": "About me",
+      "skills": "Skills",
+      "phoneNumber": "Phone",
+      "portfolioUrl": "Portfolio / website",
+      "expectedSalary": "Expected salary",
+      "currency": "Currency",
+      "noticePeriodDays": "Notice period (days)",
+      "preferredWorkMode": "Work mode",
+      "workAuthorization": "Work authorization",
+      "openToRelocation": "Open to relocation",
+      "requiresVisaSponsorship": "Requires visa sponsorship",
+      "defaultCv": "Default CV",
+      "dateOfBirth": "Date of birth",
+      "nationality": "Nationality",
+      "gender": "Gender",
+      "maritalStatus": "Marital status",
+      "militaryServiceStatus": "Military service status",
+      "militaryPostponedUntil": "Postponed until",
+      "driverLicenseClasses": "License classes",
+      "driverLicenseYear": "Year obtained",
+      "country": "Country",
+      "city": "City",
+      "district": "District",
+      "postalCode": "Postal code",
+      "addressLine": "Street address",
+      "canTravel": "Able to travel?",
+      "isSmoker": "Do you smoke?",
+      "hasDisability": "Do you have a disability?",
+      "title": "Position / title",
+      "startDate": "Start",
+      "endDate": "End",
+      "isCurrent": "I currently work here",
+      "description": "Description",
+      "school": "School",
+      "degree": "Degree",
+      "fieldOfStudy": "Field of study",
+      "endDateOrExpected": "Graduation (or expected)",
+      "gpa": "GPA",
+      "certificateName": "Certificate name",
+      "issuer": "Issuer",
+      "issueDate": "Issue date",
+      "expiryDate": "Expiry date",
+      "credentialId": "Credential ID",
+      "credentialUrl": "Verification link",
+      "languageName": "Language",
+      "level": "Level",
+      "relationship": "Relationship",
+      "question": "Question",
+      "answer": "Answer",
+      "tags": "Tags",
+      "label": "Label",
+      "value": "Value"
+    },
+    "placeholders": {
+      "headline": "e.g. Backend Developer (.NET)",
+      "workAuthorization": "e.g. Turkish citizen, no EU work permit",
+      "nationality": "e.g. Turkish"
+    },
+    "hints": {
+      "expectedSalary": "Monthly net amount recommended",
+      "defaultCv": "Used by default for new applications and automation.",
+      "noCvs": "No CVs yet. You can upload one on the CVs page.",
+      "driverLicense": "You can select several classes.",
+      "gpa": "e.g. 3.20/4.00 or 78/100",
+      "noExpiry": "Leave empty if it doesn't expire",
+      "relationship": "e.g. Former manager",
+      "answers": "Prepared answers to questions that often appear in forms. Automation will match form questions against these; tags help matching.",
+      "customFields": "Rarely asked details not covered by fixed fields (e.g. blood type). Each has its own automation setting.",
+      "label": "e.g. Blood type"
+    },
+    "add": {
+      "experience": "Add experience",
+      "education": "Add education",
+      "certificate": "Add certificate",
+      "language": "Add language",
+      "reference": "Add reference",
+      "answer": "Add answer",
+      "customField": "Add info"
+    },
+    "empty": {
+      "experience": "No work experience yet.",
+      "education": "No education yet.",
+      "certificate": "No certificates yet.",
+      "language": "No languages yet.",
+      "reference": "No references yet.",
+      "answer": "No saved answers yet.",
+      "answerFiltered": "No answers with this tag.",
+      "customField": "No extra info yet."
+    },
+    "errors": {
+      "currencyRequired": "Select a currency for the expected salary."
+    },
+    "tagSuggestions": [
+      "salary",
+      "motivation",
+      "why us",
+      "strengths",
+      "weaknesses",
+      "career goals",
+      "start date",
+      "notice period",
+      "remote work",
+      "relocation",
+      "visa",
+      "benefits"
+    ]
+  },
+  "cvs": {
+    "subtitle": "CVs you use for applications. The starred one is the default.",
+    "dropTitle": "Drag a CV file here or click to choose",
+    "dropHint": "PDF or DOCX, up to {{mb}} MB",
+    "errors": {
+      "type": "Only PDF and DOCX files can be uploaded.",
+      "size": "The file can be at most {{mb}} MB."
+    },
+    "uploaded": "{{name}} uploaded.",
+    "empty": "You haven't uploaded a CV yet.",
+    "default": "Default",
+    "setDefault": "Set as default",
+    "unsetDefault": "Remove default",
+    "defaultSet": "{{name}} is now your default CV.",
+    "defaultCleared": "Default CV removed.",
+    "preview": "Preview",
+    "download": "Download",
+    "rename": "Rename",
+    "name": "Display name",
+    "nameHint": "e.g. Backend Developer CV (EN)",
+    "deleteTitle": "Delete CV?",
+    "deleteMessage": "\"{{name}}\" will be removed from the list. Past applications that used this CV are not affected."
   }
 }

@@ -24,6 +24,28 @@ public class CandidateProfile : BaseEntity
     public string? GitHubUrl { get; set; }
     public string? PortfolioUrl { get; set; }
 
+    // ----- Adres (City/Country yukarida) -----
+    public string? District { get; set; }          // Ilce
+    public string? AddressLine { get; set; }       // Acik adres
+    public string? PostalCode { get; set; }
+
+    // ----- Kisisel bilgiler -----
+    // bool? alanlarda null = "belirtilmedi" (formda bos birakilir / otomasyon sorar).
+    public DateOnly? DateOfBirth { get; set; }
+    public Gender? Gender { get; set; }
+    public MaritalStatus? MaritalStatus { get; set; }
+    public string? Nationality { get; set; }       // Uyruk, orn. "T.C."
+    public MilitaryServiceStatus? MilitaryServiceStatus { get; set; }
+    public DateOnly? MilitaryPostponedUntil { get; set; }  // Sadece Postponed (tecilli) iken dolu
+
+    /// <summary>Surucu belgesi siniflari, orn. ["B"]. text[] kolonu.</summary>
+    public List<string> DriverLicenseClasses { get; set; } = new();
+    public int? DriverLicenseYear { get; set; }    // Ehliyetin alindigi yil
+
+    public bool? CanTravel { get; set; }           // Seyahat engeli yok
+    public bool? IsSmoker { get; set; }
+    public bool? HasDisability { get; set; }
+
     // ----- Formlarda sik sorulan tercihler -----
     public int? YearsOfExperience { get; set; }
     public decimal? ExpectedSalary { get; set; }
@@ -45,4 +67,10 @@ public class CandidateProfile : BaseEntity
     public ICollection<Education> Educations { get; set; } = new List<Education>();
     public ICollection<ProfileLanguage> Languages { get; set; } = new List<ProfileLanguage>();
     public ICollection<ScreeningAnswer> ScreeningAnswers { get; set; } = new List<ScreeningAnswer>();
+    public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
+    public ICollection<ProfileReference> References { get; set; } = new List<ProfileReference>();
+    public ICollection<ProfileCustomField> CustomFields { get; set; } = new List<ProfileCustomField>();
+
+    /// <summary>Varsayilandan farkli secilmis otomasyon politikalari (bkz. ProfileFields.Defaults).</summary>
+    public ICollection<ProfileFieldPolicy> FieldPolicies { get; set; } = new List<ProfileFieldPolicy>();
 }

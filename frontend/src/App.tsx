@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute, PublicOnlyRoute } from './auth/RouteGuards';
 import { BoardPage } from './features/board/BoardPage';
+import { CvsPage } from './features/cvs/CvsPage';
+import { ProfilePage } from './features/profile/ProfilePage';
 import { AppLayout } from './layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -20,8 +22,8 @@ export default function App() {
           <Route index element={<BoardPage />} />
           <Route path="interviews" element={<PlaceholderPage titleKey="nav.interviews" />} />
           <Route path="todos" element={<PlaceholderPage titleKey="nav.todos" />} />
-          <Route path="cvs" element={<PlaceholderPage titleKey="nav.cvs" />} />
-          <Route path="profile" element={<PlaceholderPage titleKey="nav.profile" />} />
+          <Route path="cvs" element={<CvsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

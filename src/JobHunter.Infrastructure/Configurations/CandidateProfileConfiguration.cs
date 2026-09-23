@@ -21,7 +21,18 @@ public class CandidateProfileConfiguration : IEntityTypeConfiguration<CandidateP
         builder.Property(p => p.PortfolioUrl).HasMaxLength(500);
         builder.Property(p => p.SalaryCurrency).HasMaxLength(3);
         builder.Property(p => p.WorkAuthorization).HasMaxLength(500);
+        builder.Property(p => p.District).HasMaxLength(100);
+        builder.Property(p => p.AddressLine).HasMaxLength(500);
+        builder.Property(p => p.PostalCode).HasMaxLength(20);
+        builder.Property(p => p.Nationality).HasMaxLength(100);
         // Summary uzunluk sinirsiz (text)
+
+        // Enum'lar string olarak saklanir: DB'de okunabilir, enum sirasi degisirse veri bozulmaz.
+        builder.Property(p => p.Gender).HasConversion<string>().HasMaxLength(20);
+        builder.Property(p => p.MaritalStatus).HasConversion<string>().HasMaxLength(20);
+        builder.Property(p => p.MilitaryServiceStatus).HasConversion<string>().HasMaxLength(20);
+
+        builder.Property(p => p.DriverLicenseClasses).IsRequired();   // text[]
 
         // Para icin float/double degil, sabit hassasiyetli numeric kullanilir (yuvarlama hatasi olmaz).
         builder.Property(p => p.ExpectedSalary).HasPrecision(12, 2);

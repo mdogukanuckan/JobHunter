@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './auth/AuthContext';
+import { NotifyProvider } from './components/Notify';
 import './i18n';
 import { theme } from './theme';
 
@@ -21,9 +22,11 @@ createRoot(document.getElementById('root')!).render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <BrowserRouter>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
+          <NotifyProvider>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </NotifyProvider>
         </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>
