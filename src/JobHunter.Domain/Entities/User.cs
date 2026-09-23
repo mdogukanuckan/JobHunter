@@ -10,4 +10,5 @@ public class User : BaseEntity
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
     public ICollection<Cv> Cvs { get; set; } = new List<Cv>();
+    public CandidateProfile? CandidateProfile { get; set; }
 }

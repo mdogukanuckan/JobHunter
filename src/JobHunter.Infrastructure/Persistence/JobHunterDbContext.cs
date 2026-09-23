@@ -13,6 +13,11 @@ public class JobHunterDbContext : DbContext, IApplicationDbContext
     public DbSet<JobApplication> JobApplications => Set<JobApplication>();
     public DbSet<ApplicationStatusHistory> ApplicationStatusHistories => Set<ApplicationStatusHistory>();
     public DbSet<Cv> Cvs => Set<Cv>();
+    public DbSet<CandidateProfile> CandidateProfiles => Set<CandidateProfile>();
+    public DbSet<WorkExperience> WorkExperiences => Set<WorkExperience>();
+    public DbSet<Education> Educations => Set<Education>();
+    public DbSet<ProfileLanguage> ProfileLanguages => Set<ProfileLanguage>();
+    public DbSet<ScreeningAnswer> ScreeningAnswers => Set<ScreeningAnswer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

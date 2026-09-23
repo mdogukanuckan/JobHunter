@@ -128,6 +128,16 @@ public class CvService : ICvService
         cv.DeletedAt = now;
         cv.UpdatedAt = now;
 
+        // Silinen CV profilde varsayilan CV olarak seciliyse bagi temizle
+        // (profil, silinmis bir CV'yi varsayilan gostermemeli). Ayni SaveChanges icinde, tek transaction.
+        var profile = await _context.CandidateProfiles
+            .FirstOrDefaultAsync(p => p.UserId == cv.UserId && p.DefaultCvId == cv.Id, cancellationToken);
+        if (profile is not null)
+        {
+            profile.DefaultCvId = null;
+            profile.UpdatedAt = now;
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
     }
 
