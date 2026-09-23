@@ -10,6 +10,8 @@ public class JobHunterDbContext : DbContext, IApplicationDbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<JobApplication> JobApplications => Set<JobApplication>();
+    public DbSet<ApplicationStatusHistory> ApplicationStatusHistories => Set<ApplicationStatusHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

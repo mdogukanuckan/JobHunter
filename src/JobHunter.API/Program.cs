@@ -1,5 +1,8 @@
 using System.Text;
+using System.Text.Json.Serialization;
+using JobHunter.API.Services;
 using JobHunter.Application;
+using JobHunter.Application.Common.Interfaces;
 using JobHunter.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key yapilandirilmamis.");
@@ -60,7 +66,12 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Enum'lar JSON'da 0/1 yerine "Applied" gibi yazi olarak gider/gelir.
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 var app = builder.Build();
 
