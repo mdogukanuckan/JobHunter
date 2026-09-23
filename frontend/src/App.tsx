@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute, PublicOnlyRoute } from './auth/RouteGuards';
+import { BoardPage } from './features/board/BoardPage';
 import { AppLayout } from './layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -16,7 +17,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<PlaceholderPage titleKey="nav.board" />} />
+          <Route index element={<BoardPage />} />
           <Route path="interviews" element={<PlaceholderPage titleKey="nav.interviews" />} />
           <Route path="todos" element={<PlaceholderPage titleKey="nav.todos" />} />
           <Route path="cvs" element={<PlaceholderPage titleKey="nav.cvs" />} />

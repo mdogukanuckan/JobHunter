@@ -29,7 +29,14 @@
     "loading": "Loading…",
     "comingSoon": "This page is coming in the next module.",
     "openMenu": "Open menu",
-    "account": "Account"
+    "account": "Account",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close"
   },
   "notFound": {
     "title": "Page not found",
@@ -38,5 +45,85 @@
   "errors": {
     "generic": "An unexpected error occurred.",
     "network": "Could not reach the server. Is the API running?"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "url": "Enter a valid link (http:// or https://)."
+  },
+  "status": {
+    "Wishlist": "Wishlist",
+    "Applied": "Applied",
+    "Interview": "Interview",
+    "Offer": "Offer",
+    "Rejected": "Rejected",
+    "Withdrawn": "Withdrawn"
+  },
+  "interviewType": {
+    "PhoneScreen": "Phone screen",
+    "Technical": "Technical",
+    "Behavioral": "Behavioral",
+    "CaseStudy": "Case study",
+    "Final": "Final",
+    "Other": "Other"
+  },
+  "interviewFormat": {
+    "Online": "Online",
+    "Phone": "Phone",
+    "OnSite": "On-site"
+  },
+  "interviewOutcome": {
+    "Pending": "Pending",
+    "Passed": "Passed",
+    "Failed": "Failed",
+    "Cancelled": "Cancelled"
+  },
+  "board": {
+    "newApplication": "New application",
+    "editApplication": "Edit application",
+    "addToColumn": "Add to this column",
+    "totalCount_one": "{{count}} application",
+    "totalCount_other": "{{count}} applications",
+    "emptyBoard": "No applications yet. Add your first card with \"New application\", then drag cards between columns.",
+    "emptyColumn": "Drop a card here",
+    "created": "Application added.",
+    "saved": "Changes saved.",
+    "deleted": "Application deleted.",
+    "openListing": "Open listing",
+    "noCv": "No CV selected",
+    "noCvsYet": "You haven't uploaded a CV yet (CVs page comes in 7c).",
+    "cvDeleted": "deleted",
+    "jobDescriptionHint": "Paste the job posting here; automation and AI will use this text later.",
+    "deleteTitle": "Delete application?",
+    "deleteConfirm": "The {{company}} – {{title}} application will be permanently deleted along with its interviews and status history.",
+    "card": {
+      "applied": "Applied: {{date}}",
+      "added": "Added: {{date}}",
+      "hasCv": "CV attached"
+    },
+    "fields": {
+      "companyName": "Company",
+      "jobTitle": "Position",
+      "jobUrl": "Job link",
+      "location": "Location",
+      "source": "Source",
+      "status": "Status",
+      "cv": "CV",
+      "jobDescription": "Job description",
+      "notes": "Notes"
+    },
+    "detail": {
+      "info": "Details",
+      "appliedAt": "Applied on",
+      "createdAt": "Added",
+      "noDescription": "No job description added.",
+      "noNotes": "No notes.",
+      "noInterviews": "No interviews yet.",
+      "noTodos": "No to-dos linked to this application.",
+      "history": "Status history",
+      "historyCreated": "Added as {{to}}",
+      "historyMoved": "{{from}} → {{to}}",
+      "minutes_one": "{{count}} min",
+      "minutes_other": "{{count}} min"
+    }
   }
 }

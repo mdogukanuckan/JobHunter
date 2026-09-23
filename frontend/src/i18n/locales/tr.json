@@ -29,7 +29,14 @@
     "loading": "Yükleniyor…",
     "comingSoon": "Bu sayfa bir sonraki modülde gelecek.",
     "openMenu": "Menüyü aç",
-    "account": "Hesap"
+    "account": "Hesap",
+    "retry": "Tekrar dene",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "create": "Oluştur",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "close": "Kapat"
   },
   "notFound": {
     "title": "Sayfa bulunamadı",
@@ -38,5 +45,85 @@
   "errors": {
     "generic": "Beklenmeyen bir hata oluştu.",
     "network": "Sunucuya ulaşılamadı. API çalışıyor mu?"
+  },
+  "validation": {
+    "required": "Bu alan zorunlu.",
+    "url": "Geçerli bir bağlantı gir (http:// veya https://)."
+  },
+  "status": {
+    "Wishlist": "İstek listesi",
+    "Applied": "Başvuruldu",
+    "Interview": "Mülakat",
+    "Offer": "Teklif",
+    "Rejected": "Reddedildi",
+    "Withdrawn": "Geri çekildi"
+  },
+  "interviewType": {
+    "PhoneScreen": "Ön görüşme",
+    "Technical": "Teknik",
+    "Behavioral": "Davranışsal",
+    "CaseStudy": "Case çalışması",
+    "Final": "Final",
+    "Other": "Diğer"
+  },
+  "interviewFormat": {
+    "Online": "Online",
+    "Phone": "Telefon",
+    "OnSite": "Yüz yüze"
+  },
+  "interviewOutcome": {
+    "Pending": "Bekliyor",
+    "Passed": "Geçti",
+    "Failed": "Olumsuz",
+    "Cancelled": "İptal"
+  },
+  "board": {
+    "newApplication": "Yeni başvuru",
+    "editApplication": "Başvuruyu düzenle",
+    "addToColumn": "Bu sütuna ekle",
+    "totalCount_one": "{{count}} başvuru",
+    "totalCount_other": "{{count}} başvuru",
+    "emptyBoard": "Henüz başvuru yok. \"Yeni başvuru\" ile ilk kartını ekle; sonra kartları sütunlar arasında sürükleyebilirsin.",
+    "emptyColumn": "Kartı buraya bırak",
+    "created": "Başvuru eklendi.",
+    "saved": "Değişiklikler kaydedildi.",
+    "deleted": "Başvuru silindi.",
+    "openListing": "İlanı aç",
+    "noCv": "CV seçilmedi",
+    "noCvsYet": "Henüz CV yüklemedin (CV'ler sayfası 7c'de gelecek).",
+    "cvDeleted": "silinmiş",
+    "jobDescriptionHint": "İlan metnini buraya yapıştır; ileride otomasyon ve AI bu metni kullanacak.",
+    "deleteTitle": "Başvuru silinsin mi?",
+    "deleteConfirm": "{{company}} – {{title}} başvurusu, mülakatları ve durum geçmişiyle birlikte kalıcı olarak silinecek.",
+    "card": {
+      "applied": "Başvuru: {{date}}",
+      "added": "Eklendi: {{date}}",
+      "hasCv": "CV bağlı"
+    },
+    "fields": {
+      "companyName": "Şirket",
+      "jobTitle": "Pozisyon",
+      "jobUrl": "İlan bağlantısı",
+      "location": "Konum",
+      "source": "Kaynak",
+      "status": "Durum",
+      "cv": "CV",
+      "jobDescription": "İlan metni",
+      "notes": "Notlar"
+    },
+    "detail": {
+      "info": "Bilgiler",
+      "appliedAt": "Başvuru tarihi",
+      "createdAt": "Eklenme",
+      "noDescription": "İlan metni eklenmemiş.",
+      "noNotes": "Not yok.",
+      "noInterviews": "Henüz mülakat yok.",
+      "noTodos": "Bu başvuruya bağlı görev yok.",
+      "history": "Durum geçmişi",
+      "historyCreated": "{{to}} olarak eklendi",
+      "historyMoved": "{{from}} → {{to}}",
+      "minutes_one": "{{count}} dk",
+      "minutes_other": "{{count}} dk"
+    }
   }
 }
