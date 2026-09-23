@@ -5,6 +5,7 @@ namespace JobHunter.Application.JobApplications.Dtos;
 /// <summary>
 /// Kart bilgilerini guncelleme istegi. Durum/sira degisikligi burada YAPILMAZ;
 /// onun icin MoveJobApplicationRequest kullanilir (gecmis kaydi tutarli kalsin diye).
+/// CvId null gonderilirse basvurunun CV baglantisi kaldirilir.
 /// </summary>
 public record UpdateJobApplicationRequest(
     [Required, MaxLength(200)] string CompanyName,
@@ -13,4 +14,5 @@ public record UpdateJobApplicationRequest(
     [MaxLength(200)] string? Location,
     [MaxLength(100)] string? Source,
     string? JobDescription,
-    string? Notes);
+    string? Notes,
+    Guid? CvId = null);

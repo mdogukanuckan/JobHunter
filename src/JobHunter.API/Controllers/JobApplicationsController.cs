@@ -1,3 +1,4 @@
+using JobHunter.Application.Cvs.Exceptions;
 using JobHunter.Application.JobApplications.Dtos;
 using JobHunter.Application.JobApplications.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -41,8 +42,15 @@ public class JobApplicationsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<JobApplicationDetailResponse>> Create(CreateJobApplicationRequest request, CancellationToken cancellationToken)
     {
-        var result = await _service.CreateAsync(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        try
+        {
+            var result = await _service.CreateAsync(request, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        }
+        catch (CvValidationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:guid}")]
@@ -55,6 +63,10 @@ public class JobApplicationsController : ControllerBase
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (CvValidationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 

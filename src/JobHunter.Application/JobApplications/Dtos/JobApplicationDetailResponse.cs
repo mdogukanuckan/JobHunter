@@ -17,7 +17,14 @@ public record JobApplicationDetailResponse(
     DateTime? AppliedAt,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
+    JobApplicationCvResponse? Cv,
     IReadOnlyList<StatusHistoryResponse> StatusHistory);
+
+/// <summary>Basvuruda kullanilan CV. IsDeleted = true ise CV listeden kaldirilmis ama gecmis icin gosteriliyor.</summary>
+public record JobApplicationCvResponse(
+    Guid Id,
+    string Name,
+    bool IsDeleted);
 
 public record StatusHistoryResponse(
     ApplicationStatus? FromStatus,

@@ -1,4 +1,5 @@
 using JobHunter.Application.Common.Interfaces;
+using JobHunter.Application.Cvs.Exceptions;
 using JobHunter.Application.JobApplications.Dtos;
 using JobHunter.Application.JobApplications.Interfaces;
 using JobHunter.Domain.Entities;
@@ -37,13 +38,15 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task<JobApplicationDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var application = await FindOwnedAsync(id, includeHistory: true, cancellationToken);
+        var application = await FindOwnedAsync(id, includeDetails: true, cancellationToken);
         return ToDetail(application);
     }
 
     public async Task<JobApplicationDetailResponse> CreateAsync(CreateJobApplicationRequest request, CancellationToken cancellationToken = default)
     {
         var userId = _currentUser.GetRequiredUserId();
+
+        var cv = request.CvId is { } cvId ? await FindAssignableCvAsync(cvId, userId, cancellationToken) : null;
 
         // Yeni kart hedef sutunun en altina eklenir.
         var position = await _context.JobApplications
@@ -60,7 +63,9 @@ public class JobApplicationService : IJobApplicationService
             JobDescription = request.JobDescription,
             Notes = request.Notes,
             Status = request.Status,
-            Position = position
+            Position = position,
+            CvId = cv?.Id,
+            Cv = cv
         };
 
         MarkAppliedIfNeeded(application);
@@ -79,7 +84,16 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task<JobApplicationDetailResponse> UpdateAsync(Guid id, UpdateJobApplicationRequest request, CancellationToken cancellationToken = default)
     {
-        var application = await FindOwnedAsync(id, includeHistory: true, cancellationToken);
+        var application = await FindOwnedAsync(id, includeDetails: true, cancellationToken);
+
+        // Sadece CV degistiyse dogrula: zaten bagli olan (sonradan silinmis) CV korunabilir.
+        if (request.CvId != application.CvId)
+        {
+            application.Cv = request.CvId is { } cvId
+                ? await FindAssignableCvAsync(cvId, application.UserId, cancellationToken)
+                : null;
+            application.CvId = application.Cv?.Id;
+        }
 
         application.CompanyName = request.CompanyName.Trim();
         application.JobTitle = request.JobTitle.Trim();
@@ -97,7 +111,7 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task<JobApplicationSummaryResponse> MoveAsync(Guid id, MoveJobApplicationRequest request, CancellationToken cancellationToken = default)
     {
-        var application = await FindOwnedAsync(id, includeHistory: false, cancellationToken);
+        var application = await FindOwnedAsync(id, includeDetails: false, cancellationToken);
         var userId = application.UserId;
         var fromStatus = application.Status;
         var toStatus = request.Status;
@@ -143,7 +157,7 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var application = await FindOwnedAsync(id, includeHistory: false, cancellationToken);
+        var application = await FindOwnedAsync(id, includeDetails: false, cancellationToken);
 
         _context.JobApplications.Remove(application);
 
@@ -159,19 +173,33 @@ public class JobApplicationService : IJobApplicationService
 
     // ---------- Yardimci metotlar ----------
 
-    private async Task<JobApplication> FindOwnedAsync(Guid id, bool includeHistory, CancellationToken cancellationToken)
+    private async Task<JobApplication> FindOwnedAsync(Guid id, bool includeDetails, CancellationToken cancellationToken)
     {
         var userId = _currentUser.GetRequiredUserId();
 
         IQueryable<JobApplication> query = _context.JobApplications;
-        if (includeHistory)
+        if (includeDetails)
         {
-            query = query.Include(ja => ja.StatusHistory);
+            query = query
+                .Include(ja => ja.StatusHistory)
+                .Include(ja => ja.Cv);
         }
 
         // Baskasinin kaydi da "bulunamadi" doner; kaydin varligi disari sizdirilmaz.
         return await query.FirstOrDefaultAsync(ja => ja.Id == id && ja.UserId == userId, cancellationToken)
                ?? throw new KeyNotFoundException("Basvuru bulunamadi.");
+    }
+
+    /// <summary>
+    /// Basvuruya baglanacak CV'yi getirir: kullaniciya ait ve silinmemis olmali.
+    /// Baskasinin CV Id'si verilirse de ayni hata doner (IDOR korumasi).
+    /// KeyNotFoundException yerine validation hatasi: basvuru bulundu, gecersiz olan istek govdesindeki CvId (400).
+    /// </summary>
+    private async Task<Cv> FindAssignableCvAsync(Guid cvId, Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.Cvs.FirstOrDefaultAsync(
+                   cv => cv.Id == cvId && cv.UserId == userId && !cv.IsDeleted, cancellationToken)
+               ?? throw new CvValidationException("Secilen CV bulunamadi.");
     }
 
     /// <summary>Sutundaki kartlara 0'dan baslayarak ardisik sira verir; sadece degisenler guncellenir.</summary>
@@ -198,12 +226,13 @@ public class JobApplicationService : IJobApplicationService
 
     private static JobApplicationSummaryResponse ToSummary(JobApplication ja) => new(
         ja.Id, ja.CompanyName, ja.JobTitle, ja.Location, ja.Source,
-        ja.Status, ja.Position, ja.AppliedAt, ja.CreatedAt, ja.UpdatedAt);
+        ja.Status, ja.Position, ja.AppliedAt, ja.CvId, ja.CreatedAt, ja.UpdatedAt);
 
     private static JobApplicationDetailResponse ToDetail(JobApplication ja) => new(
         ja.Id, ja.CompanyName, ja.JobTitle, ja.JobUrl, ja.Location, ja.Source,
         ja.JobDescription, ja.Notes, ja.Status, ja.Position, ja.AppliedAt,
         ja.CreatedAt, ja.UpdatedAt,
+        ja.Cv is null ? null : new JobApplicationCvResponse(ja.Cv.Id, ja.Cv.Name, ja.Cv.IsDeleted),
         ja.StatusHistory
             .OrderBy(h => h.ChangedAt)
             .Select(h => new StatusHistoryResponse(h.FromStatus, h.ToStatus, h.ChangedAt))

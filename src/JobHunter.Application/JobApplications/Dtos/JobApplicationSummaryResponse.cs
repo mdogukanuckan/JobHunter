@@ -12,5 +12,6 @@ public record JobApplicationSummaryResponse(
     ApplicationStatus Status,
     int Position,
     DateTime? AppliedAt,
+    Guid? CvId,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

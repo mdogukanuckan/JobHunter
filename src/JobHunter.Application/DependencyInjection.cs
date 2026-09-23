@@ -1,5 +1,7 @@
 using JobHunter.Application.Auth.Interfaces;
 using JobHunter.Application.Auth.Services;
+using JobHunter.Application.Cvs.Interfaces;
+using JobHunter.Application.Cvs.Services;
 using JobHunter.Application.JobApplications.Interfaces;
 using JobHunter.Application.JobApplications.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJobApplicationService, JobApplicationService>();
+        services.AddScoped<ICvService, CvService>();
 
         return services;
     }

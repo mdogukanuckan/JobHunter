@@ -28,5 +28,9 @@ public class JobApplication : BaseEntity
     /// <summary>Basvurunun gonderildigi tarih (Applied durumuna ilk gecis).</summary>
     public DateTime? AppliedAt { get; set; }
 
+    /// <summary>Bu basvuruda kullanilan (veya kullanilacak) CV. Opsiyonel.</summary>
+    public Guid? CvId { get; set; }
+    public Cv? Cv { get; set; }
+
     public ICollection<ApplicationStatusHistory> StatusHistory { get; set; } = new List<ApplicationStatusHistory>();
 }

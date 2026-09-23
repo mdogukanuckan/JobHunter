@@ -9,6 +9,7 @@ public interface IApplicationDbContext
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<JobApplication> JobApplications { get; }
     DbSet<ApplicationStatusHistory> ApplicationStatusHistories { get; }
+    DbSet<Cv> Cvs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

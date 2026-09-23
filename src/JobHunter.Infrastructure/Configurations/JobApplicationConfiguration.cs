@@ -38,5 +38,11 @@ public class JobApplicationConfiguration : IEntityTypeConfiguration<JobApplicati
             .WithMany(u => u.JobApplications)
             .HasForeignKey(ja => ja.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // CV'ler normalde soft delete edilir; fiziksel silme olursa basvuru kalir, bag kopar.
+        builder.HasOne(ja => ja.Cv)
+            .WithMany(cv => cv.JobApplications)
+            .HasForeignKey(ja => ja.CvId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

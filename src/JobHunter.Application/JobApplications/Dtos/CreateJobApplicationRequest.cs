@@ -3,7 +3,10 @@ using JobHunter.Domain.Enums;
 
 namespace JobHunter.Application.JobApplications.Dtos;
 
-/// <summary>Yeni kart olusturma istegi. Status verilmezse kart Wishlist sutununa, en alta eklenir.</summary>
+/// <summary>
+/// Yeni kart olusturma istegi. Status verilmezse kart Wishlist sutununa, en alta eklenir.
+/// CvId opsiyoneldir; verilirse kullaniciya ait ve silinmemis bir CV olmalidir.
+/// </summary>
 public record CreateJobApplicationRequest(
     [Required, MaxLength(200)] string CompanyName,
     [Required, MaxLength(200)] string JobTitle,
@@ -12,4 +15,5 @@ public record CreateJobApplicationRequest(
     [MaxLength(100)] string? Source,
     string? JobDescription,
     string? Notes,
-    ApplicationStatus Status = ApplicationStatus.Wishlist);
+    ApplicationStatus Status = ApplicationStatus.Wishlist,
+    Guid? CvId = null);
