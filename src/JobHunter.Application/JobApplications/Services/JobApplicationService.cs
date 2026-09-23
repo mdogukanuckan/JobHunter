@@ -1,5 +1,7 @@
 using JobHunter.Application.Common.Interfaces;
 using JobHunter.Application.Cvs.Exceptions;
+using JobHunter.Application.Interviews;
+using JobHunter.Application.Todos;
 using JobHunter.Application.JobApplications.Dtos;
 using JobHunter.Application.JobApplications.Interfaces;
 using JobHunter.Domain.Entities;
@@ -180,9 +182,13 @@ public class JobApplicationService : IJobApplicationService
         IQueryable<JobApplication> query = _context.JobApplications;
         if (includeDetails)
         {
+            // 3 koleksiyon -> AsSplitQuery ile ayri sorgular (kartezyen patlamayi onler).
             query = query
+                .AsSplitQuery()
                 .Include(ja => ja.StatusHistory)
-                .Include(ja => ja.Cv);
+                .Include(ja => ja.Cv)
+                .Include(ja => ja.Interviews)
+                .Include(ja => ja.Todos);
         }
 
         // Baskasinin kaydi da "bulunamadi" doner; kaydin varligi disari sizdirilmaz.
@@ -236,5 +242,13 @@ public class JobApplicationService : IJobApplicationService
         ja.StatusHistory
             .OrderBy(h => h.ChangedAt)
             .Select(h => new StatusHistoryResponse(h.FromStatus, h.ToStatus, h.ChangedAt))
+            .ToList(),
+        // Mulakat/gorevlerin JobApplication navigation'i EF tarafindan otomatik doldurulur (fix-up).
+        ja.Interviews
+            .OrderBy(i => i.ScheduledAt)
+            .Select(InterviewMappings.ToResponse)
+            .ToList(),
+        TodoMappings.DefaultOrder(ja.Todos)
+            .Select(TodoMappings.ToResponse)
             .ToList());
 }

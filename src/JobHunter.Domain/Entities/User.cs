@@ -11,4 +11,5 @@ public class User : BaseEntity
     public ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
     public ICollection<Cv> Cvs { get; set; } = new List<Cv>();
     public CandidateProfile? CandidateProfile { get; set; }
+    public ICollection<TodoItem> Todos { get; set; } = new List<TodoItem>();
 }

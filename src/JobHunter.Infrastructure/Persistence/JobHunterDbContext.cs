@@ -18,6 +18,8 @@ public class JobHunterDbContext : DbContext, IApplicationDbContext
     public DbSet<Education> Educations => Set<Education>();
     public DbSet<ProfileLanguage> ProfileLanguages => Set<ProfileLanguage>();
     public DbSet<ScreeningAnswer> ScreeningAnswers => Set<ScreeningAnswer>();
+    public DbSet<Interview> Interviews => Set<Interview>();
+    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

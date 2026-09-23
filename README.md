@@ -35,9 +35,9 @@ frontend/                      React + TypeScript + Vite (Faz 7'de eklenecek)
 | Faz 2 | Authentication: User/RefreshToken, register/login, JWT middleware | Tamamlandi |
 | Faz 3 | Kanban pipeline: JobApplication, durum gecmisi, surukle-birak siralama | Tamamlandi |
 | Faz 4 | CV yonetimi: yukleme/indirme/yeniden adlandirma/soft delete, basvuru → CV iliskisi | Tamamlandi |
-| Faz 5 | Aday profili: iletisim/tercihler, yetenekler, deneyim, egitim, diller, hazir cevap bankasi, varsayilan CV | Devam ediyor |
-| Faz 6 | Mulakatlar + ToDo'lar | Planlaniyor |
-| Faz 7 | Frontend (React + TypeScript + Vite) | Planlaniyor |
+| Faz 5 | Aday profili: iletisim/tercihler, yetenekler, deneyim, egitim, diller, hazir cevap bankasi, varsayilan CV | Tamamlandi |
+| Faz 6 | Mulakatlar (takvim, sonuc, otomatik Interview sutunu) + yapilacaklar (basvuru/mulakat baglantili) | Tamamlandi |
+| Faz 7 | Frontend (React + TypeScript + Vite + MUI + TanStack Query + i18n TR/EN) | Devam ediyor (7a: iskelet + auth) |
 
 ## API Endpoint'leri
 
@@ -45,7 +45,10 @@ frontend/                      React + TypeScript + Vite (Faz 7'de eklenecek)
 |---|---|---|
 | GET | `/health` | Saglik kontrolu |
 | POST | `/api/auth/register` | Kayit |
-| POST | `/api/auth/login` | Giris (access + refresh token) |
+| POST | `/api/auth/login` | Giris (access token body'de, refresh token httpOnly cookie'de) |
+| POST | `/api/auth/refresh` | Cookie'deki refresh token ile yeni access token (rotasyonlu) |
+| POST | `/api/auth/logout` | Refresh token'i iptal eder, cookie'yi siler |
+| GET | `/api/auth/me` | Giris yapmis kullanici |
 | GET | `/api/job-applications` | Kanban panosu (tum kartlar) |
 | GET | `/api/job-applications/{id}` | Kart detayi + durum gecmisi |
 | POST | `/api/job-applications` | Yeni kart |
@@ -67,8 +70,19 @@ frontend/                      React + TypeScript + Vite (Faz 7'de eklenecek)
 | PUT / DELETE | `/api/profile/languages/{id}` | Dil guncelle / sil |
 | POST | `/api/profile/screening-answers` | Hazir cevap ekle |
 | PUT / DELETE | `/api/profile/screening-answers/{id}` | Hazir cevap guncelle / sil |
+| GET | `/api/interviews` | Mulakat listesi (`from`, `to`, `jobApplicationId`, `outcome` filtreleri) |
+| GET | `/api/interviews/upcoming?days=14` | Yaklasan, sonucu bekleyen mulakatlar |
+| GET | `/api/interviews/{id}` | Mulakat detayi |
+| POST | `/api/interviews` | Mulakat ekle (kart Wishlist/Applied ise Interview sutununa tasinir) |
+| PUT / DELETE | `/api/interviews/{id}` | Mulakat guncelle / sil |
+| PATCH | `/api/interviews/{id}/outcome` | Mulakat sonucu (Pending/Passed/Failed/Cancelled) |
+| GET | `/api/todos` | Gorev listesi (`completed`, `dueBefore`, `jobApplicationId` filtreleri) |
+| GET | `/api/todos/{id}` | Gorev detayi |
+| POST | `/api/todos` | Gorev ekle (opsiyonel basvuru/mulakat baglantisi) |
+| PUT / DELETE | `/api/todos/{id}` | Gorev guncelle / sil |
+| PATCH | `/api/todos/{id}/complete` | Gorevi tamamla / geri al |
 
-`/api/job-applications`, `/api/cvs` ve `/api/profile` endpoint'leri JWT gerektirir. Her kullanicinin tek bir profili vardir; silinen CV varsayilan CV ise profilden otomatik kaldirilir. CV'ler sadece PDF/DOCX, en fazla 5 MB; dosyalar `Storage:RootPath` altinda (bos ise `%LOCALAPPDATA%\JobHunter\uploads`) saklanir ve public URL ile sunulmaz. Kanban durumlari: `Wishlist`, `Applied`, `Interview`, `Offer`, `Rejected`, `Withdrawn`.
+`/api/job-applications`, `/api/cvs`, `/api/profile`, `/api/interviews` ve `/api/todos` endpoint'leri JWT gerektirir. Zamanlar UTC saklanir; istekte saat dilimli (`+03:00`) veya `Z` ile gonderilmelidir. Her kullanicinin tek bir profili vardir; silinen CV varsayilan CV ise profilden otomatik kaldirilir. CV'ler sadece PDF/DOCX, en fazla 5 MB; dosyalar `Storage:RootPath` altinda (bos ise `%LOCALAPPDATA%\JobHunter\uploads`) saklanir ve public URL ile sunulmaz. Kanban durumlari: `Wishlist`, `Applied`, `Interview`, `Offer`, `Rejected`, `Withdrawn`.
 
 ## Calistirma
 
@@ -77,6 +91,16 @@ dotnet user-secrets set "Jwt:Key" "<en-az-32-karakter>" --project src/JobHunter.
 dotnet ef database update --project src/JobHunter.Infrastructure --startup-project src/JobHunter.API
 dotnet run --project src/JobHunter.API
 ```
+
+Frontend (ayri terminalde, API `http` profiliyle calisirken):
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+Uygulama: `http://localhost:5173` (Vite, `/api` isteklerini `localhost:5080`'e proxy'ler).
 
 Swagger: `http://localhost:5080/swagger` (Development ortami `launchSettings.json` ile ayarlanir).
 

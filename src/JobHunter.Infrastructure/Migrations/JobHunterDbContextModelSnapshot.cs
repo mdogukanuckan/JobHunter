@@ -251,6 +251,69 @@ namespace JobHunter.Infrastructure.Migrations
                     b.ToTable("Educations", (string)null);
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.Interview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FeedbackNotes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Interviewers")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("JobApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("MeetingUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("PreparationNotes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScheduledAt");
+
+                    b.HasIndex("JobApplicationId", "ScheduledAt");
+
+                    b.ToTable("Interviews", (string)null);
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.JobApplication", b =>
                 {
                     b.Property<Guid>("Id")
@@ -421,6 +484,60 @@ namespace JobHunter.Infrastructure.Migrations
                     b.ToTable("ScreeningAnswers", (string)null);
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.TodoItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("InterviewId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("JobApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InterviewId");
+
+                    b.HasIndex("JobApplicationId");
+
+                    b.HasIndex("UserId", "IsCompleted", "DueAt");
+
+                    b.ToTable("TodoItems", (string)null);
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -554,6 +671,17 @@ namespace JobHunter.Infrastructure.Migrations
                     b.Navigation("CandidateProfile");
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.Interview", b =>
+                {
+                    b.HasOne("JobHunter.Domain.Entities.JobApplication", "JobApplication")
+                        .WithMany("Interviews")
+                        .HasForeignKey("JobApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobApplication");
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.JobApplication", b =>
                 {
                     b.HasOne("JobHunter.Domain.Entities.Cv", "Cv")
@@ -605,6 +733,31 @@ namespace JobHunter.Infrastructure.Migrations
                     b.Navigation("CandidateProfile");
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.TodoItem", b =>
+                {
+                    b.HasOne("JobHunter.Domain.Entities.Interview", "Interview")
+                        .WithMany("Todos")
+                        .HasForeignKey("InterviewId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("JobHunter.Domain.Entities.JobApplication", "JobApplication")
+                        .WithMany("Todos")
+                        .HasForeignKey("JobApplicationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("JobHunter.Domain.Entities.User", "User")
+                        .WithMany("Todos")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Interview");
+
+                    b.Navigation("JobApplication");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.WorkExperience", b =>
                 {
                     b.HasOne("JobHunter.Domain.Entities.CandidateProfile", "CandidateProfile")
@@ -632,9 +785,18 @@ namespace JobHunter.Infrastructure.Migrations
                     b.Navigation("JobApplications");
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.Interview", b =>
+                {
+                    b.Navigation("Todos");
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.JobApplication", b =>
                 {
+                    b.Navigation("Interviews");
+
                     b.Navigation("StatusHistory");
+
+                    b.Navigation("Todos");
                 });
 
             modelBuilder.Entity("JobHunter.Domain.Entities.User", b =>
@@ -646,6 +808,8 @@ namespace JobHunter.Infrastructure.Migrations
                     b.Navigation("JobApplications");
 
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("Todos");
                 });
 #pragma warning restore 612, 618
         }

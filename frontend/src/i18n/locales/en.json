@@ -1,0 +1,42 @@
+{
+  "app": {
+    "name": "JobHunter",
+    "tagline": "Manage all your applications in one place"
+  },
+  "nav": {
+    "board": "Board",
+    "cvs": "CVs",
+    "profile": "Profile",
+    "interviews": "Interviews",
+    "todos": "To-dos"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters",
+    "fullName": "Full name",
+    "login": "Sign in",
+    "register": "Sign up",
+    "logout": "Sign out",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "sessionExpired": "Your session has expired, please sign in again."
+  },
+  "common": {
+    "language": "Language",
+    "loading": "Loading…",
+    "comingSoon": "This page is coming in the next module.",
+    "openMenu": "Open menu",
+    "account": "Account"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to board"
+  },
+  "errors": {
+    "generic": "An unexpected error occurred.",
+    "network": "Could not reach the server. Is the API running?"
+  }
+}

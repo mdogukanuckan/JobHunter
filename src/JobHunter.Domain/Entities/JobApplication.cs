@@ -33,4 +33,6 @@ public class JobApplication : BaseEntity
     public Cv? Cv { get; set; }
 
     public ICollection<ApplicationStatusHistory> StatusHistory { get; set; } = new List<ApplicationStatusHistory>();
+    public ICollection<Interview> Interviews { get; set; } = new List<Interview>();
+    public ICollection<TodoItem> Todos { get; set; } = new List<TodoItem>();
 }

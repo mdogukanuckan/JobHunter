@@ -1,0 +1,42 @@
+{
+  "app": {
+    "name": "JobHunter",
+    "tagline": "Başvurularını tek yerden yönet"
+  },
+  "nav": {
+    "board": "Pano",
+    "cvs": "CV'ler",
+    "profile": "Profil",
+    "interviews": "Mülakatlar",
+    "todos": "Yapılacaklar"
+  },
+  "auth": {
+    "loginTitle": "Giriş yap",
+    "registerTitle": "Hesap oluştur",
+    "email": "E-posta",
+    "password": "Şifre",
+    "passwordHint": "En az 8 karakter",
+    "fullName": "Ad Soyad",
+    "login": "Giriş yap",
+    "register": "Kayıt ol",
+    "logout": "Çıkış yap",
+    "noAccount": "Hesabın yok mu?",
+    "haveAccount": "Zaten hesabın var mı?",
+    "sessionExpired": "Oturumun sona erdi, lütfen tekrar giriş yap."
+  },
+  "common": {
+    "language": "Dil",
+    "loading": "Yükleniyor…",
+    "comingSoon": "Bu sayfa bir sonraki modülde gelecek.",
+    "openMenu": "Menüyü aç",
+    "account": "Hesap"
+  },
+  "notFound": {
+    "title": "Sayfa bulunamadı",
+    "back": "Panoya dön"
+  },
+  "errors": {
+    "generic": "Beklenmeyen bir hata oluştu.",
+    "network": "Sunucuya ulaşılamadı. API çalışıyor mu?"
+  }
+}

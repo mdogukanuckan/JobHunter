@@ -15,6 +15,8 @@ public interface IApplicationDbContext
     DbSet<Education> Educations { get; }
     DbSet<ProfileLanguage> ProfileLanguages { get; }
     DbSet<ScreeningAnswer> ScreeningAnswers { get; }
+    DbSet<Interview> Interviews { get; }
+    DbSet<TodoItem> TodoItems { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
