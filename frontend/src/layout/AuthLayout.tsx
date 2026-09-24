@@ -10,7 +10,7 @@ export function AuthLayout({ title, children }: { title: string; children: React
   return (
     <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 2 }}>
       <Box sx={{ position: 'fixed', top: 16, right: 16 }}>
-        <LanguageSwitcher color="default" />
+        <LanguageSwitcher />
       </Box>
       <Paper sx={{ width: '100%', maxWidth: 420, p: { xs: 3, sm: 4 } }}>
         <Stack spacing={0.5} sx={{ mb: 3 }}>

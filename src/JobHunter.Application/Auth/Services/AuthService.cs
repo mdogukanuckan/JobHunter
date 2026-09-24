@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using JobHunter.Application.Auth.Dtos;
+using JobHunter.Application.Settings.Dtos;
 using JobHunter.Application.Auth.Interfaces;
 using JobHunter.Application.Common.Interfaces;
 using JobHunter.Domain.Entities;
@@ -143,7 +144,8 @@ public class AuthService : IAuthService
         });
         await _context.SaveChangesAsync(cancellationToken);
 
-        var response = new AuthResponse(accessToken, accessTokenExpiresAt, user.Id, user.Email, user.FullName);
+        var response = new AuthResponse(accessToken, accessTokenExpiresAt, user.Id, user.Email, user.FullName,
+            new AppearanceSettingsDto(user.ThemePalette, user.ThemeMode));
         return new AuthResult(response, refreshTokenValue, refreshTokenExpiresAt);
     }
 

@@ -1,11 +1,20 @@
 // Backend DTO'larinin TypeScript karsiliklari. Alan adlari ASP.NET'in varsayilan camelCase JSON ciktisiyla ayni.
 
+import type { PaletteId, ThemeMode } from '../theme/palettes';
+
+/** Gorunum tercihi (hesapta saklanir). */
+export interface AppearanceSettings {
+  palette: PaletteId;
+  mode: ThemeMode;
+}
+
 export interface AuthResponse {
   accessToken: string;
   accessTokenExpiresAt: string;
   userId: string;
   email: string;
   fullName: string;
+  appearance: AppearanceSettings;
 }
 
 export interface CurrentUser {

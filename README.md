@@ -49,6 +49,7 @@ frontend/src/
 | 7c | CV sayfasi (surukle-birak yukleme, PDF onizleme, varsayilan CV) + Profil sayfasi (9 sekme, alan yaninda otomasyon politikasi) | Tamamlandi |
 | 7d | Mulakatlar sayfasi (Yaklasan / Gecmis / aylik Takvim, sonuc girme, karttan mulakat ekleme) | Tamamlandi |
 | 7d | Yapilacaklar sayfasi (hizli ekleme, son tarihe gore gruplar, oncelik, basvuru filtresi, karttan gorev ekleme/tamamlama, menu rozeti) | Tamamlandi |
+| 7e | Yeni tasarim: ust menulu yerlesim (mobilde alt menu), 6 renk paleti (varsayilan Orman), Acik/Koyu/Sistem modu, Ayarlar sayfasi; tercih hesapta saklanir | Tamamlandi |
 | 7d | PWA | Sirada |
 
 ## API Endpoint'leri
@@ -100,8 +101,9 @@ frontend/src/
 | POST | `/api/todos` | Gorev ekle (opsiyonel basvuru/mulakat baglantisi) |
 | PUT / DELETE | `/api/todos/{id}` | Gorev guncelle / sil |
 | PATCH | `/api/todos/{id}/complete` | Gorevi tamamla / geri al |
+| GET / PUT | `/api/settings/appearance` | Tema tercihi (`palette`: Forest, Midnight, Coral, Plum, Graphite, Ocean; `mode`: System, Light, Dark). Login/refresh cevabinda `appearance` olarak da doner |
 
-`/api/job-applications`, `/api/cvs`, `/api/profile`, `/api/interviews` ve `/api/todos` endpoint'leri JWT gerektirir. Zamanlar UTC saklanir; istekte saat dilimli (`+03:00`) veya `Z` ile gonderilmelidir. Her kullanicinin tek bir profili vardir; silinen CV varsayilan CV ise profilden otomatik kaldirilir. CV'ler sadece PDF/DOCX, en fazla 5 MB; dosyalar `Storage:RootPath` altinda (bos ise `%LOCALAPPDATA%\JobHunter\uploads`) saklanir ve public URL ile sunulmaz. Kanban durumlari: `Wishlist`, `Applied`, `Interview`, `Offer`, `Rejected`, `Withdrawn`.
+`/api/job-applications`, `/api/cvs`, `/api/profile`, `/api/interviews`, `/api/todos` ve `/api/settings` endpoint'leri JWT gerektirir. Zamanlar UTC saklanir; istekte saat dilimli (`+03:00`) veya `Z` ile gonderilmelidir. Her kullanicinin tek bir profili vardir; silinen CV varsayilan CV ise profilden otomatik kaldirilir. CV'ler sadece PDF/DOCX, en fazla 5 MB; dosyalar `Storage:RootPath` altinda (bos ise `%LOCALAPPDATA%\JobHunter\uploads`) saklanir ve public URL ile sunulmaz. Kanban durumlari: `Wishlist`, `Applied`, `Interview`, `Offer`, `Rejected`, `Withdrawn`.
 
 ## Calistirma
 

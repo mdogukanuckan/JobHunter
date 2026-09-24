@@ -2,11 +2,11 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
-import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Paper, Stack, Typography, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { JobApplicationSummary } from '../../api/types';
 import { formatDate } from '../../utils/format';
-import { STATUS_COLORS } from './boardUtils';
+import { avatarColors } from './boardUtils';
 
 interface JobCardViewProps {
   item: JobApplicationSummary;
@@ -21,43 +21,52 @@ export function JobCardView({ item, overlay = false }: JobCardViewProps) {
     ? t('board.card.applied', { date: formatDate(item.appliedAt, i18n.language) })
     : t('board.card.added', { date: formatDate(item.createdAt, i18n.language) });
 
+  const theme = useTheme();
+  const av = avatarColors(item.companyName, theme.palette.mode);
+
   return (
     <Paper
       sx={{
-        p: 1.5,
-        borderLeft: `4px solid ${STATUS_COLORS[item.status]}`,
+        p: 2,
+        borderRadius: 4.5,
+        boxShadow: overlay ? 8 : theme.palette.app.shadow,
         cursor: overlay ? 'grabbing' : 'grab',
-        boxShadow: overlay ? 6 : 0,
         transform: overlay ? 'rotate(2deg)' : undefined,
-        '&:hover': { borderColor: overlay ? undefined : 'primary.light' },
+        transition: 'border-color 120ms',
+        '&:hover': { borderColor: overlay ? undefined : 'primary.main' },
         userSelect: 'none',
       }}
     >
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.3 }} noWrap title={item.companyName}>
-        {item.companyName}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }} noWrap title={item.jobTitle}>
+      <Stack direction="row" sx={{ alignItems: 'center', gap: 1.25, mb: 1.25 }}>
+        <Avatar sx={{ width: 34, height: 34, bgcolor: av.bg, color: av.fg, fontSize: 14, fontWeight: 800 }}>
+          {item.companyName.charAt(0).toLocaleUpperCase()}
+        </Avatar>
+        <Typography sx={{ fontWeight: 800, fontSize: 14, minWidth: 0 }} noWrap title={item.companyName}>
+          {item.companyName}
+        </Typography>
+      </Stack>
+      <Typography sx={{ fontWeight: 600, fontSize: 14, lineHeight: 1.35, mb: 1.25 }} title={item.jobTitle}>
         {item.jobTitle}
       </Typography>
 
-      <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5, alignItems: 'center' }}>
+      <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75, alignItems: 'center' }}>
         {item.location && (
-          <Stack direction="row" spacing={0.25} sx={{ alignItems: 'center', color: 'text.secondary', mr: 0.5 }}>
-            <PlaceOutlinedIcon sx={{ fontSize: 14 }} />
-            <Typography variant="caption" noWrap sx={{ maxWidth: 120 }}>
-              {item.location}
-            </Typography>
-          </Stack>
+          <Chip
+            size="small"
+            icon={<PlaceOutlinedIcon />}
+            label={item.location}
+            sx={{ bgcolor: 'app.surface2', color: 'text.secondary', maxWidth: 170, '& .MuiChip-icon': { fontSize: 15, color: 'inherit' } }}
+          />
         )}
-        {item.source && <Chip label={item.source} size="small" variant="outlined" sx={{ height: 20, fontSize: 11 }} />}
+        {item.source && <Chip size="small" label={item.source} variant="outlined" />}
         {item.cvId && (
           <Box component="span" title={t('board.card.hasCv')} sx={{ display: 'inline-flex', color: 'text.secondary' }}>
-            <DescriptionOutlinedIcon sx={{ fontSize: 16 }} />
+            <DescriptionOutlinedIcon sx={{ fontSize: 17 }} />
           </Box>
         )}
       </Stack>
 
-      <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mt: 1 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.25 }}>
         {dateLabel}
       </Typography>
     </Paper>
@@ -98,7 +107,7 @@ export function SortableJobCard({ item, onOpen }: SortableJobCardProps) {
         // Surukelenen kartin listedeki yeri "bos yer tutucu" olarak soluk gorunur; asil kopya DragOverlay'de.
         opacity: isDragging ? 0.35 : 1,
         touchAction: 'manipulation',
-        borderRadius: 2,
+        borderRadius: 4.5,
         '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
       }}
     >

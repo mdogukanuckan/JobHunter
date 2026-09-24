@@ -26,7 +26,7 @@ export function TodoRow({ todo, onToggle, onEdit, onDelete }: Props) {
   const dueColor = group === 'overdue' ? 'error' : group === 'today' ? 'warning' : 'default';
 
   return (
-    <Paper sx={{ px: 1, py: 0.75, borderLeft: `4px solid ${done ? '#d1d5db' : PRIORITY_HEX[todo.priority]}` }}>
+    <Paper sx={(th) => ({ px: 1, py: 0.75, borderLeft: `4px solid ${done ? th.palette.divider : PRIORITY_HEX[todo.priority]}` })}>
       <Stack direction="row" sx={{ alignItems: 'flex-start', gap: 0.5 }}>
         <Checkbox
           checked={done}

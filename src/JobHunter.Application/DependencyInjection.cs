@@ -8,6 +8,8 @@ using JobHunter.Application.JobApplications.Interfaces;
 using JobHunter.Application.JobApplications.Services;
 using JobHunter.Application.Profiles.Interfaces;
 using JobHunter.Application.Profiles.Services;
+using JobHunter.Application.Settings.Interfaces;
+using JobHunter.Application.Settings.Services;
 using JobHunter.Application.Todos.Interfaces;
 using JobHunter.Application.Todos.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<ICandidateProfileService, CandidateProfileService>();
         services.AddScoped<IInterviewService, InterviewService>();
         services.AddScoped<ITodoService, TodoService>();
+        services.AddScoped<ISettingsService, SettingsService>();
 
         return services;
     }

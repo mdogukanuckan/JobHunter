@@ -3,8 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1e3a8a" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" />
     <title>JobHunter</title>
+    <script>
+      // React yuklenmeden once zemin rengini secili temaya gore boya: koyu modda beyaz ekran "flas"i olmasin.
+      // Degerler src/theme/palettes.ts ile ayni (sadece bg).
+      (function () {
+        var bg = {
+          Forest: ['#f4f6f2', '#0f1510'], Midnight: ['#f3f5fb', '#0d1120'], Coral: ['#fbf6f4', '#171010'],
+          Plum: ['#f8f4f7', '#150e14'], Graphite: ['#f4f4f2', '#0f0f11'], Ocean: ['#f2f6f7', '#0c1618'],
+        };
+        try {
+          var a = JSON.parse(localStorage.getItem('jh_appearance') || 'null') || {};
+          var p = bg[a.palette] || bg.Forest;
+          var dark = a.mode === 'Dark' || ((!a.mode || a.mode === 'System') && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.style.background = p[dark ? 1 : 0];
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

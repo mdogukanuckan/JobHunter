@@ -191,17 +191,17 @@ export function BoardPage() {
   const total = boardQuery.data.length;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: { md: 'calc(100vh - 112px)' } }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: { md: 'calc(100vh - 124px)' } }}>
       <Stack direction="row" sx={{ alignItems: 'center', mb: 2, gap: 2, flexWrap: 'wrap' }}>
         <Box sx={{ flexGrow: 1 }}>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Typography variant="h4" component="h1" sx={{ fontSize: { xs: 26, md: 30 } }}>
             {t('nav.board')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {t('board.totalCount', { count: total })}
           </Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => openCreate()}>
+        <Button variant="contained" size="large" startIcon={<AddIcon />} onClick={() => openCreate()}>
           {t('board.newApplication')}
         </Button>
       </Stack>
@@ -220,7 +220,7 @@ export function BoardPage() {
         onDragEnd={handleDragEnd}
         onDragCancel={resetDrag}
       >
-        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1, flexGrow: 1, minHeight: 0, alignItems: 'stretch' }}>
+        <Box sx={{ display: 'flex', gap: 2.5, overflowX: 'auto', pb: 1, flexGrow: 1, minHeight: 0, alignItems: 'stretch' }}>
           {APPLICATION_STATUSES.map((status) => (
             <BoardColumn key={status} status={status} items={columns[status]} onAdd={openCreate} onOpen={openCard} />
           ))}

@@ -8,7 +8,11 @@
     "cvs": "CV'ler",
     "profile": "Profil",
     "interviews": "Mülakatlar",
-    "todos": "Yapılacaklar"
+    "todos": "Yapılacaklar",
+    "main": "Ana menü",
+    "interviewsShort": "Mülakat",
+    "todosShort": "Görevler",
+    "settings": "Ayarlar"
   },
   "auth": {
     "loginTitle": "Giriş yap",
@@ -458,5 +462,49 @@
     "reopenedMessage": "Görev yeniden açıldı.",
     "completedAt": "Tamamlandı: {{date}}",
     "linkedInterview": "Bir mülakata bağlı"
+  },
+  "settings": {
+    "subtitle": "Görünüm, dil ve hesap tercihlerin. Değişiklikler anında kaydedilir.",
+    "appearance": "Görünüm",
+    "appearanceHint": "Tercihin hesabına kaydedilir; tüm cihazlarında aynı tema görünür.",
+    "palette": "Renk paleti",
+    "mode": "Mod",
+    "modes": {
+      "System": "Sistem",
+      "Light": "Açık",
+      "Dark": "Koyu"
+    },
+    "systemHint": "Cihazının ayarını takip ediyor (şu an: {{current}}).",
+    "appearanceSaved": "Görünüm kaydedildi.",
+    "switchToDark": "Koyu temaya geç",
+    "switchToLight": "Açık temaya geç",
+    "languageHint": "Arayüz dili bu tarayıcıda saklanır.",
+    "account": "Hesap"
+  },
+  "palettes": {
+    "Forest": {
+      "name": "Orman",
+      "desc": "Koyu yeşil, adaçayı tonları"
+    },
+    "Midnight": {
+      "name": "Gece Mavisi",
+      "desc": "İndigo vurgu, serin griler"
+    },
+    "Coral": {
+      "name": "Mercan",
+      "desc": "Kiremit vurgu, sıcak zemin"
+    },
+    "Plum": {
+      "name": "Mürdüm",
+      "desc": "Erik rengi, pembemsi nötrler"
+    },
+    "Graphite": {
+      "name": "Grafit + Limon",
+      "desc": "Siyah butonlar, limon vurgu"
+    },
+    "Ocean": {
+      "name": "Okyanus",
+      "desc": "Deniz yeşili, ferah"
+    }
   }
 }

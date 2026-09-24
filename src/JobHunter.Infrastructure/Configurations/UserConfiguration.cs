@@ -1,4 +1,5 @@
 using JobHunter.Domain.Entities;
+using JobHunter.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -25,5 +26,17 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.FullName)
             .IsRequired()
             .HasMaxLength(200);
+
+        // Enum'lar metin olarak saklanir (DB'de okunabilir, siralama degisse de bozulmaz).
+        // Varsayilan deger: migration mevcut kullanicilara da bu degerleri yazar.
+        builder.Property(u => u.ThemePalette)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .HasDefaultValue(ThemePalette.Forest);
+
+        builder.Property(u => u.ThemeMode)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .HasDefaultValue(ThemeMode.System);
     }
 }

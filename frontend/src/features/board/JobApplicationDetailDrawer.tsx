@@ -32,7 +32,6 @@ import { formatDate, formatDateTime } from '../../utils/format';
 import { InterviewFormDialog, type InterviewDialogState } from '../interviews/InterviewFormDialog';
 import { TodoFormDialog, type TodoDialogState } from '../todos/TodoFormDialog';
 import { useToggleTodo } from '../todos/useTodos';
-import { STATUS_COLORS } from './boardUtils';
 import { useBoardQuery, useDeleteJobApplication, useJobApplicationQuery, useMoveJobApplication } from './useBoard';
 
 interface Props {
@@ -123,7 +122,7 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
         >
           {APPLICATION_STATUSES.map((s) => (
             <MenuItem key={s} value={s}>
-              <Box component="span" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: STATUS_COLORS[s], mr: 1 }} />
+              <Box component="span" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: `status.${s}`, mr: 1 }} />
               {t(`status.${s}`)}
             </MenuItem>
           ))}
@@ -259,7 +258,7 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
             <Stack spacing={1}>
               {[...d.statusHistory].reverse().map((h, index) => (
                 <Stack key={`${h.changedAt}-${index}`} direction="row" sx={{ alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: STATUS_COLORS[h.toStatus], flexShrink: 0 }} />
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: `status.${h.toStatus}`, flexShrink: 0 }} />
                   <Typography variant="body2" sx={{ flexGrow: 1 }}>
                     {h.fromStatus
                       ? t('board.detail.historyMoved', { from: t(`status.${h.fromStatus}`), to: t(`status.${h.toStatus}`) })

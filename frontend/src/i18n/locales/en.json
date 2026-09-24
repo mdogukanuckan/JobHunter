@@ -8,7 +8,11 @@
     "cvs": "CVs",
     "profile": "Profile",
     "interviews": "Interviews",
-    "todos": "To-dos"
+    "todos": "To-dos",
+    "main": "Main menu",
+    "interviewsShort": "Interviews",
+    "todosShort": "Tasks",
+    "settings": "Settings"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -458,5 +462,49 @@
     "reopenedMessage": "Task reopened.",
     "completedAt": "Completed: {{date}}",
     "linkedInterview": "Linked to an interview"
+  },
+  "settings": {
+    "subtitle": "Appearance, language and account preferences. Changes are saved instantly.",
+    "appearance": "Appearance",
+    "appearanceHint": "Saved to your account, so every device shows the same theme.",
+    "palette": "Color palette",
+    "mode": "Mode",
+    "modes": {
+      "System": "System",
+      "Light": "Light",
+      "Dark": "Dark"
+    },
+    "systemHint": "Following your device setting (currently: {{current}}).",
+    "appearanceSaved": "Appearance saved.",
+    "switchToDark": "Switch to dark theme",
+    "switchToLight": "Switch to light theme",
+    "languageHint": "The interface language is stored in this browser.",
+    "account": "Account"
+  },
+  "palettes": {
+    "Forest": {
+      "name": "Forest",
+      "desc": "Deep green, sage tones"
+    },
+    "Midnight": {
+      "name": "Midnight",
+      "desc": "Indigo accent, cool greys"
+    },
+    "Coral": {
+      "name": "Coral",
+      "desc": "Terracotta accent, warm base"
+    },
+    "Plum": {
+      "name": "Plum",
+      "desc": "Plum accent, rosy neutrals"
+    },
+    "Graphite": {
+      "name": "Graphite + Lime",
+      "desc": "Black buttons, lime accent"
+    },
+    "Ocean": {
+      "name": "Ocean",
+      "desc": "Sea green, airy"
+    }
   }
 }

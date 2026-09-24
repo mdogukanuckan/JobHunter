@@ -1,14 +1,22 @@
 import { APPLICATION_STATUSES, type ApplicationStatus, type JobApplicationSummary } from '../../api/types';
 
-/** Her sutunun rengi (baslik noktasi ve kart sol kenari). */
-export const STATUS_COLORS: Record<ApplicationStatus, string> = {
-  Wishlist: '#64748b',
-  Applied: '#2563eb',
-  Interview: '#d97706',
-  Offer: '#16a34a',
-  Rejected: '#dc2626',
-  Withdrawn: '#9ca3af',
-};
+/*
+ * Durum renkleri artik temada: theme.palette.status (koyu modda otomatik acilir).
+ * sx icinde dogrudan yol olarak kullanilir: bgcolor: `status.${status}`.
+ */
+
+const AVATAR_COLORS = {
+  light: [['#e0e7ff', '#3730a3'], ['#dcfce7', '#166534'], ['#fef3c7', '#92400e'], ['#fce7f3', '#9d174d'], ['#e0f2fe', '#075985'], ['#ede9fe', '#5b21b6']],
+  dark: [['#312e81', '#c7d2fe'], ['#14532d', '#bbf7d0'], ['#78350f', '#fde68a'], ['#831843', '#fbcfe8'], ['#0c4a6e', '#bae6fd'], ['#4c1d95', '#ddd6fe']],
+} as const;
+
+/** Sirket adindan sabit bir avatar rengi: ayni sirket her yerde ayni renkte gorunur. */
+export function avatarColors(name: string, scheme: 'light' | 'dark'): { bg: string; fg: string } {
+  let hash = 0;
+  for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) | 0;
+  const [bg, fg] = AVATAR_COLORS[scheme][Math.abs(hash) % AVATAR_COLORS[scheme].length]!;
+  return { bg, fg };
+}
 
 /** Pano durumu: sutun (status) -> o sutundaki kartlar (yukaridan asagi sirali). */
 export type BoardColumns = Record<ApplicationStatus, JobApplicationSummary[]>;

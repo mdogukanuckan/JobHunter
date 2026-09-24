@@ -4,6 +4,7 @@ import { BoardPage } from './features/board/BoardPage';
 import { CvsPage } from './features/cvs/CvsPage';
 import { InterviewsPage } from './features/interviews/InterviewsPage';
 import { ProfilePage } from './features/profile/ProfilePage';
+import { SettingsPage } from './features/settings/SettingsPage';
 import { TodosPage } from './features/todos/TodosPage';
 import { AppLayout } from './layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="todos" element={<TodosPage />} />
           <Route path="cvs" element={<CvsPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

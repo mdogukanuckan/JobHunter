@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { authApi } from '../api/auth';
 import { refreshSession, setSessionExpiredHandler, tokenStore } from '../api/client';
+import { useAppTheme } from '../theme/AppThemeProvider';
 import type { AuthResponse, CurrentUser, LoginRequest, RegisterRequest } from '../api/types';
 
 type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
@@ -25,13 +26,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const { applyServerAppearance } = useAppTheme();
 
   const applySession = useCallback((session: AuthResponse) => {
     tokenStore.set(session.accessToken);
+    // Hesaptaki tema tercihi: baska cihazda degistirildiyse burada da uygulanir.
+    if (session.appearance) applyServerAppearance(session.appearance);
     setUser(toUser(session));
     setStatus('authenticated');
     setSessionExpired(false);
-  }, []);
+  }, [applyServerAppearance]);
 
   const clearSession = useCallback(() => {
     tokenStore.set(null);

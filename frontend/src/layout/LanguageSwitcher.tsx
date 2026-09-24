@@ -2,7 +2,8 @@ import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, type AppLanguage } from '../i18n';
 
-export function LanguageSwitcher({ color = 'inherit' }: { color?: 'inherit' | 'default' }) {
+/** TR/EN secici. Ust bar artik acik zeminli oldugu icin ozel renk ayari gerekmiyor. */
+export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
   const current = (i18n.resolvedLanguage ?? 'tr') as AppLanguage;
 
@@ -13,10 +14,10 @@ export function LanguageSwitcher({ color = 'inherit' }: { color?: 'inherit' | 'd
       value={current}
       aria-label={t('common.language')}
       onChange={(_, lng: AppLanguage | null) => lng && void i18n.changeLanguage(lng)}
-      sx={color === 'inherit' ? { '& .MuiToggleButton-root': { color: 'inherit', borderColor: 'rgba(255,255,255,0.4)' } } : undefined}
+      sx={{ '& .MuiToggleButton-root': { height: 40 } }}
     >
       {SUPPORTED_LANGUAGES.map((lng) => (
-        <ToggleButton key={lng} value={lng} sx={{ px: 1.25, py: 0.25, fontWeight: 600 }}>
+        <ToggleButton key={lng} value={lng} sx={{ px: 1.5, fontSize: 13 }}>
           {lng.toUpperCase()}
         </ToggleButton>
       ))}
