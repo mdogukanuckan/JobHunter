@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { APPLICATION_STATUSES, type ApplicationStatus, type JobApplicationDetail } from '../../api/types';
 import { getErrorMessage } from '../../utils/errors';
 import { formatDate, formatDateTime } from '../../utils/format';
+import { AutomationPanel } from '../automation/AutomationPanel';
 import { InterviewFormDialog, type InterviewDialogState } from '../interviews/InterviewFormDialog';
 import { TodoFormDialog, type TodoDialogState } from '../todos/TodoFormDialog';
 import { useToggleTodo } from '../todos/useTodos';
@@ -161,6 +162,8 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
             <InfoRow label={t('board.detail.appliedAt')} value={formatDate(d.appliedAt, lng) || null} />
             <InfoRow label={t('board.detail.createdAt')} value={formatDateTime(d.createdAt, lng)} />
           </Section>
+
+          <AutomationPanel jobApplicationId={d.id} jobUrl={d.jobUrl} />
 
           <Section title={t('board.fields.jobDescription')}>
             <LongText text={d.jobDescription} empty={t('board.detail.noDescription')} />

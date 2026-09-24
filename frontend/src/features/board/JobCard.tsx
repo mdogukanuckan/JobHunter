@@ -7,6 +7,8 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { JobApplicationSummary } from '../../api/types';
 import { formatDate } from '../../utils/format';
+import { AutomationStatusChip } from '../automation/AutomationStatusChip';
+import { useLatestAutomationJob } from '../automation/useAutomation';
 import { avatarColors } from './boardUtils';
 
 interface JobCardViewProps {
@@ -25,6 +27,9 @@ export function JobCardView({ item, overlay = false, draggable = true, action }:
   const dateLabel = item.appliedAt
     ? t('board.card.applied', { date: formatDate(item.appliedAt, i18n.language) })
     : t('board.card.added', { date: formatDate(item.createdAt, i18n.language) });
+
+  // En son otomasyon denemesi (varsa) kartta rozet olarak gorunur. Tum kartlar ayni cache'i paylasir.
+  const latestAutomation = useLatestAutomationJob(item.id);
 
   const theme = useTheme();
   const av = avatarColors(item.companyName, theme.palette.mode);
@@ -65,6 +70,7 @@ export function JobCardView({ item, overlay = false, draggable = true, action }:
           />
         )}
         {item.source && <Chip size="small" label={item.source} variant="outlined" />}
+        {latestAutomation && <AutomationStatusChip status={latestAutomation.status} withIcon />}
         {item.cvId && (
           <Box component="span" title={t('board.card.hasCv')} sx={{ display: 'inline-flex', color: 'text.secondary' }}>
             <DescriptionOutlinedIcon sx={{ fontSize: 17 }} />

@@ -530,5 +530,41 @@
     "offlineReady": "Uygulama bu cihaza kaydedildi; bağlantı yavaşken de hızlı açılır.",
     "offline": "Çevrimdışı — değişiklikler bağlantı gelince kaydedilir",
     "backOnline": "Tekrar çevrimiçisin"
+  },
+  "automation": {
+    "title": "Otomasyon",
+    "start": "Otomasyonu başlat",
+    "retry": "Yeniden dene",
+    "startTitle": "Otomasyonu başlat",
+    "needsUrl": "Otomasyon için başvuruya ilan bağlantısı eklemelisin (Düzenle).",
+    "noAttempts": "Henüz otomasyon denemesi yok.",
+    "attempt": "Deneme #{{n}}",
+    "cancel": "İptal et",
+    "cancelled": "Otomasyon iptal edildi.",
+    "started": "Otomasyon başlatıldı.",
+    "log": "Günlük",
+    "noEvents": "Henüz günlük kaydı yok.",
+    "showData": "Veriyi göster",
+    "cvUsed": "CV: {{name}}",
+    "noCv": "CV yok",
+    "cvNote": "Başvuruya bağlı CV (yoksa varsayılan CV) denemenin başında sabitlenir.",
+    "awaitingInfo": "Otomasyon onayını bekliyor. Onay ekranı Faz 11'de gelecek; şimdilik iptal edebilirsin.",
+    "cardBadgeTitle": "Otomasyon: {{status}}",
+    "mode": {
+      "HumanApproval": "İnsan onaylı",
+      "Automatic": "Otomatik"
+    },
+    "modeHint": {
+      "HumanApproval": "Formu doldurur, göndermeden önce senin onayını bekler.",
+      "Automatic": "Onay beklemeden gönderir (şimdilik simülasyon)."
+    },
+    "status": {
+      "Queued": "Sırada",
+      "Running": "Çalışıyor",
+      "AwaitingApproval": "Onay bekliyor",
+      "Completed": "Tamamlandı",
+      "Failed": "Başarısız",
+      "Cancelled": "İptal edildi"
+    }
   }
 }

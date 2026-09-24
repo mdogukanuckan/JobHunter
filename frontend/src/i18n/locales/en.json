@@ -530,5 +530,41 @@
     "offlineReady": "The app is saved on this device and opens quickly even on slow connections.",
     "offline": "Offline — changes save when you reconnect",
     "backOnline": "Back online"
+  },
+  "automation": {
+    "title": "Automation",
+    "start": "Start automation",
+    "retry": "Try again",
+    "startTitle": "Start automation",
+    "needsUrl": "Add a job listing URL to this application to use automation (Edit).",
+    "noAttempts": "No automation attempts yet.",
+    "attempt": "Attempt #{{n}}",
+    "cancel": "Cancel",
+    "cancelled": "Automation cancelled.",
+    "started": "Automation started.",
+    "log": "Log",
+    "noEvents": "No log entries yet.",
+    "showData": "Show data",
+    "cvUsed": "CV: {{name}}",
+    "noCv": "No CV",
+    "cvNote": "The CV linked to the application (or your default CV) is pinned when the attempt starts.",
+    "awaitingInfo": "Automation is waiting for your approval. The approval screen comes in Phase 11; for now you can cancel it.",
+    "cardBadgeTitle": "Automation: {{status}}",
+    "mode": {
+      "HumanApproval": "Human approval",
+      "Automatic": "Automatic"
+    },
+    "modeHint": {
+      "HumanApproval": "Fills the form and waits for your approval before submitting.",
+      "Automatic": "Submits without waiting for approval (simulation for now)."
+    },
+    "status": {
+      "Queued": "Queued",
+      "Running": "Running",
+      "AwaitingApproval": "Awaiting approval",
+      "Completed": "Completed",
+      "Failed": "Failed",
+      "Cancelled": "Cancelled"
+    }
   }
 }

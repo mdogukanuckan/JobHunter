@@ -1,0 +1,12 @@
+{
+  "name": "jobhunter-mock-careers",
+  "private": true,
+  "description": "JobHunter otomasyonunu test etmek için yerel sahte kariyer sitesi (bağımlılıksız)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

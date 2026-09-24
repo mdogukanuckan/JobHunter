@@ -302,3 +302,44 @@ export interface Profile extends ProfileMainFields {
   createdAt: string;
   updatedAt: string | null;
 }
+
+// ---------- Otomasyon (Faz 8/9) ----------
+
+export const AUTOMATION_JOB_STATUSES = ['Queued', 'Running', 'AwaitingApproval', 'Completed', 'Failed', 'Cancelled'] as const;
+export type AutomationJobStatus = (typeof AUTOMATION_JOB_STATUSES)[number];
+export type AutomationMode = 'HumanApproval' | 'Automatic';
+export type AutomationEventLevel = 'Info' | 'Warning' | 'Error';
+
+/** Henuz bitmemis durumlar. Bunlardan biri varken yeni deneme baslatilamaz ve ekran periyodik yenilenir. */
+export const ACTIVE_AUTOMATION_STATUSES: readonly AutomationJobStatus[] = ['Queued', 'Running', 'AwaitingApproval'];
+export const isActiveAutomation = (s: AutomationJobStatus) => ACTIVE_AUTOMATION_STATUSES.includes(s);
+
+export interface AutomationEvent {
+  id: string;
+  level: AutomationEventLevel;
+  step: string | null;
+  message: string;
+  /** n8n'in gonderdigi serbest JSON (olabilir de olmayabilir de). */
+  data: unknown;
+  createdAt: string;
+}
+
+/** Bir otomasyon denemesi. Listede events null; detayda (GET /automation-jobs/{id}) dolu. */
+export interface AutomationJob {
+  id: string;
+  jobApplicationId: string;
+  companyName: string;
+  jobTitle: string;
+  attemptNumber: number;
+  mode: AutomationMode;
+  status: AutomationJobStatus;
+  cvId: string | null;
+  cvName: string | null;
+  errorMessage: string | null;
+  resultSummary: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  finishedAt: string | null;
+  updatedAt: string | null;
+  events: AutomationEvent[] | null;
+}
