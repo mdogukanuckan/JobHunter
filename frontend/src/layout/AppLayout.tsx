@@ -1,4 +1,5 @@
 import ChecklistIcon from '@mui/icons-material/Checklist';
+import DownloadForOfflineOutlinedIcon from '@mui/icons-material/DownloadForOfflineOutlined';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
@@ -35,6 +36,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useNotify } from '../components/Notify';
 import { countAttention } from '../features/todos/todoUtils';
 import { useTodosQuery } from '../features/todos/useTodos';
+import { promptInstall, useInstallState } from '../pwa/installPrompt';
 import { useAppTheme } from '../theme/AppThemeProvider';
 import { getErrorMessage } from '../utils/errors';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -237,6 +239,7 @@ function UserMenu() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const { canInstall } = useInstallState();
   const initials = (user?.fullName ?? '?')
     .split(' ')
     .filter(Boolean)
@@ -279,6 +282,19 @@ function UserMenu() {
           </ListItemIcon>
           {t('nav.settings')}
         </MenuItem>
+        {canInstall && (
+          <MenuItem
+            onClick={() => {
+              setAnchor(null);
+              void promptInstall();
+            }}
+          >
+            <ListItemIcon>
+              <DownloadForOfflineOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            {t('pwa.install')}
+          </MenuItem>
+        )}
         <MenuItem
           onClick={() => {
             setAnchor(null);

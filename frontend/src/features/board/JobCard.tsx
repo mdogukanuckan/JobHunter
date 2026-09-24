@@ -28,7 +28,7 @@ export function JobCardView({ item, overlay = false }: JobCardViewProps) {
     <Paper
       sx={{
         p: 2,
-        borderRadius: 4.5,
+        borderRadius: '18px',
         boxShadow: overlay ? 8 : theme.palette.app.shadow,
         cursor: overlay ? 'grabbing' : 'grab',
         transform: overlay ? 'rotate(2deg)' : undefined,
@@ -107,7 +107,7 @@ export function SortableJobCard({ item, onOpen }: SortableJobCardProps) {
         // Surukelenen kartin listedeki yeri "bos yer tutucu" olarak soluk gorunur; asil kopya DragOverlay'de.
         opacity: isDragging ? 0.35 : 1,
         touchAction: 'manipulation',
-        borderRadius: 4.5,
+        borderRadius: '18px',
         '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
       }}
     >

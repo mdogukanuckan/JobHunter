@@ -65,7 +65,23 @@ export function createAppTheme(paletteId: PaletteId, scheme: ColorScheme): Theme
       MuiMenu: { styleOverrides: { paper: { borderRadius: 14, border: `1px solid ${c.border}` } } },
       MuiChip: { styleOverrides: { root: { borderRadius: 8, fontWeight: 600 } } },
       MuiTab: { styleOverrides: { root: { textTransform: 'none', fontWeight: 700, minHeight: 44 } } },
-      MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 12 }, notchedOutline: { borderColor: c.border } } },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: { borderRadius: 12 },
+          notchedOutline: { borderColor: c.border },
+          // Tarayici otomatik doldurmasi (Chrome/Edge) kendi mavi/sari zeminini boyar ve CSS background ile ezilemez.
+          // Cozum: alanin icine zemin renginde kalin bir "ic golge" cizmek ve yazi rengini sabitlemek.
+          input: {
+            '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus': {
+              WebkitBoxShadow: `0 0 0 100px ${c.surface} inset`,
+              WebkitTextFillColor: c.text,
+              caretColor: c.text,
+              borderRadius: 'inherit',
+              transition: 'background-color 9999s ease-out 0s',
+            },
+          },
+        },
+      },
       MuiToggleButton: { styleOverrides: { root: { textTransform: 'none', fontWeight: 700 } } },
       MuiTooltip: { styleOverrides: { tooltip: { borderRadius: 8, fontWeight: 600 } } },
       MuiAlert: { styleOverrides: { root: { borderRadius: 14 } } },

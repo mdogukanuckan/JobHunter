@@ -32,11 +32,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.ThemePalette)
             .HasConversion<string>()
             .HasMaxLength(20)
-            .HasDefaultValue(ThemePalette.Forest);
+            .HasDefaultValue(ThemePalette.Ocean);
 
         builder.Property(u => u.ThemeMode)
             .HasConversion<string>()
             .HasMaxLength(20)
-            .HasDefaultValue(ThemeMode.System);
+            .HasDefaultValue(ThemeMode.Light);
     }
 }

@@ -31,7 +31,7 @@ public class SettingsController : ControllerBase
         }
     }
 
-    /// <summary>Ornek govde: {"palette":"Forest","mode":"System"}</summary>
+    /// <summary>Ornek govde: {"palette":"Ocean","mode":"Light"}</summary>
     [HttpPut("appearance")]
     public async Task<ActionResult<AppearanceSettingsDto>> UpdateAppearance(AppearanceSettingsDto request, CancellationToken ct)
     {

@@ -506,5 +506,20 @@
       "name": "Okyanus",
       "desc": "Deniz yeşili, ferah"
     }
+  },
+  "pwa": {
+    "section": "Uygulama",
+    "sectionHint": "JobHunter'ı bilgisayarına veya telefonuna uygulama olarak yükle: kendi penceresinde açılır, ana ekrandan başlar.",
+    "install": "Uygulamayı yükle",
+    "installed": "Bu cihazda uygulama olarak yüklü.",
+    "installedMessage": "JobHunter yüklendi.",
+    "iosHint": "iPhone/iPad'de Safari'de Paylaş simgesine dokun, ardından \"Ana Ekrana Ekle\"yi seç.",
+    "browserHint": "Yükleme butonu henüz hazır değil. Tarayıcının adres çubuğundaki yükle simgesini veya menüdeki \"Uygulamayı yükle\" / \"Ana ekrana ekle\" seçeneğini kullanabilirsin.",
+    "updateAvailable": "Yeni bir sürüm hazır.",
+    "reload": "Yenile",
+    "later": "Sonra",
+    "offlineReady": "Uygulama bu cihaza kaydedildi; bağlantı yavaşken de hızlı açılır.",
+    "offline": "Çevrimdışı — değişiklikler bağlantı gelince kaydedilir",
+    "backOnline": "Tekrar çevrimiçisin"
   }
 }

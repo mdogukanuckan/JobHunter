@@ -506,5 +506,20 @@
       "name": "Ocean",
       "desc": "Sea green, airy"
     }
+  },
+  "pwa": {
+    "section": "App",
+    "sectionHint": "Install JobHunter on your computer or phone: it opens in its own window and launches from your home screen.",
+    "install": "Install app",
+    "installed": "Installed as an app on this device.",
+    "installedMessage": "JobHunter installed.",
+    "iosHint": "On iPhone/iPad, tap the Share icon in Safari, then choose \"Add to Home Screen\".",
+    "browserHint": "The install button isn't ready yet. Use the install icon in your browser's address bar, or \"Install app\" / \"Add to Home screen\" in its menu.",
+    "updateAvailable": "A new version is ready.",
+    "reload": "Reload",
+    "later": "Later",
+    "offlineReady": "The app is saved on this device and opens quickly even on slow connections.",
+    "offline": "Offline — changes save when you reconnect",
+    "backOnline": "Back online"
   }
 }

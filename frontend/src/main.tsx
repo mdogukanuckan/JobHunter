@@ -6,6 +6,10 @@ import App from './App';
 import { AuthProvider } from './auth/AuthContext';
 import { NotifyProvider } from './components/Notify';
 import './i18n';
+// Yukleme olayini (beforeinstallprompt) kacirmamak icin en erken yerde dinlemeye baslar.
+import './pwa/installPrompt';
+import { OfflineIndicator } from './pwa/OfflineIndicator';
+import { PwaUpdatePrompt } from './pwa/PwaUpdatePrompt';
 import { AppThemeProvider } from './theme/AppThemeProvider';
 
 // TanStack Query: sunucu verisinin cache'i. staleTime boyunca ayni veri icin tekrar istek atilmaz.
@@ -27,6 +31,9 @@ createRoot(document.getElementById('root')!).render(
             </AuthProvider>
           </NotifyProvider>
         </BrowserRouter>
+        {/* PWA: yeni surum / cevrimdisi bildirimleri (login sayfasinda da gorunur) */}
+        <PwaUpdatePrompt />
+        <OfflineIndicator />
       </AppThemeProvider>
     </QueryClientProvider>
   </StrictMode>,

@@ -6,7 +6,7 @@ import type { ApplicationStatus } from '../api/types';
  * tum uygulama tek yerden degisir. Tasarim tuvalindeki "B paletleri" ile ayni degerler.
  */
 
-export const PALETTE_IDS = ['Forest', 'Midnight', 'Coral', 'Plum', 'Graphite', 'Ocean'] as const;
+export const PALETTE_IDS = ['Ocean', 'Forest', 'Midnight', 'Coral', 'Plum', 'Graphite'] as const;
 export type PaletteId = (typeof PALETTE_IDS)[number];
 
 export const THEME_MODES = ['System', 'Light', 'Dark'] as const;
@@ -66,5 +66,5 @@ export const STATUS_COLORS_BY_SCHEME: Record<ColorScheme, Record<ApplicationStat
   dark: { Wishlist: '#94a3b8', Applied: '#60a5fa', Interview: '#fbbf24', Offer: '#4ade80', Rejected: '#f87171', Withdrawn: '#6b7280' },
 };
 
-export const DEFAULT_PALETTE: PaletteId = 'Forest';
-export const DEFAULT_MODE: ThemeMode = 'System';
+export const DEFAULT_PALETTE: PaletteId = 'Ocean';
+export const DEFAULT_MODE: ThemeMode = 'Light';

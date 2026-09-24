@@ -33,7 +33,7 @@ export function BoardColumn({ status, items, onAdd, onOpen }: BoardColumnProps) 
         flexDirection: 'column',
         // B tasarimi: sutunun zemini yok; surukleme sirasinda uzerine gelinince hafifce vurgulanir.
         bgcolor: isOver ? 'app.accentSoft' : 'transparent',
-        borderRadius: 4,
+        borderRadius: '16px',
         transition: 'background-color 120ms',
         maxHeight: '100%',
       }}
@@ -66,7 +66,7 @@ export function BoardColumn({ status, items, onAdd, onOpen }: BoardColumnProps) 
             <Typography
               variant="body2"
               color="text.secondary"
-              sx={{ textAlign: 'center', py: 3, border: '1.5px dashed', borderColor: 'divider', borderRadius: 4 }}
+              sx={{ textAlign: 'center', py: 3, border: '1.5px dashed', borderColor: 'divider', borderRadius: '18px' }}
             >
               {t('board.emptyColumn')}
             </Typography>

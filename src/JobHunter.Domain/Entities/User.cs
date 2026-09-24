@@ -10,8 +10,8 @@ public class User : BaseEntity
     public string FullName { get; set; } = string.Empty;
 
     /// <summary>Gorunum tercihi. Hesapta saklanir ki tum cihazlarda ayni tema gorunsun.</summary>
-    public ThemePalette ThemePalette { get; set; } = ThemePalette.Forest;
-    public ThemeMode ThemeMode { get; set; } = ThemeMode.System;
+    public ThemePalette ThemePalette { get; set; } = ThemePalette.Ocean;
+    public ThemeMode ThemeMode { get; set; } = ThemeMode.Light;
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();

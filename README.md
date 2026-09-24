@@ -49,7 +49,7 @@ frontend/src/
 | 7c | CV sayfasi (surukle-birak yukleme, PDF onizleme, varsayilan CV) + Profil sayfasi (9 sekme, alan yaninda otomasyon politikasi) | Tamamlandi |
 | 7d | Mulakatlar sayfasi (Yaklasan / Gecmis / aylik Takvim, sonuc girme, karttan mulakat ekleme) | Tamamlandi |
 | 7d | Yapilacaklar sayfasi (hizli ekleme, son tarihe gore gruplar, oncelik, basvuru filtresi, karttan gorev ekleme/tamamlama, menu rozeti) | Tamamlandi |
-| 7e | Yeni tasarim: ust menulu yerlesim (mobilde alt menu), 6 renk paleti (varsayilan Orman), Acik/Koyu/Sistem modu, Ayarlar sayfasi; tercih hesapta saklanir | Tamamlandi |
+| 7e | Yeni tasarim: ust menulu yerlesim (mobilde alt menu), 6 renk paleti, Acik/Koyu/Sistem modu (varsayilan Okyanus + Acik), Ayarlar sayfasi; tercih hesapta saklanir | Tamamlandi |
 | 7d | PWA | Sirada |
 
 ## API Endpoint'leri
