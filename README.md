@@ -48,7 +48,8 @@ frontend/src/
 | 7b | Kanban panosu: surukle-birak (@dnd-kit, optimistic update), kart ekle/duzenle/sil, detay paneli | Tamamlandi |
 | 7c | CV sayfasi (surukle-birak yukleme, PDF onizleme, varsayilan CV) + Profil sayfasi (9 sekme, alan yaninda otomasyon politikasi) | Tamamlandi |
 | 7d | Mulakatlar sayfasi (Yaklasan / Gecmis / aylik Takvim, sonuc girme, karttan mulakat ekleme) | Tamamlandi |
-| 7d | Yapilacaklar sayfasi + PWA | Sirada |
+| 7d | Yapilacaklar sayfasi (hizli ekleme, son tarihe gore gruplar, oncelik, basvuru filtresi, karttan gorev ekleme/tamamlama, menu rozeti) | Tamamlandi |
+| 7d | PWA | Sirada |
 
 ## API Endpoint'leri
 

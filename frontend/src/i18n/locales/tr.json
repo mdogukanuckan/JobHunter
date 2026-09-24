@@ -413,5 +413,50 @@
     "outcomeSet": "Sonuç: {{outcome}}",
     "deleteTitle": "Mülakat silinsin mi?",
     "deleteMessage": "{{company}} mülakatı kalıcı olarak silinecek."
+  },
+  "todoPriority": {
+    "High": "Yüksek",
+    "Medium": "Orta",
+    "Low": "Düşük"
+  },
+  "todos": {
+    "subtitle": "Başvurulara, mülakatlara bağlı ya da genel görevlerin.",
+    "new": "Yeni görev",
+    "edit": "Görevi düzenle",
+    "created": "Görev eklendi.",
+    "quickAddPlaceholder": "Hızlı görev ekle… (yazıp Enter'a bas)",
+    "views": {
+      "open": "Açık",
+      "completed": "Tamamlanan"
+    },
+    "groups": {
+      "overdue": "Gecikmiş",
+      "today": "Bugün",
+      "week": "Bu hafta",
+      "later": "Daha sonra",
+      "noDate": "Tarihsiz"
+    },
+    "fields": {
+      "title": "Başlık",
+      "description": "Açıklama",
+      "dueAt": "Son tarih",
+      "priority": "Öncelik",
+      "application": "Başvuru",
+      "interview": "Mülakat"
+    },
+    "hints": {
+      "dueAt": "Opsiyonel",
+      "interview": "Sadece mülakat seçersen başvuru otomatik bağlanır."
+    },
+    "interviewMismatch": "Seçilen mülakat bu başvuruya ait değil.",
+    "generalOnly": "Başvuruya bağlı olmayanlar",
+    "emptyOpen": "Açık görev yok.",
+    "emptyCompleted": "Henüz tamamlanan görev yok.",
+    "markDone": "Tamamlandı olarak işaretle",
+    "markOpen": "Tamamlanmadı olarak işaretle",
+    "doneMessage": "Görev tamamlandı.",
+    "reopenedMessage": "Görev yeniden açıldı.",
+    "completedAt": "Tamamlandı: {{date}}",
+    "linkedInterview": "Bir mülakata bağlı"
   }
 }

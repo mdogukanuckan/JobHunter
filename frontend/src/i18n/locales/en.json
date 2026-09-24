@@ -413,5 +413,50 @@
     "outcomeSet": "Result: {{outcome}}",
     "deleteTitle": "Delete interview?",
     "deleteMessage": "The {{company}} interview will be permanently deleted."
+  },
+  "todoPriority": {
+    "High": "High",
+    "Medium": "Medium",
+    "Low": "Low"
+  },
+  "todos": {
+    "subtitle": "Tasks linked to applications, interviews, or general ones.",
+    "new": "New task",
+    "edit": "Edit task",
+    "created": "Task added.",
+    "quickAddPlaceholder": "Quick add a task… (type and press Enter)",
+    "views": {
+      "open": "Open",
+      "completed": "Completed"
+    },
+    "groups": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "week": "This week",
+      "later": "Later",
+      "noDate": "No due date"
+    },
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "dueAt": "Due date",
+      "priority": "Priority",
+      "application": "Application",
+      "interview": "Interview"
+    },
+    "hints": {
+      "dueAt": "Optional",
+      "interview": "If you only pick an interview, its application is linked automatically."
+    },
+    "interviewMismatch": "The selected interview does not belong to this application.",
+    "generalOnly": "Not linked to an application",
+    "emptyOpen": "No open tasks.",
+    "emptyCompleted": "No completed tasks yet.",
+    "markDone": "Mark as done",
+    "markOpen": "Mark as not done",
+    "doneMessage": "Task completed.",
+    "reopenedMessage": "Task reopened.",
+    "completedAt": "Completed: {{date}}",
+    "linkedInterview": "Linked to an interview"
   }
 }

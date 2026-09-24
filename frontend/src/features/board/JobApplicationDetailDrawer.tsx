@@ -30,6 +30,8 @@ import { APPLICATION_STATUSES, type ApplicationStatus, type JobApplicationDetail
 import { getErrorMessage } from '../../utils/errors';
 import { formatDate, formatDateTime } from '../../utils/format';
 import { InterviewFormDialog, type InterviewDialogState } from '../interviews/InterviewFormDialog';
+import { TodoFormDialog, type TodoDialogState } from '../todos/TodoFormDialog';
+import { useToggleTodo } from '../todos/useTodos';
 import { STATUS_COLORS } from './boardUtils';
 import { useBoardQuery, useDeleteJobApplication, useJobApplicationQuery, useMoveJobApplication } from './useBoard';
 
@@ -63,6 +65,8 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
   const deleteMutation = useDeleteJobApplication();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [interviewDialog, setInterviewDialog] = useState<InterviewDialogState>(null);
+  const [todoDialog, setTodoDialog] = useState<TodoDialogState>(null);
+  const toggleTodo = useToggleTodo();
 
   if (detailQuery.isPending) {
     return (
@@ -201,21 +205,42 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
             )}
           </Section>
 
-          <Section title={`${t('nav.todos')} (${d.todos.length})`}>
+          <Section
+            title={`${t('nav.todos')} (${d.todos.length})`}
+            action={
+              <Button size="small" startIcon={<AddIcon />} onClick={() => setTodoDialog({ todo: null, jobApplicationId: d.id })}>
+                {t('interviews.add')}
+              </Button>
+            }
+          >
             {d.todos.length === 0 ? (
               <EmptyText>{t('board.detail.noTodos')}</EmptyText>
             ) : (
-              <Stack spacing={0.75}>
+              <Stack spacing={0.25}>
                 {d.todos.map((todo) => (
-                  <Stack key={todo.id} direction="row" sx={{ alignItems: 'center', gap: 1 }}>
-                    {todo.isCompleted ? (
-                      <CheckCircleIcon fontSize="small" color="success" />
-                    ) : (
-                      <RadioButtonUncheckedIcon fontSize="small" color="disabled" />
-                    )}
+                  <Stack key={todo.id} direction="row" sx={{ alignItems: 'center', gap: 0.5 }}>
+                    {/* Ikona tiklayinca tamamla/geri al; basliga tiklayinca duzenle. */}
+                    <IconButton
+                      size="small"
+                      aria-label={todo.isCompleted ? t('todos.markOpen') : t('todos.markDone')}
+                      onClick={() => toggleTodo.mutate({ id: todo.id, isCompleted: !todo.isCompleted })}
+                    >
+                      {todo.isCompleted ? (
+                        <CheckCircleIcon fontSize="small" color="success" />
+                      ) : (
+                        <RadioButtonUncheckedIcon fontSize="small" color="disabled" />
+                      )}
+                    </IconButton>
                     <Typography
                       variant="body2"
-                      sx={{ flexGrow: 1, textDecoration: todo.isCompleted ? 'line-through' : 'none', color: todo.isCompleted ? 'text.disabled' : 'text.primary' }}
+                      onClick={() => setTodoDialog({ todo })}
+                      sx={{
+                        flexGrow: 1,
+                        cursor: 'pointer',
+                        textDecoration: todo.isCompleted ? 'line-through' : 'none',
+                        color: todo.isCompleted ? 'text.disabled' : 'text.primary',
+                        '&:hover': { textDecoration: todo.isCompleted ? 'line-through' : 'underline' },
+                      }}
                     >
                       {todo.title}
                     </Typography>
@@ -251,6 +276,7 @@ function DetailContent({ id, onClose, onEdit, onDeleted }: Props & { id: string 
       </Box>
 
       <InterviewFormDialog state={interviewDialog} onClose={() => setInterviewDialog(null)} />
+      <TodoFormDialog state={todoDialog} onClose={() => setTodoDialog(null)} />
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
         <DialogTitle>{t('board.deleteTitle')}</DialogTitle>

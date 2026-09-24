@@ -8,6 +8,7 @@ import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import {
   AppBar,
   Avatar,
+  Badge,
   Box,
   Divider,
   Drawer,
@@ -28,6 +29,8 @@ import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { countAttention } from '../features/todos/todoUtils';
+import { useTodosQuery } from '../features/todos/useTodos';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 const DRAWER_WIDTH = 232;
@@ -49,6 +52,9 @@ export function AppLayout() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Yapilacaklar menusunde rozet: gecikmis + bugun biten acik gorev sayisi.
+  const todosQuery = useTodosQuery();
+  const attention = countAttention(todosQuery.data);
 
   const drawerContent = (
     <Box>
@@ -73,7 +79,15 @@ export function AppLayout() {
               '&.active .MuiListItemIcon-root': { color: 'inherit' },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 38 }}>{item.icon}</ListItemIcon>
+            <ListItemIcon sx={{ minWidth: 38 }}>
+              {item.to === '/todos' ? (
+                <Badge badgeContent={attention} color="error" max={99}>
+                  {item.icon}
+                </Badge>
+              ) : (
+                item.icon
+              )}
+            </ListItemIcon>
             <ListItemText primary={t(item.labelKey)} />
           </ListItemButton>
         ))}
