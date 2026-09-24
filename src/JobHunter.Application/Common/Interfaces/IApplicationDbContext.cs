@@ -21,6 +21,8 @@ public interface IApplicationDbContext
     DbSet<ProfileReference> ProfileReferences { get; }
     DbSet<ProfileCustomField> ProfileCustomFields { get; }
     DbSet<ProfileFieldPolicy> ProfileFieldPolicies { get; }
+    DbSet<AutomationJob> AutomationJobs { get; }
+    DbSet<AutomationJobEvent> AutomationJobEvents { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

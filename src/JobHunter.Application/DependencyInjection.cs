@@ -1,4 +1,6 @@
 using JobHunter.Application.Auth.Interfaces;
+using JobHunter.Application.Automation.Interfaces;
+using JobHunter.Application.Automation.Services;
 using JobHunter.Application.Auth.Services;
 using JobHunter.Application.Cvs.Interfaces;
 using JobHunter.Application.Cvs.Services;
@@ -27,6 +29,11 @@ public static class DependencyInjection
         services.AddScoped<IInterviewService, InterviewService>();
         services.AddScoped<ITodoService, TodoService>();
         services.AddScoped<ISettingsService, SettingsService>();
+
+        // Faz 8: otomasyon cekirdegi (IAutomationDispatcher + AutomationOptions Infrastructure'da kaydedilir)
+        services.AddScoped<IAutomationPayloadBuilder, AutomationPayloadBuilder>();
+        services.AddScoped<IAutomationJobService, AutomationJobService>();
+        services.AddScoped<IAutomationCallbackService, AutomationCallbackService>();
 
         return services;
     }

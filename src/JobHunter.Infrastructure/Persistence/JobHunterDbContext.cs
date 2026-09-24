@@ -24,6 +24,8 @@ public class JobHunterDbContext : DbContext, IApplicationDbContext
     public DbSet<ProfileReference> ProfileReferences => Set<ProfileReference>();
     public DbSet<ProfileCustomField> ProfileCustomFields => Set<ProfileCustomField>();
     public DbSet<ProfileFieldPolicy> ProfileFieldPolicies => Set<ProfileFieldPolicy>();
+    public DbSet<AutomationJob> AutomationJobs => Set<AutomationJob>();
+    public DbSet<AutomationJobEvent> AutomationJobEvents => Set<AutomationJobEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

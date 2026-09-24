@@ -43,14 +43,16 @@ frontend/src/
 | Faz 5 | Aday profili: iletisim/tercihler, yetenekler, deneyim, egitim, diller, hazir cevap bankasi, varsayilan CV | Tamamlandi |
 | Faz 5b | Profil detaylari: adres, dogum tarihi, cinsiyet, medeni durum, uyruk, askerlik, ehliyet, seyahat/sigara/engellilik; sertifikalar, referanslar, ek bilgiler (etiket-deger); alan bazli otomasyon politikalari (Auto / AskFirst / Never). TC kimlik no bilincli olarak saklanmaz | Tamamlandi |
 | Faz 6 | Mulakatlar (takvim, sonuc, otomatik Interview sutunu) + yapilacaklar (basvuru/mulakat baglantili) | Tamamlandi |
-| Faz 7 | Frontend (React + TypeScript + Vite + MUI + TanStack Query + i18n TR/EN) | Devam ediyor |
+| Faz 7 | Frontend (React + TypeScript + Vite + MUI + TanStack Query + i18n TR/EN) | Tamamlandi |
 | 7a | Iskelet, login/register, refresh token (httpOnly cookie), korumali rotalar, TR/EN | Tamamlandi |
 | 7b | Kanban panosu: surukle-birak (@dnd-kit, optimistic update), kart ekle/duzenle/sil, detay paneli | Tamamlandi |
 | 7c | CV sayfasi (surukle-birak yukleme, PDF onizleme, varsayilan CV) + Profil sayfasi (9 sekme, alan yaninda otomasyon politikasi) | Tamamlandi |
 | 7d | Mulakatlar sayfasi (Yaklasan / Gecmis / aylik Takvim, sonuc girme, karttan mulakat ekleme) | Tamamlandi |
 | 7d | Yapilacaklar sayfasi (hizli ekleme, son tarihe gore gruplar, oncelik, basvuru filtresi, karttan gorev ekleme/tamamlama, menu rozeti) | Tamamlandi |
 | 7e | Yeni tasarim: ust menulu yerlesim (mobilde alt menu), 6 renk paleti, Acik/Koyu/Sistem modu (varsayilan Okyanus + Acik), Ayarlar sayfasi; tercih hesapta saklanir | Tamamlandi |
-| 7d | PWA | Sirada |
+| 7d | PWA (manifest, service worker, guncelleme bildirimi, cevrimdisi uyarisi) + mobil pano (durum sekmeleri) | Tamamlandi |
+| Faz 8 | Otomasyon cekirdegi: AutomationJob (deneme) + AutomationJobEvent (gunluk), durum makinesi, n8n callback'leri (X-Automation-Key), politikaya uyan veri paketi, IAutomationDispatcher (simdilik log) | Tamamlandi |
+| Faz 9 | n8n entegrasyonu (gercek webhook) | Sirada |
 
 ## API Endpoint'leri
 
@@ -101,14 +103,31 @@ frontend/src/
 | POST | `/api/todos` | Gorev ekle (opsiyonel basvuru/mulakat baglantisi) |
 | PUT / DELETE | `/api/todos/{id}` | Gorev guncelle / sil |
 | PATCH | `/api/todos/{id}/complete` | Gorevi tamamla / geri al |
+| POST | `/api/job-applications/{id}/automation-jobs` | Otomasyon denemesi baslat (govde opsiyonel: `{ "mode": "HumanApproval" }` veya `Automatic`). 400: ilan linki yok, 409: devam eden deneme var |
+| GET | `/api/automation-jobs` | Denemeler, en yeni ustte (`jobApplicationId`, `status` filtreleri) |
+| GET | `/api/automation-jobs/{id}` | Deneme detayi + adim adim gunluk (`events`) |
+| POST | `/api/automation-jobs/{id}/cancel` | Iptal (govde opsiyonel: `{ "reason": "..." }`). 409: is zaten bitmis |
+| GET | `/api/automation-jobs/{id}/payload` | n8n'e verilecek veri paketinin onizlemesi |
 | GET / PUT | `/api/settings/appearance` | Tema tercihi (`palette`: Forest, Midnight, Coral, Plum, Graphite, Ocean; `mode`: System, Light, Dark). Login/refresh cevabinda `appearance` olarak da doner |
 
-`/api/job-applications`, `/api/cvs`, `/api/profile`, `/api/interviews`, `/api/todos` ve `/api/settings` endpoint'leri JWT gerektirir. Zamanlar UTC saklanir; istekte saat dilimli (`+03:00`) veya `Z` ile gonderilmelidir. Her kullanicinin tek bir profili vardir; silinen CV varsayilan CV ise profilden otomatik kaldirilir. CV'ler sadece PDF/DOCX, en fazla 5 MB; dosyalar `Storage:RootPath` altinda (bos ise `%LOCALAPPDATA%\JobHunter\uploads`) saklanir ve public URL ile sunulmaz. Kanban durumlari: `Wishlist`, `Applied`, `Interview`, `Offer`, `Rejected`, `Withdrawn`.
+### n8n callback endpoint'leri (JWT degil, `X-Automation-Key` header'i)
+
+| Metot | Yol | Aciklama |
+|---|---|---|
+| GET | `/api/automation/n8n/jobs/{jobId}/payload` | Formu doldurmak icin veri paketi (profil, politikali alanlar, hazir cevaplar, CV linki) |
+| GET | `/api/automation/n8n/jobs/{jobId}/cv` | Denemeye sabitlenmis CV dosyasi |
+| PATCH | `/api/automation/n8n/jobs/{jobId}/status` | Durum bildir: `{ "status": "Running" }`, `{ "status": "Failed", "errorMessage": "..." }`, `{ "status": "Completed", "resultSummary": "..." }` |
+| POST | `/api/automation/n8n/jobs/{jobId}/events` | Gunluge satir ekle: `{ "level": "Info", "step": "upload_cv", "message": "CV yuklendi", "data": { } }` |
+
+Durum akisi: `Queued → Running ⇄ AwaitingApproval → Completed / Failed / Cancelled`. Bitmis bir ise (veya gecersiz gecise) **409** doner; n8n akisi bunu "dur" sinyali olarak kullanir. Ayni durumu tekrar gondermek hata degildir. Politikasi `Never` olan alanlar pakette `value: null` gelir, `Never` ek bilgiler hic gelmez. Anahtar ayarlanmamissa bu endpoint'ler 503 doner.
+
+`/api/job-applications`, `/api/cvs`, `/api/profile`, `/api/interviews`, `/api/todos`, `/api/automation-jobs` ve `/api/settings` endpoint'leri JWT gerektirir. Zamanlar UTC saklanir; istekte saat dilimli (`+03:00`) veya `Z` ile gonderilmelidir. Her kullanicinin tek bir profili vardir; silinen CV varsayilan CV ise profilden otomatik kaldirilir. CV'ler sadece PDF/DOCX, en fazla 5 MB; dosyalar `Storage:RootPath` altinda (bos ise `%LOCALAPPDATA%\JobHunter\uploads`) saklanir ve public URL ile sunulmaz. Kanban durumlari: `Wishlist`, `Applied`, `Interview`, `Offer`, `Rejected`, `Withdrawn`.
 
 ## Calistirma
 
 ```
 dotnet user-secrets set "Jwt:Key" "<en-az-32-karakter>" --project src/JobHunter.API
+dotnet user-secrets set "Automation:ApiKey" "<uzun-rastgele-anahtar>" --project src/JobHunter.API
 dotnet ef database update --project src/JobHunter.Infrastructure --startup-project src/JobHunter.API
 dotnet run --project src/JobHunter.API
 ```

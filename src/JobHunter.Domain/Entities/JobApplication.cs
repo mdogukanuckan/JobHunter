@@ -35,4 +35,7 @@ public class JobApplication : BaseEntity
     public ICollection<ApplicationStatusHistory> StatusHistory { get; set; } = new List<ApplicationStatusHistory>();
     public ICollection<Interview> Interviews { get; set; } = new List<Interview>();
     public ICollection<TodoItem> Todos { get; set; } = new List<TodoItem>();
+
+    /// <summary>Otomatik basvuru denemeleri (Faz 8). Her deneme ayri satir.</summary>
+    public ICollection<AutomationJob> AutomationJobs { get; set; } = new List<AutomationJob>();
 }

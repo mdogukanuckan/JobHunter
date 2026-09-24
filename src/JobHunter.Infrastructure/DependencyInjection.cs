@@ -1,7 +1,10 @@
 using JobHunter.Application.Auth.Interfaces;
+using JobHunter.Application.Automation;
+using JobHunter.Application.Automation.Interfaces;
 using JobHunter.Application.Common.Interfaces;
 using JobHunter.Application.Cvs;
 using JobHunter.Infrastructure.Auth;
+using JobHunter.Infrastructure.Automation;
 using JobHunter.Infrastructure.Persistence;
 using JobHunter.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +32,16 @@ public static class DependencyInjection
             ? parsed
             : CvUploadSettings.DefaultMaxSizeBytes;
         services.AddSingleton(new CvUploadSettings(maxCvSize));
+
+        // Faz 8: otomasyon ayarlari (appsettings "Automation" bolumu; ApiKey user-secrets'ta).
+        services.AddSingleton(new AutomationOptions
+        {
+            ApiKey = configuration["Automation:ApiKey"],
+            N8nWebhookUrl = configuration["Automation:N8nWebhookUrl"],
+            PublicBaseUrl = configuration["Automation:PublicBaseUrl"]
+        });
+        // Faz 9'da: services.AddHttpClient<IAutomationDispatcher, N8nWebhookDispatcher>();
+        services.AddScoped<IAutomationDispatcher, LoggingAutomationDispatcher>();
 
         return services;
     }
