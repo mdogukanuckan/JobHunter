@@ -81,7 +81,7 @@ export function ProfilePage() {
   }
 
   return (
-    <Box sx={{ pb: dirty ? 10 : 0, maxWidth: 1000 }}>
+    <Box sx={{ pb: dirty ? 12 : 0, maxWidth: 1000 }}>
       <Typography variant="h5" sx={{ fontWeight: 700 }}>
         {t('nav.profile')}
       </Typography>
@@ -124,18 +124,20 @@ export function ProfilePage() {
           elevation={8}
           sx={{
             position: 'fixed',
-            bottom: 16,
-            left: { xs: 16, md: 232 + 24 },
-            right: 16,
+            // Mobilde alttaki menunun (56px + guvenli alan) ustunde durur; masaustunde sayfanin altinda.
+            bottom: { xs: 'calc(56px + 12px + env(safe-area-inset-bottom))', md: 16 },
+            left: { xs: 12, md: 32 }, // icerikle ayni hizada (ust bar duzeninde yan menu yok)
+            right: { xs: 12, md: 16 },
             maxWidth: 1000,
             px: 2,
             py: 1.5,
-            zIndex: (theme) => theme.zIndex.appBar,
+            zIndex: (theme) => theme.zIndex.appBar + 1, // alt menunun onunde
+            boxShadow: 8,
             border: 'none',
           }}
         >
           <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
+            <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600, minWidth: 0 }}>
               {t('profile.unsaved')}
             </Typography>
             <Button onClick={() => setDraft(null)} disabled={upsert.isPending}>

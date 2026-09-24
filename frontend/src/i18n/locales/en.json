@@ -142,6 +142,15 @@
       "historyMoved": "{{from}} → {{to}}",
       "minutes_one": "{{count}} min",
       "minutes_other": "{{count}} min"
+    },
+    "mobile": {
+      "emptyStatus": "No applications in \"{{status}}\".",
+      "addHere": "Add here",
+      "cardActions": "Card actions",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "moveTo": "Move to",
+      "moved": "{{company}} → {{status}}"
     }
   },
   "workMode": {

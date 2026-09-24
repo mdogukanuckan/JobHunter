@@ -3,6 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import { Avatar, Box, Chip, Paper, Stack, Typography, useTheme } from '@mui/material';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { JobApplicationSummary } from '../../api/types';
 import { formatDate } from '../../utils/format';
@@ -12,10 +13,14 @@ interface JobCardViewProps {
   item: JobApplicationSummary;
   /** DragOverlay icinde (imlecle birlikte hareket eden kopya) cizilirken true. */
   overlay?: boolean;
+  /** Surukle-birak kullanilmayan yerde (mobil pano) false: imlec "tutma eli" yerine normal isaretci olur. */
+  draggable?: boolean;
+  /** Sirket adinin sagina yerlesen ek oge (mobilde "..." menusu). */
+  action?: ReactNode;
 }
 
 /** Kartin sadece gorunumu. Hem listede hem de surukleme sirasindaki "hayalet" kopyada kullanilir. */
-export function JobCardView({ item, overlay = false }: JobCardViewProps) {
+export function JobCardView({ item, overlay = false, draggable = true, action }: JobCardViewProps) {
   const { t, i18n } = useTranslation();
   const dateLabel = item.appliedAt
     ? t('board.card.applied', { date: formatDate(item.appliedAt, i18n.language) })
@@ -30,7 +35,7 @@ export function JobCardView({ item, overlay = false }: JobCardViewProps) {
         p: 2,
         borderRadius: '18px',
         boxShadow: overlay ? 8 : theme.palette.app.shadow,
-        cursor: overlay ? 'grabbing' : 'grab',
+        cursor: overlay ? 'grabbing' : draggable ? 'grab' : 'pointer',
         transform: overlay ? 'rotate(2deg)' : undefined,
         transition: 'border-color 120ms',
         '&:hover': { borderColor: overlay ? undefined : 'primary.main' },
@@ -41,9 +46,10 @@ export function JobCardView({ item, overlay = false }: JobCardViewProps) {
         <Avatar sx={{ width: 34, height: 34, bgcolor: av.bg, color: av.fg, fontSize: 14, fontWeight: 800 }}>
           {item.companyName.charAt(0).toLocaleUpperCase()}
         </Avatar>
-        <Typography sx={{ fontWeight: 800, fontSize: 14, minWidth: 0 }} noWrap title={item.companyName}>
+        <Typography sx={{ fontWeight: 800, fontSize: 14, minWidth: 0, flexGrow: 1 }} noWrap title={item.companyName}>
           {item.companyName}
         </Typography>
+        {action}
       </Stack>
       <Typography sx={{ fontWeight: 600, fontSize: 14, lineHeight: 1.35, mb: 1.25 }} title={item.jobTitle}>
         {item.jobTitle}

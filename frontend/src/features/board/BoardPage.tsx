@@ -13,7 +13,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import AddIcon from '@mui/icons-material/Add';
-import { Alert, Box, Button, CircularProgress, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Snackbar, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ import { findColumn, flattenColumns, groupByStatus, type BoardColumns } from './
 import { JobApplicationDetailDrawer } from './JobApplicationDetailDrawer';
 import { JobApplicationFormDialog, type FormDialogState } from './JobApplicationFormDialog';
 import { JobCardView } from './JobCard';
+import { MobileBoard } from './MobileBoard';
 import { useBoardQuery, useMoveJobApplication } from './useBoard';
 
 /*
@@ -50,6 +51,10 @@ export function BoardPage() {
   const [toast, setToast] = useState<string | null>(null);
   const lastDragEndAt = useRef(0);
   const [searchParams, setSearchParams] = useSearchParams();
+  const theme = useTheme();
+  // Telefonda (md alti) alti sutun sigmaz: sekmeli mobil pano gosterilir.
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  const [mobileStatus, setMobileStatus] = useState<ApplicationStatus | null>(null);
 
   // Baska sayfalardan (orn. Mulakatlar) "/?open=<id>" ile gelinince o kartin detayini ac, sonra parametreyi temizle.
   const openParam = searchParams.get('open');
@@ -163,6 +168,35 @@ export function BoardPage() {
     setOpenId(id);
   };
 
+  /**
+   * Menuden tasima (mobil). Surukle-birakin sonundaki ile ayni yol: cache aninda guncellenir, sonra PATCH /move.
+   * index verilmezse hedef durumun en sonuna eklenir.
+   */
+  const moveCard = (id: string, to: ApplicationStatus, index?: number) => {
+    const from = findColumn(serverColumns, id);
+    const item = from ? serverColumns[from].find((i) => i.id === id) : undefined;
+    if (!from || !item) return;
+    const fromItems = serverColumns[from].filter((i) => i.id !== id);
+    const target = from === to ? fromItems : serverColumns[to];
+    const position = Math.max(0, Math.min(index ?? target.length, target.length));
+    const next: BoardColumns = {
+      ...serverColumns,
+      [from]: fromItems,
+      [to]: [...target.slice(0, position), { ...item, status: to }, ...target.slice(position)],
+    };
+
+    const previous = boardQuery.data;
+    void queryClient.cancelQueries({ queryKey: jobApplicationKeys.board() });
+    queryClient.setQueryData(jobApplicationKeys.board(), flattenColumns(next));
+    moveMutation.mutate(
+      { id, body: { status: to, position }, previous },
+      {
+        onSuccess: () => from !== to && setToast(t('board.mobile.moved', { company: item.companyName, status: t(`status.${to}`) })),
+        onError: (error) => setToast(getErrorMessage(error, t)),
+      },
+    );
+  };
+
   const openCreate = (status: ApplicationStatus = 'Wishlist') => setFormState({ mode: 'create', status });
 
   if (boardQuery.isPending) {
@@ -189,6 +223,8 @@ export function BoardPage() {
   }
 
   const total = boardQuery.data.length;
+  // Mobilde acilista ilk dolu durum secilir (hepsi bossa Istek listesi); kullanici secince o kalir.
+  const activeStatus = mobileStatus ?? APPLICATION_STATUSES.find((s) => serverColumns[s].length > 0) ?? 'Wishlist';
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: { md: 'calc(100vh - 124px)' } }}>
@@ -201,7 +237,7 @@ export function BoardPage() {
             {t('board.totalCount', { count: total })}
           </Typography>
         </Box>
-        <Button variant="contained" size="large" startIcon={<AddIcon />} onClick={() => openCreate()}>
+        <Button variant="contained" size="large" startIcon={<AddIcon />} onClick={() => openCreate(isDesktop ? 'Wishlist' : activeStatus)}>
           {t('board.newApplication')}
         </Button>
       </Stack>
@@ -212,23 +248,34 @@ export function BoardPage() {
         </Alert>
       )}
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragCancel={resetDrag}
-      >
-        <Box sx={{ display: 'flex', gap: 2.5, overflowX: 'auto', pb: 1, flexGrow: 1, minHeight: 0, alignItems: 'stretch' }}>
-          {APPLICATION_STATUSES.map((status) => (
-            <BoardColumn key={status} status={status} items={columns[status]} onAdd={openCreate} onOpen={openCard} />
-          ))}
-        </Box>
+      {!isDesktop ? (
+        <MobileBoard
+          columns={serverColumns}
+          active={activeStatus}
+          onActiveChange={setMobileStatus}
+          onOpen={openCard}
+          onAdd={openCreate}
+          onMove={moveCard}
+        />
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={resetDrag}
+        >
+          <Box sx={{ display: 'flex', gap: 2.5, overflowX: 'auto', pb: 1, flexGrow: 1, minHeight: 0, alignItems: 'stretch' }}>
+            {APPLICATION_STATUSES.map((status) => (
+              <BoardColumn key={status} status={status} items={columns[status]} onAdd={openCreate} onOpen={openCard} />
+            ))}
+          </Box>
 
-        {/* Imlecle birlikte hareket eden kopya. Liste kaydirilsa/yeniden cizilse de akici kalir. */}
-        <DragOverlay>{activeItem ? <JobCardView item={activeItem} overlay /> : null}</DragOverlay>
-      </DndContext>
+          {/* Imlecle birlikte hareket eden kopya. Liste kaydirilsa/yeniden cizilse de akici kalir. */}
+          <DragOverlay>{activeItem ? <JobCardView item={activeItem} overlay /> : null}</DragOverlay>
+        </DndContext>
+      )}
 
       <JobApplicationDetailDrawer
         id={openId}
@@ -255,6 +302,7 @@ export function BoardPage() {
         onClose={() => setToast(null)}
         message={toast}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{ bottom: { xs: 'calc(80px + env(safe-area-inset-bottom))', md: 24 } }} // mobilde alt menunun ustunde
       />
     </Box>
   );

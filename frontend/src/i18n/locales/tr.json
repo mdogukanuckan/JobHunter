@@ -142,6 +142,15 @@
       "historyMoved": "{{from}} → {{to}}",
       "minutes_one": "{{count}} dk",
       "minutes_other": "{{count}} dk"
+    },
+    "mobile": {
+      "emptyStatus": "\"{{status}}\" durumunda başvuru yok.",
+      "addHere": "Buraya ekle",
+      "cardActions": "Kart işlemleri",
+      "moveUp": "Yukarı taşı",
+      "moveDown": "Aşağı taşı",
+      "moveTo": "Şuraya taşı",
+      "moved": "{{company}} → {{status}}"
     }
   },
   "workMode": {
