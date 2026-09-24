@@ -33,15 +33,30 @@ public static class DependencyInjection
             : CvUploadSettings.DefaultMaxSizeBytes;
         services.AddSingleton(new CvUploadSettings(maxCvSize));
 
-        // Faz 8: otomasyon ayarlari (appsettings "Automation" bolumu; ApiKey user-secrets'ta).
-        services.AddSingleton(new AutomationOptions
+        // Otomasyon ayarlari (appsettings "Automation" bolumu; ApiKey ve N8nWebhookSecret user-secrets'ta).
+        var automationOptions = new AutomationOptions
         {
             ApiKey = configuration["Automation:ApiKey"],
             N8nWebhookUrl = configuration["Automation:N8nWebhookUrl"],
+            N8nWebhookSecret = configuration["Automation:N8nWebhookSecret"],
             PublicBaseUrl = configuration["Automation:PublicBaseUrl"]
-        });
-        // Faz 9'da: services.AddHttpClient<IAutomationDispatcher, N8nWebhookDispatcher>();
-        services.AddScoped<IAutomationDispatcher, LoggingAutomationDispatcher>();
+        };
+        services.AddSingleton(automationOptions);
+
+        // Faz 9: n8n adresi ayarliysa gercek webhook, degilse sadece log (n8n kapaliyken de backend calissin).
+        // AddHttpClient: HttpClient'i fabrikadan alir (soket tukenmesi / DNS onbellegi sorunlari olmaz).
+        if (!string.IsNullOrWhiteSpace(automationOptions.N8nWebhookUrl))
+        {
+            services.AddHttpClient<IAutomationDispatcher, N8nWebhookDispatcher>(client =>
+            {
+                // n8n webhook'u "hemen yanit ver" modunda: normalde milisaniyeler surer.
+                client.Timeout = TimeSpan.FromSeconds(10);
+            });
+        }
+        else
+        {
+            services.AddScoped<IAutomationDispatcher, LoggingAutomationDispatcher>();
+        }
 
         return services;
     }

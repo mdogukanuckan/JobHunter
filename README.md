@@ -52,7 +52,7 @@ frontend/src/
 | 7e | Yeni tasarim: ust menulu yerlesim (mobilde alt menu), 6 renk paleti, Acik/Koyu/Sistem modu (varsayilan Okyanus + Acik), Ayarlar sayfasi; tercih hesapta saklanir | Tamamlandi |
 | 7d | PWA (manifest, service worker, guncelleme bildirimi, cevrimdisi uyarisi) + mobil pano (durum sekmeleri) | Tamamlandi |
 | Faz 8 | Otomasyon cekirdegi: AutomationJob (deneme) + AutomationJobEvent (gunluk), durum makinesi, n8n callback'leri (X-Automation-Key), politikaya uyan veri paketi, IAutomationDispatcher (simdilik log) | Tamamlandi |
-| Faz 9 | n8n entegrasyonu (gercek webhook) | Sirada |
+| Faz 9 | n8n entegrasyonu: Docker'da n8n, N8nWebhookDispatcher (gercek webhook, X-JobHunter-Secret), iskelet workflow (veri paketi, CV, gunluk, hata dali, moda gore sonuc) | Devam ediyor |
 
 ## API Endpoint'leri
 
@@ -128,6 +128,7 @@ Durum akisi: `Queued → Running ⇄ AwaitingApproval → Completed / Failed / C
 ```
 dotnet user-secrets set "Jwt:Key" "<en-az-32-karakter>" --project src/JobHunter.API
 dotnet user-secrets set "Automation:ApiKey" "<uzun-rastgele-anahtar>" --project src/JobHunter.API
+dotnet user-secrets set "Automation:N8nWebhookSecret" "<uzun-rastgele-anahtar>" --project src/JobHunter.API
 dotnet ef database update --project src/JobHunter.Infrastructure --startup-project src/JobHunter.API
 dotnet run --project src/JobHunter.API
 ```
@@ -141,6 +142,8 @@ npm run dev
 ```
 
 Uygulama: `http://localhost:5173` (Vite, `/api` isteklerini `localhost:5080`'e proxy'ler).
+
+n8n (otomasyon): kurulum ve kullanim icin `automation/n8n/README.md`. `appsettings.Development.json` n8n'i `http://localhost:5678` adresinde bekler; `Automation:N8nWebhookUrl` bos birakilirsa backend n8n'e istek atmaz, sadece loglar.
 
 Swagger: `http://localhost:5080/swagger` (Development ortami `launchSettings.json` ile ayarlanir).
 

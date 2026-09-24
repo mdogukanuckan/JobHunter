@@ -5,11 +5,10 @@ using Microsoft.Extensions.Logging;
 namespace JobHunter.Infrastructure.Automation;
 
 /// <summary>
-/// Faz 8 dispatcher'i: n8n'e gercek istek ATMAZ, sadece ne gonderecegini loglar.
-/// Boylece backend n8n kurulmadan test edilebilir: is Queued kalir, n8n'in yapacagi callback'leri
-/// Swagger / Postman ile elle atarak tum akis denenir.
-/// Faz 9'da yerini Automation:N8nWebhookUrl'e HTTP POST atan N8nWebhookDispatcher alacak
-/// (DependencyInjection.cs'te tek satir degisir, baska hicbir kod degismez: arayuzun faydasi bu).
+/// n8n'e istek ATMAYAN dispatcher: sadece ne gonderecegini loglar.
+/// Automation:N8nWebhookUrl bossa kullanilir (bkz. DependencyInjection.cs); boylece n8n kapaliyken de
+/// backend calisir, n8n'in callback'leri Swagger / Postman ile elle atilarak akis denenebilir.
+/// Adres ayarliysa yerine N8nWebhookDispatcher gecer.
 /// </summary>
 public class LoggingAutomationDispatcher : IAutomationDispatcher
 {
@@ -26,7 +25,7 @@ public class LoggingAutomationDispatcher : IAutomationDispatcher
     {
         _logger.LogInformation(
             "[Automation] Is kuyrukta: {JobId} (deneme #{Attempt}, {Mode}) {Company} / {Title}. " +
-            "n8n webhook: {WebhookUrl} (Faz 8: istek gonderilmedi). Veri paketi: {PayloadUrl}",
+            "n8n webhook: {WebhookUrl} (istek gonderilmedi: LoggingAutomationDispatcher). Veri paketi: {PayloadUrl}",
             message.JobId, message.AttemptNumber, message.Mode, message.CompanyName, message.JobTitle,
             string.IsNullOrWhiteSpace(_options.N8nWebhookUrl) ? "(ayarlanmamis)" : _options.N8nWebhookUrl,
             message.PayloadUrl);

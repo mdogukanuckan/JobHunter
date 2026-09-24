@@ -11,8 +11,18 @@ public class AutomationOptions
     /// </summary>
     public string? ApiKey { get; init; }
 
-    /// <summary>Is kuyruga girince backend'in POST atacagi n8n Webhook node adresi (Faz 9'da kullanilacak).</summary>
+    /// <summary>
+    /// Is kuyruga girince backend'in POST atacagi n8n Webhook node adresi,
+    /// orn. "http://localhost:5678/webhook/jobhunter-apply". Bos ise n8n'e istek atilmaz, sadece loglanir.
+    /// </summary>
     public string? N8nWebhookUrl { get; init; }
+
+    /// <summary>
+    /// Backend → n8n yonu icin gizli anahtar. Webhook isteginde "X-JobHunter-Secret" header'inda gider;
+    /// n8n'deki Webhook node'u (Header Auth credential'i) bunu dogrular. ApiKey'den (n8n → backend) AYRI tutulur:
+    /// biri sizarsa digeri guvende kalir. Gizli deger: user-secrets.
+    /// </summary>
+    public string? N8nWebhookSecret { get; init; }
 
     /// <summary>
     /// n8n'in backend'e ulasacagi adres, orn. "http://host.docker.internal:5080".
