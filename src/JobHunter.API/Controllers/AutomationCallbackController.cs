@@ -63,7 +63,37 @@ public class AutomationCallbackController : ControllerBase
     public Task<ActionResult<AutomationEventResponse>> AddEvent(Guid jobId, AddAutomationEventRequest request, CancellationToken ct)
         => Handle(() => _service.AddEventAsync(jobId, request, ct));
 
-    private async Task<ActionResult<T>> Handle<T>(Func<Task<T>> action)
+    // ---- Faz 11: onay ekrani ----
+
+    /// <summary>Doldurma turunun (Fill) inceleme raporu. Govde serbest JSON: { "report": {...} }.</summary>
+    [HttpPut("review")]
+    public Task<ActionResult<AutomationJobResponse>> SubmitReview(Guid jobId, SubmitAutomationReviewRequest request, CancellationToken ct)
+        => Handle(() => _service.SubmitReviewAsync(jobId, request, ct));
+
+    /// <summary>Inceleme ekran goruntusu (multipart/form-data, alan adi "file").</summary>
+    [HttpPost("screenshot")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(10 * 1024 * 1024)]
+    public async Task<IActionResult> UploadScreenshot(Guid jobId, IFormFile file, CancellationToken ct)
+    {
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            await _service.SaveScreenshotAsync(jobId, stream, file.ContentType, ct);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>Submit turunda okunur: kullanicinin onay ekranindan girdigi cevaplar + KVKK durumu.</summary>
+    [HttpGet("approval-answers")]
+    public Task<ActionResult<AutomationApprovalAnswersResponse>> GetApprovalAnswers(Guid jobId, CancellationToken ct)
+        => Handle(() => _service.GetApprovalAnswersAsync(jobId, ct));
+
+        private async Task<ActionResult<T>> Handle<T>(Func<Task<T>> action)
     {
         try
         {

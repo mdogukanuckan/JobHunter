@@ -26,6 +26,8 @@ services:
       - WEBHOOK_URL=http://localhost:5678/
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_PERSONALIZATION_ENABLED=false
+      # Faz 13: WhatsApp bildirimi icin expression'larda $env erisimine izin ver
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       # Calisma kayitlari (execution) kisisel veri icerir (profil paketi): 14 gunden eskiler silinir.
       - EXECUTIONS_DATA_PRUNE=true
       - EXECUTIONS_DATA_MAX_AGE=336

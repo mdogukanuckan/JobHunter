@@ -39,5 +39,22 @@ public class AutomationJob : BaseEntity
     /// <summary>Completed ise kisa sonuc, orn. "Basvuru gonderildi, onay e-postasi bekleniyor".</summary>
     public string? ResultSummary { get; set; }
 
+    // ---- Faz 11: onay ekrani ----
+
+    /// <summary>Worker'in doldurma turunda cikardigi inceleme raporu (alan/tip/kaynak/zorunlu/neden), JSON.</summary>
+    public string? ReviewReportJson { get; set; }
+
+    /// <summary>Inceleme ekran goruntusunun depolama anahtari (IFileStorage). Yoksa null.</summary>
+    public string? ReviewScreenshotKey { get; set; }
+
+    /// <summary>
+    /// Kullanicinin onay ekraninda girdigi/duzenledigi cevaplar (TC kimlik dahil), JSON.
+    /// Gizlilik: is bitmis (terminal) duruma gecince AutomationWorkflow tarafindan silinir.
+    /// </summary>
+    public string? ApprovalAnswersJson { get; set; }
+
+    /// <summary>KVKK/aydinlatma metni onay kutusu isaretlendi mi (Insan onaylida kullanici, Otomatikte sistem isaretler).</summary>
+    public bool KvkkAccepted { get; set; }
+
     public ICollection<AutomationJobEvent> Events { get; set; } = new List<AutomationJobEvent>();
 }

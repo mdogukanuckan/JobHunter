@@ -24,4 +24,18 @@ public interface IAutomationJobService
 
     /// <summary>n8n'e gidecek veri paketinin onizlemesi (ne paylasiliyor, kullanici gorebilsin).</summary>
     Task<AutomationPayload> GetPayloadPreviewAsync(Guid id, CancellationToken cancellationToken = default);
+
+    // ---- Faz 11: onay ekrani ----
+
+    /// <summary>AwaitingApproval'daki (ya da bitmis) bir denemenin inceleme raporu.</summary>
+    Task<AutomationReviewResponse> GetReviewAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>Inceleme ekran goruntusu. Yoksa KeyNotFoundException.</summary>
+    Task<JobHunter.Application.Cvs.Dtos.CvFileResult> GetReviewScreenshotAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Kullanici onay ekranindan gonderir: cevaplari + KVKK'yi kaydeder, isi tekrar Running yapar ve
+    /// n8n'e Phase=Submit ile bildirir. Is AwaitingApproval'da degilse AutomationConflictException.
+    /// </summary>
+    Task<AutomationJobResponse> ApproveAsync(Guid id, ApproveAutomationRequest request, CancellationToken cancellationToken = default);
 }

@@ -7,6 +7,7 @@ using JobHunter.Domain.Entities;
 using JobHunter.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace JobHunter.Application.Automation.Services;
 
@@ -18,6 +19,7 @@ public class AutomationJobService : IAutomationJobService
     private readonly ICurrentUserService _currentUser;
     private readonly IAutomationDispatcher _dispatcher;
     private readonly IAutomationPayloadBuilder _payloadBuilder;
+    private readonly IFileStorage _fileStorage;
     private readonly AutomationOptions _options;
     private readonly ILogger<AutomationJobService> _logger;
 
@@ -26,6 +28,7 @@ public class AutomationJobService : IAutomationJobService
         ICurrentUserService currentUser,
         IAutomationDispatcher dispatcher,
         IAutomationPayloadBuilder payloadBuilder,
+        IFileStorage fileStorage,
         AutomationOptions options,
         ILogger<AutomationJobService> logger)
     {
@@ -33,6 +36,7 @@ public class AutomationJobService : IAutomationJobService
         _currentUser = currentUser;
         _dispatcher = dispatcher;
         _payloadBuilder = payloadBuilder;
+        _fileStorage = fileStorage;
         _options = options;
         _logger = logger;
     }
@@ -98,7 +102,11 @@ public class AutomationJobService : IAutomationJobService
                 application.CompanyName, application.JobTitle, application.JobUrl,
                 _options.BuildUrl(AutomationCallbackPaths.Payload(job.Id)),
                 _options.BuildUrl(AutomationCallbackPaths.Status(job.Id)),
-                _options.BuildUrl(AutomationCallbackPaths.Events(job.Id))),
+                _options.BuildUrl(AutomationCallbackPaths.Events(job.Id)),
+                AutomationDispatchPhase.Fill,
+                _options.BuildUrl(AutomationCallbackPaths.Review(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.Screenshot(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.ApprovalAnswers(job.Id))),
                 cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -161,7 +169,88 @@ public class AutomationJobService : IAutomationJobService
         return await _payloadBuilder.BuildAsync(id, cancellationToken);
     }
 
-    /// <summary>Sadece kullanicinin kendi basvurularina ait denemeler (sahiplik basvuru uzerinden).</summary>
+    // ---- Faz 11: onay ekrani ----
+
+    public async Task<AutomationReviewResponse> GetReviewAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var job = await OwnedJobs().AsNoTracking().FirstOrDefaultAsync(j => j.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException("Otomasyon isi bulunamadi.");
+
+        JsonElement? report = job.ReviewReportJson is null
+            ? null
+            : JsonDocument.Parse(job.ReviewReportJson).RootElement.Clone();
+
+        return new AutomationReviewResponse(report, !string.IsNullOrWhiteSpace(job.ReviewScreenshotKey));
+    }
+
+    public async Task<JobHunter.Application.Cvs.Dtos.CvFileResult> GetReviewScreenshotAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var key = await OwnedJobs().AsNoTracking()
+            .Where(j => j.Id == id)
+            .Select(j => j.ReviewScreenshotKey)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(key))
+            throw new KeyNotFoundException("Bu denemeye ait inceleme ekran goruntusu yok (veya is bulunamadi).");
+
+        var stream = await _fileStorage.OpenReadAsync(key, cancellationToken)
+            ?? throw new KeyNotFoundException("Ekran goruntusu dosyasi depolamada bulunamadi.");
+
+        var contentType = key.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ? "image/jpeg" : "image/png";
+        return new JobHunter.Application.Cvs.Dtos.CvFileResult(stream, contentType, "onay-ekrani" + Path.GetExtension(key));
+    }
+
+    public async Task<AutomationJobResponse> ApproveAsync(Guid id, ApproveAutomationRequest request, CancellationToken cancellationToken = default)
+    {
+        var job = await OwnedJobs()
+            .Include(j => j.Events)
+            .FirstOrDefaultAsync(j => j.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException("Otomasyon isi bulunamadi.");
+
+        if (job.Status != AutomationJobStatus.AwaitingApproval)
+            throw new AutomationConflictException($"Bu is su an onay bekliyor degil ({job.Status}); onaylanamaz.");
+
+        if (!request.KvkkAccepted)
+            throw new BusinessValidationException("KVKK / aydinlatma metni onay kutusu isaretlenmeli.");
+
+        job.ApprovalAnswersJson = request.Answers?.GetRawText();
+        job.KvkkAccepted = true;
+
+        // Cevaplarin kendisi (TC kimlik dahil olabilir) gunluge YAZILMAZ, sadece kac tane geldigi.
+        var answerCount = request.Answers is { ValueKind: JsonValueKind.Object } obj ? obj.EnumerateObject().Count() : 0;
+        AutomationWorkflow.AddEvent(_context, job, AutomationEventLevel.Info, "approved",
+            $"Kullanici onayladi ({answerCount} cevap girildi). Gonderim icin n8n'e iletiliyor.");
+
+        AutomationWorkflow.ChangeStatus(_context, job, AutomationJobStatus.Running,
+            "Onaylandi, gonderim baslatiliyor.", "user");
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _dispatcher.DispatchAsync(new AutomationDispatchMessage(
+                job.Id, job.JobApplicationId, job.AttemptNumber, job.Mode,
+                job.JobApplication.CompanyName, job.JobApplication.JobTitle, job.JobApplication.JobUrl,
+                _options.BuildUrl(AutomationCallbackPaths.Payload(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.Status(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.Events(job.Id)),
+                AutomationDispatchPhase.Submit,
+                _options.BuildUrl(AutomationCallbackPaths.Review(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.Screenshot(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.ApprovalAnswers(job.Id))),
+                cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Onay sonrasi gonderim isi {JobId} n8n'e iletilemedi.", job.Id);
+            AutomationWorkflow.ChangeStatus(_context, job, AutomationJobStatus.Failed, null, "system",
+                errorMessage: $"n8n'e iletilemedi: {ex.Message}");
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        return AutomationMappings.ToResponse(job, includeEvents: true);
+    }
+
+        /// <summary>Sadece kullanicinin kendi basvurularina ait denemeler (sahiplik basvuru uzerinden).</summary>
     private IQueryable<AutomationJob> OwnedJobs()
     {
         var userId = _currentUser.GetRequiredUserId();

@@ -65,6 +65,36 @@ public class AutomationJobsController : ControllerBase
     public Task<ActionResult<AutomationPayload>> GetPayload(Guid id, CancellationToken ct)
         => Handle(() => _service.GetPayloadPreviewAsync(id, ct));
 
+    // ---- Faz 11: onay ekrani ----
+
+    /// <summary>Onay ekraninda gosterilecek inceleme raporu (worker'in doldurma turu ciktisi).</summary>
+    [HttpGet("{id:guid}/review")]
+    public Task<ActionResult<AutomationReviewResponse>> GetReview(Guid id, CancellationToken ct)
+        => Handle(() => _service.GetReviewAsync(id, ct));
+
+    /// <summary>Inceleme ekran goruntusu (resim).</summary>
+    [HttpGet("{id:guid}/review-screenshot")]
+    public async Task<IActionResult> GetReviewScreenshot(Guid id, CancellationToken ct)
+    {
+        try
+        {
+            var file = await _service.GetReviewScreenshotAsync(id, ct);
+            return File(file.Content, file.ContentType, file.FileName);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Onay ekranindan gonderilir: cevaplari (TC kimlik dahil olabilir) ve KVKK onayini kaydeder,
+    /// gonderim icin n8n'e Phase=Submit ile bildirir. 409: is su an onay bekliyor degil.
+    /// </summary>
+    [HttpPost("{id:guid}/approve")]
+    public Task<ActionResult<AutomationJobResponse>> Approve(Guid id, ApproveAutomationRequest request, CancellationToken ct)
+        => Handle(() => _service.ApproveAsync(id, request, ct));
+
     private async Task<ActionResult<T>> Handle<T>(Func<Task<T>> action)
     {
         try

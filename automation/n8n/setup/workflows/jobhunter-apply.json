@@ -259,6 +259,73 @@
       "onError": "continueErrorOutput",
       "notes": "Worker sonucu → iş durumu",
       "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sonucu yorumla ciktisindan WhatsApp bildirim metni olusturur.\nconst r = $input.first().json;\nconst jobId = $('İş bilgisi').first().json.jobId;\nconst sb = r.statusBody;\nlet text;\nswitch (sb.status) {\n  case 'Completed':\n    text = `✅ Başvuru gönderildi (iş #${jobId}). ${sb.message || ''}`;\n    break;\n  case 'AwaitingApproval':\n    text = `⏳ Onay bekliyor (iş #${jobId}): ${sb.message || ''}`;\n    break;\n  case 'Failed':\n    text = `❌ Başvuru başarısız (iş #${jobId}): ${sb.errorMessage || ''}`;\n    break;\n  default:\n    text = `İş #${jobId} durumu: ${sb.status}`;\n}\nreturn [{ json: { text: text.slice(0, 1000) } }];"
+      },
+      "id": "jh-node-22",
+      "name": "Bildirim metni: sonuç",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        460
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Faz 13: WhatsApp icin durum metni",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Hata dalindan WhatsApp bildirim metni olusturur.\nconst jobId = $('İş bilgisi').first().json.jobId;\nconst errorMessage = $json.errorMessage;\nreturn [{ json: { text: `❌ Başvuru başarısız (iş #${jobId}): ${errorMessage}`.slice(0, 1000) } }];"
+      },
+      "id": "jh-node-23",
+      "name": "Bildirim metni: hata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        780
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Faz 13: WhatsApp icin hata metni",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.callmebot.com/whatsapp.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $env.CALLMEBOT_PHONE }}"
+            },
+            {
+              "name": "apikey",
+              "value": "={{ $env.CALLMEBOT_API_KEY }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "jh-node-24",
+      "name": "WhatsApp gönder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        620
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Faz 13: CallMeBot ile kendine WhatsApp bildirimi (basarisiz olursa is akisini bozmaz)",
+      "notesInFlow": true
     }
   ],
   "connections": {
@@ -375,6 +442,11 @@
             "node": "Durum: Failed",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Bildirim metni: hata",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -404,11 +476,38 @@
             "node": "Sonuç durumu",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Bildirim metni: sonuç",
+            "type": "main",
+            "index": 0
           }
         ],
         [
           {
             "node": "Hatayı hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bildirim metni: sonuç": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp gönder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bildirim metni: hata": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp gönder",
             "type": "main",
             "index": 0
           }

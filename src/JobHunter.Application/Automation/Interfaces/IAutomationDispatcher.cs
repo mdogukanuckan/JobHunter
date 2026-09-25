@@ -28,4 +28,9 @@ public record AutomationDispatchMessage(
     string? JobUrl,
     string PayloadUrl,
     string StatusUrl,
-    string EventsUrl);
+    string EventsUrl,
+    // Faz 11: onay ekrani
+    AutomationDispatchPhase Phase,
+    string ReviewUrl,
+    string ScreenshotUrl,
+    string ApprovalAnswersUrl);

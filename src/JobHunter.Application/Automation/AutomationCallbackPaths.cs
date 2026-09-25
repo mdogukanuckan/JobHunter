@@ -13,4 +13,9 @@ public static class AutomationCallbackPaths
     public static string Cv(Guid jobId) => $"/{Base}/{jobId}/cv";
     public static string Status(Guid jobId) => $"/{Base}/{jobId}/status";
     public static string Events(Guid jobId) => $"/{Base}/{jobId}/events";
+
+    // Faz 11: onay ekrani
+    public static string Review(Guid jobId) => $"/{Base}/{jobId}/review";
+    public static string Screenshot(Guid jobId) => $"/{Base}/{jobId}/screenshot";
+    public static string ApprovalAnswers(Guid jobId) => $"/{Base}/{jobId}/approval-answers";
 }

@@ -17,6 +17,12 @@ public class AutomationJobConfiguration : IEntityTypeConfiguration<AutomationJob
         builder.Property(j => j.ErrorMessage).HasMaxLength(2000);
         builder.Property(j => j.ResultSummary).HasMaxLength(2000);
 
+        // Faz 11: onay ekrani
+        builder.Property(j => j.ReviewReportJson).HasColumnType("jsonb");
+        builder.Property(j => j.ReviewScreenshotKey).HasMaxLength(260);
+        builder.Property(j => j.ApprovalAnswersJson).HasColumnType("jsonb");
+        builder.Property(j => j.KvkkAccepted).IsRequired().HasDefaultValue(false);
+
         // Ayni basvurunun deneme numaralari tekrar etmez (1, 2, 3...).
         builder.HasIndex(j => new { j.JobApplicationId, j.AttemptNumber }).IsUnique();
         // Liste / pano sorgulari: "aktif isler", "basarisiz olanlar".

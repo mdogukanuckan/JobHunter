@@ -15,6 +15,12 @@ public record CancelAutomationRequest([MaxLength(500)] string? Reason = null);
 // ---------- n8n (API anahtari) istekleri ----------
 
 /// <summary>
+/// n8n/worker doldurma turunun (Phase: Fill) sonucunu bildirir: inceleme raporu.
+/// Serbest JSON olarak saklanir (worker'in filled/skipped alan listeleri); onay ekrani bunu oldugu gibi gosterir.
+/// </summary>
+public record SubmitAutomationReviewRequest([Required] JsonElement Report);
+
+/// <summary>
 /// n8n durum bildirir. Ornek: { "status": "Running", "message": "Ilan sayfasi acildi" }.
 /// Ayni durumu tekrar gondermek hata degildir (n8n yeniden denerse sorun cikmasin): degisiklik yapilmaz.
 /// Failed icin errorMessage, Completed icin resultSummary doldurulmasi beklenir.
@@ -34,6 +40,19 @@ public record AddAutomationEventRequest(
     [MaxLength(100)] string? Step,
     [Required, MaxLength(2000)] string Message,
     JsonElement? Data);
+
+/// <summary>Onay ekraninda kullaniciya gosterilecek inceleme raporu + ekran goruntusu var mi.</summary>
+public record AutomationReviewResponse(JsonElement? Report, bool HasScreenshot);
+
+/// <summary>
+/// Kullanicinin onay ekranindan gonderdigi cevaplar (TC kimlik dahil olabilir) + KVKK onayi.
+/// Serbest JSON: { "fieldName": "deger", ... }. Insan onaylida KvkkAccepted kullanicinin isaretledigi kutu;
+/// Otomatik modda backend bunu kendisi true yapar (gunluge uyari yazilir).
+/// </summary>
+public record ApproveAutomationRequest(JsonElement? Answers, bool KvkkAccepted);
+
+/// <summary>n8n/worker'in Submit turunda okudugu onay cevaplari. Answers null ise onay verilmemis demektir.</summary>
+public record AutomationApprovalAnswersResponse(JsonElement? Answers, bool KvkkAccepted);
 
 // ---------- Yanitlar ----------
 

@@ -74,7 +74,52 @@ public class AutomationCallbackService : IAutomationCallbackService
         return AutomationMappings.ToResponse(e);
     }
 
-    private async Task<AutomationJob> FindAsync(Guid jobId, CancellationToken cancellationToken)
+    // ---- Faz 11: onay ekrani ----
+
+    public async Task<AutomationJobResponse> SubmitReviewAsync(Guid jobId, SubmitAutomationReviewRequest request, CancellationToken cancellationToken = default)
+    {
+        var job = await FindAsync(jobId, cancellationToken);
+
+        job.ReviewReportJson = request.Report.GetRawText();
+        job.UpdatedAt = DateTime.UtcNow;
+        AutomationWorkflow.AddEvent(_context, job, JobHunter.Domain.Enums.AutomationEventLevel.Info, "review_report",
+            "Inceleme raporu kaydedildi.");
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return AutomationMappings.ToResponse(job, includeEvents: false);
+    }
+
+    public async Task SaveScreenshotAsync(Guid jobId, Stream content, string contentType, CancellationToken cancellationToken = default)
+    {
+        var job = await FindAsync(jobId, cancellationToken);
+
+        var extension = contentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase) ? ".jpg" : ".png";
+        var newKey = await _fileStorage.SaveAsync(content, extension, cancellationToken);
+
+        var oldKey = job.ReviewScreenshotKey;
+        job.ReviewScreenshotKey = newKey;
+        job.UpdatedAt = DateTime.UtcNow;
+        AutomationWorkflow.AddEvent(_context, job, JobHunter.Domain.Enums.AutomationEventLevel.Info, "review_screenshot",
+            "Inceleme ekran goruntusu kaydedildi.");
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(oldKey))
+            await _fileStorage.DeleteAsync(oldKey, cancellationToken);
+    }
+
+    public async Task<AutomationApprovalAnswersResponse> GetApprovalAnswersAsync(Guid jobId, CancellationToken cancellationToken = default)
+    {
+        var job = await FindAsync(jobId, cancellationToken);
+
+        JsonElement? answers = job.ApprovalAnswersJson is null
+            ? null
+            : JsonDocument.Parse(job.ApprovalAnswersJson).RootElement.Clone();
+
+        return new AutomationApprovalAnswersResponse(answers, job.KvkkAccepted);
+    }
+
+        private async Task<AutomationJob> FindAsync(Guid jobId, CancellationToken cancellationToken)
         => await _context.AutomationJobs
                .Include(j => j.JobApplication)
                .Include(j => j.Cv)

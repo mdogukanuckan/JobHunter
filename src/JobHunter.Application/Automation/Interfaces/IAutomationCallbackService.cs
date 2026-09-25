@@ -18,4 +18,15 @@ public interface IAutomationCallbackService
     Task<AutomationJobResponse> UpdateStatusAsync(Guid jobId, UpdateAutomationStatusRequest request, CancellationToken cancellationToken = default);
 
     Task<AutomationEventResponse> AddEventAsync(Guid jobId, AddAutomationEventRequest request, CancellationToken cancellationToken = default);
+
+    // ---- Faz 11: onay ekrani ----
+
+    /// <summary>Doldurma turunun (Fill) inceleme raporunu kaydeder.</summary>
+    Task<AutomationJobResponse> SubmitReviewAsync(Guid jobId, SubmitAutomationReviewRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>Inceleme ekran goruntusunu kaydeder (IFileStorage).</summary>
+    Task SaveScreenshotAsync(Guid jobId, Stream content, string contentType, CancellationToken cancellationToken = default);
+
+    /// <summary>Submit turunda worker'in okuyacagi onay cevaplari + KVKK durumu.</summary>
+    Task<AutomationApprovalAnswersResponse> GetApprovalAnswersAsync(Guid jobId, CancellationToken cancellationToken = default);
 }
