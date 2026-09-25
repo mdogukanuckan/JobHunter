@@ -31,7 +31,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Webhook ciktisi: { headers, params, query, body }. Bize lazim olan body.\n// Sonraki node'lar bu bilgilere $('İş bilgisi').first().json.xxx ile ulasir.\nconst body = $input.first().json.body || {};\nif (!body.jobId || !body.statusUrl || !body.payloadUrl || !body.eventsUrl) {\n  throw new Error('Gecersiz mesaj: jobId / statusUrl / payloadUrl / eventsUrl eksik.');\n}\nreturn [{ json: body }];"
+        "jsCode": "// Webhook çıktısı: { headers, params, query, body }. Bize lazım olan body.\n// Sonraki node'lar bu bilgilere $('İş bilgisi').first().json.xxx ile ulasir.\nconst body = $input.first().json.body || {};\nif (!body.jobId || !body.statusUrl || !body.payloadUrl || !body.eventsUrl) {\n  throw new Error('Geçersiz mesaj: jobId / statusUrl / payloadUrl / eventsUrl eksik.');\n}\nreturn [{ json: body }];"
       },
       "id": "jh-node-02",
       "name": "İş bilgisi",
@@ -52,7 +52,7 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ status: 'Running', message: 'n8n isi aldi (execution #' + $execution.id + ')' }) }}",
+        "jsonBody": "={{ JSON.stringify({ status: 'Running', message: 'n8n işi aldı (execution #' + $execution.id + ')' }) }}",
         "options": {}
       },
       "id": "jh-node-03",
@@ -94,12 +94,12 @@
         }
       },
       "onError": "continueErrorOutput",
-      "notes": "Profil, politikalar, hazir cevaplar, CV linki. Faz 10'da tarayici otomasyonu bu veriyi kullanacak.",
+      "notes": "Profil, politikalar, hazır cevaplar. Burada sadece özet için; tarayıcı adımı paketi kendisi çeker.",
       "notesInFlow": true
     },
     {
       "parameters": {
-        "jsCode": "// Veri paketinden gunluge yazilacak kisa bir ozet cikarir.\n// Tam paket hala $('Veri paketini çek').first().json icinde duruyor (Faz 10 onu kullanacak).\nconst p = $input.first().json;\n\nconst policy = { auto: [], askFirst: [], never: [] };\nfor (const [key, field] of Object.entries(p.policyFields || {})) {\n  const value = String(field?.policy ?? 'Auto');\n  if (value === 'Never') policy.never.push(key);\n  else if (value === 'AskFirst') policy.askFirst.push(key);\n  else policy.auto.push(key);\n}\n\nconst counts = {\n  workExperiences: (p.workExperiences || []).length,\n  educations: (p.educations || []).length,\n  languages: (p.languages || []).length,\n  certificates: (p.certificates || []).length,\n  screeningAnswers: (p.screeningAnswers || []).length,\n  customFields: (p.customFields || []).length,\n};\nconst warnings = p.warnings || [];\n\nlet message = `Veri paketi alindi: ${counts.workExperiences} deneyim, ${counts.educations} egitim, ` +\n  `${counts.screeningAnswers} hazir cevap. Once sorulacak alan: ${policy.askFirst.length}, ` +\n  `asla doldurulmayacak: ${policy.never.length}.`;\nif (warnings.length) message += ` Uyari: ${warnings.join(' | ')}`;\n\nreturn [{\n  json: {\n    level: warnings.length ? 'Warning' : 'Info',\n    message,\n    counts,\n    policy,\n    warnings,\n    hasCv: !!p.cv,\n    cvUrl: p.cv?.downloadUrl ?? null,\n    cvName: p.cv?.name ?? null,\n  },\n}];"
+        "jsCode": "// Veri paketinden gunluge yazilacak kisa bir ozet cikarir.\n// Tam paketi browser-worker backend'den kendisi çeker; burada sadece günlük için özet çıkarılır.\nconst p = $input.first().json;\n\nconst policy = { auto: [], askFirst: [], never: [] };\nfor (const [key, field] of Object.entries(p.policyFields || {})) {\n  const value = String(field?.policy ?? 'Auto');\n  if (value === 'Never') policy.never.push(key);\n  else if (value === 'AskFirst') policy.askFirst.push(key);\n  else policy.auto.push(key);\n}\n\nconst counts = {\n  workExperiences: (p.workExperiences || []).length,\n  educations: (p.educations || []).length,\n  languages: (p.languages || []).length,\n  certificates: (p.certificates || []).length,\n  screeningAnswers: (p.screeningAnswers || []).length,\n  customFields: (p.customFields || []).length,\n};\nconst warnings = p.warnings || [];\n\nlet message = `Veri paketi alındı: ${counts.workExperiences} deneyim, ${counts.educations} eğitim, ` +\n  `${counts.screeningAnswers} hazır cevap. Önce sorulacak alan: ${policy.askFirst.length}, ` +\n  `asla doldurulmayacak: ${policy.never.length}.`;\nif (warnings.length) message += ` Uyarı: ${warnings.join(' | ')}`;\n\nreturn [{\n  json: {\n    level: warnings.length ? 'Warning' : 'Info',\n    message,\n    counts,\n    policy,\n    warnings,\n    hasCv: !!p.cv,\n    cvUrl: p.cv?.downloadUrl ?? null,\n    cvName: p.cv?.name ?? null,\n  },\n}];"
       },
       "id": "jh-node-05",
       "name": "Paketi özetle",
@@ -142,147 +142,13 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ $('Paketi özetle').first().json.hasCv }}",
-              "value2": true
-            }
-          ]
-        }
-      },
-      "id": "jh-node-07",
-      "name": "CV var mı?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        1320,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "method": "GET",
-        "url": "={{ $('Paketi özetle').first().json.cvUrl }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "file",
-              "outputPropertyName": "cv"
-            }
-          }
-        }
-      },
-      "id": "jh-node-08",
-      "name": "CV indir",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1540,
-        200
-      ],
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "jhApiKeyCred0001",
-          "name": "JobHunter API Key"
-        }
-      },
-      "onError": "continueErrorOutput",
-      "notes": "Dosya binary olarak 'cv' alanina iner",
-      "notesInFlow": true
-    },
-    {
-      "parameters": {
-        "jsCode": "// Inen dosyayi kontrol eder; binary'yi bir sonraki adima tasir (Faz 10 forma yukleyecek).\nconst item = $input.first();\nconst file = item.binary?.cv;\nif (!file) throw new Error('CV indirildi ama dosya bos geldi.');\nreturn [{\n  json: { fileName: file.fileName, mimeType: file.mimeType, fileSize: file.fileSize },\n  binary: item.binary,\n}];"
-      },
-      "id": "jh-node-09",
-      "name": "CV kontrol",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1760,
-        200
-      ],
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('İş bilgisi').first().json.eventsUrl }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ level: 'Info', step: 'download_cv', message: 'CV indirildi: ' + $json.fileName + ' (' + $json.fileSize + ')' }) }}",
-        "options": {}
-      },
-      "id": "jh-node-10",
-      "name": "Günlük: CV indirildi",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1980,
-        200
-      ],
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "jhApiKeyCred0001",
-          "name": "JobHunter API Key"
-        }
-      },
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('İş bilgisi').first().json.eventsUrl }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ level: 'Warning', step: 'download_cv', message: 'CV yok: form CV isterse is onaya dusecek (Faz 11).' }) }}",
-        "options": {}
-      },
-      "id": "jh-node-11",
-      "name": "Günlük: CV yok",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1540,
-        420
-      ],
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "jhApiKeyCred0001",
-          "name": "JobHunter API Key"
-        }
-      },
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {},
-      "id": "jh-node-12",
-      "name": "Faz 10: tarayıcı otomasyonu",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        2200,
-        300
-      ],
-      "notes": "Faz 10'da buraya ilan sayfasini acip formu dolduran adimlar gelecek. Simdilik hicbir sey yapmaz.",
-      "notesInFlow": true
-    },
-    {
-      "parameters": {
         "method": "PATCH",
         "url": "={{ $('İş bilgisi').first().json.statusUrl }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify(($('İş bilgisi').first().json.mode === 'HumanApproval'\n  ? { status: 'AwaitingApproval', message: 'Simulasyon: form doldurulmadi (Faz 10 henuz yok). Burada onay istenecek (Faz 11).' }\n  : { status: 'Completed', resultSummary: 'Simulasyon: form doldurulmadi (Faz 10 henuz yok).' })) }}",
+        "jsonBody": "={{ JSON.stringify($json.statusBody) }}",
         "options": {}
       },
       "id": "jh-node-13",
@@ -290,7 +156,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2420,
+        1760,
         300
       ],
       "credentials": {
@@ -300,12 +166,12 @@
         }
       },
       "onError": "continueErrorOutput",
-      "notes": "HumanApproval → AwaitingApproval, Automatic → Completed",
+      "notes": "Submitted → Completed, ReadyForApproval/NeedsInput → AwaitingApproval, Closed/Failed → Failed",
       "notesInFlow": true
     },
     {
       "parameters": {
-        "jsCode": "// \"Try/catch\" dali: Hata cikisi (kirmizi) olan her node buraya baglidir.\n// Hangi adimda ne oldugunu toplayip isi Failed yapacak mesaji hazirlar.\nconst err = $input.first().json.error;\nlet detail = 'Bilinmeyen hata';\nif (typeof err === 'string') detail = err;\nelse if (err) detail = err.message || err.description || JSON.stringify(err);\n\nconst step = $prevNode.name;\nreturn [{ json: { step, errorMessage: `${step} adiminda hata: ${detail}`.slice(0, 1500) } }];"
+        "jsCode": "// \"Try/catch\" dali: Hata cikisi (kirmizi) olan her node buraya baglidir.\n// Hangi adimda ne oldugunu toplayip isi Failed yapacak mesaji hazirlar.\nconst err = $input.first().json.error;\nlet detail = 'Bilinmeyen hata';\nif (typeof err === 'string') detail = err;\nelse if (err) detail = err.message || err.description || JSON.stringify(err);\n\nconst step = $prevNode.name;\nreturn [{ json: { step, errorMessage: `${step} adımında hata: ${detail}`.slice(0, 1500) } }];"
       },
       "id": "jh-node-14",
       "name": "Hatayı hazırla",
@@ -313,7 +179,7 @@
       "typeVersion": 2,
       "position": [
         1320,
-        700
+        640
       ],
       "notes": "Hata dali: hangi adim, ne hatasi",
       "notesInFlow": true
@@ -335,7 +201,7 @@
       "typeVersion": 4.2,
       "position": [
         1540,
-        700
+        640
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -345,6 +211,53 @@
       },
       "onError": "continueRegularOutput",
       "notes": "Is iptal edildiyse backend 409 doner; bu normal, gormezden gelinir",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://browser-worker:3100/apply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  jobId: $('İş bilgisi').first().json.jobId,\n  mode: $('İş bilgisi').first().json.mode,\n  jobUrl: $('Veri paketini çek').first().json.application.jobUrl ?? $('İş bilgisi').first().json.jobUrl,\n  payloadUrl: $('İş bilgisi').first().json.payloadUrl,\n  eventsUrl: $('İş bilgisi').first().json.eventsUrl\n}) }}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "jh-node-20",
+      "name": "Tarayıcı: formu doldur",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jhWorkerSecret01",
+          "name": "JobHunter Worker Secret"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "browser-worker (Playwright): sayfayı açar, formu doldurur, moda göre gönderir ya da durur. Adımları günlüğe kendisi yazar.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// browser-worker'ın sonucunu (outcome) işin son durumuna çevirir.\n//   Submitted        → Completed\n//   ReadyForApproval → AwaitingApproval (form dolu, Gönder'e basılmadı)\n//   NeedsInput       → AwaitingApproval (zorunlu alan eksik / önce sorulmalı)\n//   Closed / Failed  → Failed\n//   Cancelled        → hiçbir şey yapma (kullanıcı iptal etti, iş zaten bitti)\nconst r = $input.first().json;\nlet statusBody;\nswitch (r.outcome) {\n  case 'Submitted':\n    statusBody = { status: 'Completed', resultSummary: r.message, message: `Tarayıcı: ${r.filled.length} alan dolduruldu ve gönderildi.` };\n    break;\n  case 'ReadyForApproval':\n    statusBody = { status: 'AwaitingApproval', message: r.message };\n    break;\n  case 'NeedsInput':\n    statusBody = { status: 'AwaitingApproval', message: `Eksik bilgi: ${r.message}`.slice(0, 1900) };\n    break;\n  case 'Closed':\n  case 'Failed':\n    statusBody = { status: 'Failed', errorMessage: String(r.message).slice(0, 1900) };\n    break;\n  case 'Cancelled':\n    return []; // boş çıktı = akış burada biter\n  default:\n    throw new Error('browser-worker bilinmeyen sonuç döndürdü: ' + r.outcome);\n}\nreturn [{ json: { statusBody, outcome: r.outcome } }];"
+      },
+      "id": "jh-node-21",
+      "name": "Sonucu yorumla",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        300
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Worker sonucu → iş durumu",
       "notesInFlow": true
     }
   ],
@@ -429,7 +342,7 @@
       "main": [
         [
           {
-            "node": "CV var mı?",
+            "node": "Tarayıcı: formu doldur",
             "type": "main",
             "index": 0
           }
@@ -437,107 +350,6 @@
         [
           {
             "node": "Hatayı hazırla",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CV var mı?": {
-      "main": [
-        [
-          {
-            "node": "CV indir",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Günlük: CV yok",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CV indir": {
-      "main": [
-        [
-          {
-            "node": "CV kontrol",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Hatayı hazırla",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CV kontrol": {
-      "main": [
-        [
-          {
-            "node": "Günlük: CV indirildi",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Hatayı hazırla",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Günlük: CV indirildi": {
-      "main": [
-        [
-          {
-            "node": "Faz 10: tarayıcı otomasyonu",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Hatayı hazırla",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Günlük: CV yok": {
-      "main": [
-        [
-          {
-            "node": "Faz 10: tarayıcı otomasyonu",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Hatayı hazırla",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Faz 10: tarayıcı otomasyonu": {
-      "main": [
-        [
-          {
-            "node": "Sonuç durumu",
             "type": "main",
             "index": 0
           }
@@ -561,6 +373,42 @@
         [
           {
             "node": "Durum: Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tarayıcı: formu doldur": {
+      "main": [
+        [
+          {
+            "node": "Sonucu yorumla",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hatayı hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sonucu yorumla": {
+      "main": [
+        [
+          {
+            "node": "Sonuç durumu",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hatayı hazırla",
             "type": "main",
             "index": 0
           }

@@ -1,30 +1,32 @@
 # n8n (JobHunter otomasyon motoru)
 
 Backend bir basvuru icin otomasyon baslatinca n8n'e haber verir; n8n isi adim adim yurutur ve her adimi
-backend'e geri bildirir. Faz 9'da workflow bir **iskelet**: veriyi ceker, CV'yi indirir, gunluge yazar
-ama formu henuz doldurmaz (o is Faz 10).
+backend'e geri bildirir. Faz 10'dan itibaren formu **browser-worker** (Playwright) doldurur; n8n onu
+cagirir ve sonucuna gore isin son durumunu yazar (bkz. `automation/browser-worker/README.md`).
 
 ```
-Backend ──POST (X-JobHunter-Secret)──▶ n8n Webhook
-   ▲                                      │
-   └──── PATCH status / POST events ──────┘  (X-Automation-Key)
-         GET payload / GET cv
+Backend ──POST (X-JobHunter-Secret)──▶ n8n Webhook ──POST /apply (X-Worker-Secret)──▶ browser-worker
+   ▲                                      │                                              │
+   └──── PATCH status / GET payload ──────┘                                              │
+   └──── GET payload / GET cv / POST events (X-Automation-Key) ──────────────────────────┘
 ```
 
 ## Ilk kurulum (bir kez)
 
-1. **Anahtarlar.** `automation/n8n/.env.example` dosyasini `.env` olarak kopyala, uc degeri doldur:
+1. **Anahtarlar.** `automation/n8n/.env.example` dosyasini `.env` olarak kopyala, dort degeri doldur:
    - `N8N_ENCRYPTION_KEY`: yeni uret
    - `JOBHUNTER_API_KEY`: backend'deki `Automation:ApiKey` ile ayni (`dotnet user-secrets list --project src/JobHunter.API`)
    - `JOBHUNTER_WEBHOOK_SECRET`: yeni uret, ayni degeri backend'e de yaz:
      ```
      dotnet user-secrets set "Automation:N8nWebhookSecret" "<ayni-deger>" --project src/JobHunter.API
      ```
+   - `BROWSER_WORKER_SECRET` (Faz 10): yeni uret; sadece n8n ile browser-worker arasinda, backend'e yazilmaz.
 2. **n8n'i baslat** (Docker Desktop acik olmali):
    ```
    cd automation/n8n
-   docker compose up -d
+   docker compose up -d --build
    ```
+   (`--build` browser-worker imajini ilk seferde / kodu degisince derler; ilk derleme birkac dakika surer.)
    `http://localhost:5678` → ilk acilista sahip (owner) hesabi olustur.
 3. **Credential + workflow yukle:**
    ```
@@ -54,11 +56,11 @@ Webhook node'unun iki adresi vardir:
 ## Akis
 
 `Webhook` → `İş bilgisi` → `Durum: Running` → `Veri paketini çek` → `Paketi özetle` → `Günlük: paket alındı`
-→ `CV var mı?` → (`CV indir` → `CV kontrol` → `Günlük: CV indirildi`) veya `Günlük: CV yok`
-→ `Faz 10: tarayıcı otomasyonu` (simdilik bos) → `Sonuç durumu`
+→ `Tarayıcı: formu doldur` (browser-worker, en fazla 3 dk) → `Sonucu yorumla` → `Sonuç durumu`
 
-- **Sonuç:** `HumanApproval` modunda is `AwaitingApproval`'a duser (Faz 11 onay ekrani burada devreye girecek),
-  `Automatic` modunda "Simulasyon" notuyla `Completed` olur. Kanban karti hareket etmez.
+- **Tarayici adimi:** CV indirme, sayfa acma, adim adim doldurma, gonderme gunluge worker tarafindan yazilir.
+- **Sonuç:** `Submitted` → Completed (basvuru no ile), `ReadyForApproval` (insan onayli mod) ve `NeedsInput`
+  (zorunlu alan eksik) → AwaitingApproval, `Closed`/`Failed` → Failed. Kanban karti hareket etmez.
 - **Iptal:** Kullanici isi iptal ederse n8n'in sonraki istegi 409 alir → hata dali calisir → `Durum: Failed` da 409 alir
   ve sessizce biter. Yani iptal, akisi bir sonraki adimda durdurur.
 - **Kisisel veri:** Execution kayitlari veri paketini (profil) icerir; 14 gunden eskileri otomatik silinir (`docker-compose.yml`).
@@ -77,4 +79,8 @@ workflow → `...` menusu → **Download** → `automation/n8n/setup/workflows/j
 | Is Failed: "baglanamadi / 10 saniye" | n8n calismiyor (`docker compose ps`). |
 | Is Running'de kaldi, n8n'de `Durum: Running` 401 | `JOBHUNTER_API_KEY`, backend'deki `Automation:ApiKey` ile ayni degil. |
 | n8n backend'e ulasamiyor (ECONNREFUSED) | Backend calismiyor, ya da `PublicBaseUrl` `http://host.docker.internal:5080` degil (bkz. `appsettings.Development.json`). |
+| Is Failed: "Tarayıcı: formu doldur adımında hata ... ECONNREFUSED / ENOTFOUND browser-worker" | Worker calismiyor: `docker compose up -d --build browser-worker`, `docker compose logs browser-worker`. |
+| Is Failed: "... 403 ... X-Worker-Secret" | `.env`'deki `BROWSER_WORKER_SECRET` degisti ama `import.sh` tekrar calistirilmadi (ya da worker yeniden baslatilmadi). |
+| Is Failed: "Güvenlik: ... izinli değil" | Ilan linki yerel test sitesi degil. Faz 12'ye kadar bilincli olarak engelli. |
+| Is Failed: "Sayfa açılamadı / ERR_CONNECTION_REFUSED" | mock-careers calismiyor (`cd automation/mock-careers; node server.js`). |
 | `import.sh`: "credentials import failed" | Credential'lari arayuzden ayni isimlerle elle olustur (tip: Header Auth), sonra workflow'daki HTTP node'larinda sec. |

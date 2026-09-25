@@ -6,8 +6,9 @@ set -e
 
 : "${JOBHUNTER_API_KEY:?.env dosyasinda JOBHUNTER_API_KEY bos}"
 : "${JOBHUNTER_WEBHOOK_SECRET:?.env dosyasinda JOBHUNTER_WEBHOOK_SECRET bos}"
+: "${BROWSER_WORKER_SECRET:?.env dosyasinda BROWSER_WORKER_SECRET bos (Faz 10)}"
 
-for v in "$JOBHUNTER_API_KEY" "$JOBHUNTER_WEBHOOK_SECRET"; do
+for v in "$JOBHUNTER_API_KEY" "$JOBHUNTER_WEBHOOK_SECRET" "$BROWSER_WORKER_SECRET"; do
   case "$v" in
     *[!A-Za-z0-9_-]*) echo "HATA: anahtarlarda sadece harf, rakam, - ve _ olabilir." >&2; exit 1 ;;
   esac
@@ -31,6 +32,12 @@ cat > "$TMP" <<JSON
     "name": "JobHunter Webhook Secret",
     "type": "httpHeaderAuth",
     "data": { "name": "X-JobHunter-Secret", "value": "$JOBHUNTER_WEBHOOK_SECRET" }
+  },
+  {
+    "id": "jhWorkerSecret01",
+    "name": "JobHunter Worker Secret",
+    "type": "httpHeaderAuth",
+    "data": { "name": "X-Worker-Secret", "value": "$BROWSER_WORKER_SECRET" }
   }
 ]
 JSON
@@ -43,3 +50,4 @@ n8n import:workflow --separate --input=/setup/workflows
 
 echo ""
 echo "Tamam. Simdi n8n arayuzunde 'JobHunter - Apply' workflow'unu ac ve aktif et (Active / Publish)."
+echo "Not: import workflow'u pasif yapar; her import'tan sonra tekrar aktif etmelisin."

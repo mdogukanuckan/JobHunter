@@ -6,6 +6,7 @@
 # Durdurma:                   docker compose down      (veriler volume'de kalir)
 #
 # Ilk kurulum adimlari icin: automation/n8n/README.md
+# Servisler: n8n (5678) + browser-worker (Faz 10, 127.0.0.1:3100)
 
 services:
   n8n:
@@ -35,6 +36,28 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n        # workflow'lar, credential'lar, calisma kayitlari (SQLite)
       - ./setup:/setup:ro               # import betigi + workflow JSON'lari
+
+  # Faz 10: tarayici otomasyonu (Playwright). n8n onu http://browser-worker:3100 ile cagirir
+  # (ayni compose'daki servisler birbirine servis adiyla ulasir).
+  # Ilk kez / kod degisince:  docker compose up -d --build browser-worker
+  browser-worker:
+    build: ../browser-worker
+    container_name: jobhunter-browser-worker
+    restart: unless-stopped
+    init: true
+    shm_size: "1gb"              # Chromium Docker'da /dev/shm kucukse cokebilir
+    ports:
+      - "127.0.0.1:3100:3100"    # sadece bu bilgisayardan (saglik kontrolu icin); disaridan erisilemez
+    environment:
+      - WORKER_SECRET=${BROWSER_WORKER_SECRET:?.env dosyasinda BROWSER_WORKER_SECRET tanimlanmali}
+      - JOBHUNTER_API_KEY=${JOBHUNTER_API_KEY:?.env dosyasinda JOBHUNTER_API_KEY tanimlanmali}
+      # GUVENLIK: sadece bu sunuculardaki ilanlar acilir (Faz 12'ye kadar yerel test sitesi).
+      - ALLOWED_HOSTS=localhost,127.0.0.1,host.docker.internal
+      - TZ=Europe/Istanbul
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../browser-worker/data:/data   # ekran goruntuleri: automation/browser-worker/data/screenshots
 
 volumes:
   n8n_data:

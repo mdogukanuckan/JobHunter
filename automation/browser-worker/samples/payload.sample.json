@@ -1,0 +1,51 @@
+{
+  "job": { "id": "cli-test", "attemptNumber": 1, "mode": "HumanApproval" },
+  "application": { "companyName": "Örnek Teknoloji A.Ş.", "jobTitle": "Junior .NET Developer", "jobUrl": null },
+  "candidate": {
+    "fullName": "Deneme Aday",
+    "firstName": "Deneme",
+    "lastName": "Aday",
+    "email": "deneme.aday@example.com",
+    "phoneNumber": "0532 123 45 67",
+    "headline": "Junior .NET Developer",
+    "summary": null,
+    "city": "Denizli",
+    "country": "Türkiye",
+    "linkedInUrl": "https://www.linkedin.com/in/deneme-aday",
+    "gitHubUrl": "https://github.com/deneme-aday",
+    "portfolioUrl": null,
+    "yearsOfExperience": 1,
+    "noticePeriodDays": 14,
+    "preferredWorkMode": "Hybrid",
+    "openToRelocation": false,
+    "requiresVisaSponsorship": false,
+    "workAuthorization": null,
+    "skills": ["C#", ".NET", "React"]
+  },
+  "policyFields": {
+    "dateOfBirth": { "policy": "AskFirst", "value": "1998-05-12" },
+    "gender": { "policy": "Auto", "value": "Male" },
+    "maritalStatus": { "policy": "AskFirst", "value": "Single" },
+    "nationality": { "policy": "Auto", "value": "T.C." },
+    "militaryService": { "policy": "Auto", "value": { "status": "Completed", "postponedUntil": null } },
+    "driverLicense": { "policy": "Auto", "value": { "classes": ["B"], "year": 2017 } },
+    "address": { "policy": "AskFirst", "value": null },
+    "travel": { "policy": "Auto", "value": true },
+    "smoking": { "policy": "Never", "value": null },
+    "disability": { "policy": "Never", "value": null },
+    "expectedSalary": { "policy": "AskFirst", "value": { "amount": 60000, "currency": "TRY" } },
+    "references": { "policy": "AskFirst", "value": null }
+  },
+  "workExperiences": [],
+  "educations": [],
+  "languages": [{ "name": "İngilizce", "level": "B2" }],
+  "certificates": [],
+  "screeningAnswers": [
+    { "question": "Hibrit çalışmaya uygun musunuz?", "answer": "Evet", "tags": [] },
+    { "question": "Daha önce uzaktan çalıştınız mı?", "answer": "Evet", "tags": [] },
+    { "question": "Neden bu pozisyona başvuruyorsunuz?", "answer": "React ve .NET ile uçtan uca ürün geliştirmek istiyorum.", "tags": ["motivasyon"] }
+  ],
+  "customFields": [],
+  "cv": null,
+  "warnings": []
+}
