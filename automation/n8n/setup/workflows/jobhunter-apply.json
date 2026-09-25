@@ -326,6 +326,48 @@
       "onError": "continueRegularOutput",
       "notes": "Faz 13: CallMeBot ile kendine WhatsApp bildirimi (basarisiz olursa is akisini bozmaz)",
       "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// WhatsApp metninden e-posta icerigi uretir (Faz 13 - WhatsApp calismadigi surece yedek kanal).\nconst jobId = $('İş bilgisi').first().json.jobId;\nconst text = $json.text;\n\nlet subject;\nif (text.startsWith('✅')) subject = `JobHunter: Başvuru gönderildi (iş #${jobId})`;\nelse if (text.startsWith('⏳')) subject = `JobHunter: Onay bekliyor (iş #${jobId})`;\nelse if (text.startsWith('❌')) subject = `JobHunter: Başvuru başarısız (iş #${jobId})`;\nelse subject = `JobHunter: İş #${jobId} bildirimi`;\n\nconst html = `\n  <div style=\"font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;padding:24px;border:1px solid #e5e7eb;border-radius:8px;\">\n    <h2 style=\"margin:0 0 12px;font-size:18px;color:#111827;\">${subject}</h2>\n    <p style=\"font-size:15px;color:#374151;line-height:1.5;white-space:pre-wrap;\">${text}</p>\n    <hr style=\"border:none;border-top:1px solid #e5e7eb;margin:20px 0;\" />\n    <p style=\"font-size:12px;color:#9ca3af;\">JobHunter otomasyonu tarafından gönderildi. WhatsApp bildirimi çalışana kadar geçici e-posta yedeği (Faz 13).</p>\n  </div>\n`.trim();\n\nreturn [{ json: { subject, html, text } }];\n"
+      },
+      "id": "jh-node-25",
+      "name": "E-posta içeriği",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        940
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Faz 13: WhatsApp calismadigi surece e-posta yedek kanali - HTML govde uretir",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.JOBHUNTER_NOTIFY_EMAIL_FROM }}",
+        "toEmail": "={{ $env.JOBHUNTER_NOTIFY_EMAIL_TO }}",
+        "subject": "={{ $json.subject }}",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "jh-node-26",
+      "name": "E-posta gönder",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2200,
+        940
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "JobHunter SMTP"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Faz 13: SMTP ile kullanıcının kendi e-postasına bildirim (JOBHUNTER_NOTIFY_EMAIL_TO); WhatsApp calismadigi surece yedek",
+      "notesInFlow": true
     }
   ],
   "connections": {
@@ -499,6 +541,11 @@
             "node": "WhatsApp gönder",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "E-posta içeriği",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -508,6 +555,22 @@
         [
           {
             "node": "WhatsApp gönder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "E-posta içeriği",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "E-posta içeriği": {
+      "main": [
+        [
+          {
+            "node": "E-posta gönder",
             "type": "main",
             "index": 0
           }
