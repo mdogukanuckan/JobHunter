@@ -565,6 +565,27 @@
       "Completed": "Completed",
       "Failed": "Failed",
       "Cancelled": "Cancelled"
+    },
+    "review": {
+      "title": "Review and approve",
+      "loading": "Loading review report...",
+      "loadError": "Couldn't load the review report.",
+      "noReport": "No review report for this attempt. You can still give KVKK consent and submit.",
+      "summary": "{{filled}} fields filled, {{skipped}} skipped.",
+      "screenshotAlt": "Screenshot of the filled form",
+      "viewScreenshot": "Enlarge",
+      "noScreenshot": "No screenshot.",
+      "fieldsTitle": "Fields that need input",
+      "noFields": "No extra fields need input.",
+      "requiredBadge": "required",
+      "addToBank": "Add to my saved answers",
+      "consentLabel": "I accept the KVKK / privacy notice",
+      "consentRequired": "You must accept the KVKK / privacy notice before submitting.",
+      "fieldRequired": "This field is required.",
+      "approve": "Approve and submit",
+      "approved": "Approved, resubmitted.",
+      "approveError": "Couldn't approve.",
+      "bankAddError": "Couldn't add \"{{question}}\" to your saved answers."
     }
   }
 }

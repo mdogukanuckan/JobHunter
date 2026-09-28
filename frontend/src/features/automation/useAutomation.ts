@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { automationApi, automationKeys } from '../../api/automation';
-import { isActiveAutomation, type AutomationJob, type AutomationMode } from '../../api/types';
+import { isActiveAutomation, type ApproveAutomationPayload, type AutomationJob, type AutomationMode } from '../../api/types';
 
 /*
  * Otomasyonun durumu backend'de n8n tarafindan degistirilir; tarayiciya "haber veren" bir kanal (SignalR vb.)
@@ -54,6 +55,66 @@ export function useCancelAutomation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => automationApi.cancel(id),
+    onSuccess: (job) => {
+      queryClient.setQueryData(automationKeys.detail(job.id), job);
+      return queryClient.invalidateQueries({ queryKey: automationKeys.all });
+    },
+  });
+}
+
+/** Faz 11: onay ekranindaki inceleme raporu. Sadece is AwaitingApproval'a gectiginde anlamli; tekrar yenilenmesi gerekmez. */
+export function useAutomationReviewQuery(id: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: automationKeys.review(id ?? ''),
+    queryFn: () => automationApi.getReview(id!),
+    enabled: enabled && id !== null,
+  });
+}
+
+/**
+ * Inceleme ekran goruntusu JWT ile korunan bir uc, bu yuzden dogrudan <img src="..."> calismaz
+ * (Authorization header eklenmez). Blob olarak cekilip gecici bir object URL uretilir; degisince/
+ * unmount'ta eski URL serbest birakilir.
+ */
+export function useReviewScreenshotUrl(id: string | null, hasScreenshot: boolean): { url: string | null; isLoading: boolean } {
+  const [url, setUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id || !hasScreenshot) {
+      setUrl(null);
+      return;
+    }
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    setIsLoading(true);
+    automationApi
+      .getReviewScreenshot(id)
+      .then((blob) => {
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        setUrl(objectUrl);
+      })
+      .catch(() => {
+        if (!cancelled) setUrl(null);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [id, hasScreenshot]);
+
+  return { url, isLoading };
+}
+
+/** Onay ekranindan cevaplari + KVKK onayini gonderir. Basarili olursa is Submit icin n8n'e tekrar dusurulur. */
+export function useApproveAutomation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: ApproveAutomationPayload }) => automationApi.approve(id, body),
     onSuccess: (job) => {
       queryClient.setQueryData(automationKeys.detail(job.id), job);
       return queryClient.invalidateQueries({ queryKey: automationKeys.all });

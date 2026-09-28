@@ -314,6 +314,10 @@ export type AutomationEventLevel = 'Info' | 'Warning' | 'Error';
 export const ACTIVE_AUTOMATION_STATUSES: readonly AutomationJobStatus[] = ['Queued', 'Running', 'AwaitingApproval'];
 export const isActiveAutomation = (s: AutomationJobStatus) => ACTIVE_AUTOMATION_STATUSES.includes(s);
 
+/** Gercekten "calisiyor" olan durumlar (donen simge icin) - AwaitingApproval kullaniciyi bekliyor, calismiyor. */
+export const RUNNING_AUTOMATION_STATUSES: readonly AutomationJobStatus[] = ['Queued', 'Running'];
+export const isRunningAutomation = (s: AutomationJobStatus) => RUNNING_AUTOMATION_STATUSES.includes(s);
+
 export interface AutomationEvent {
   id: string;
   level: AutomationEventLevel;
@@ -342,4 +346,37 @@ export interface AutomationJob {
   finishedAt: string | null;
   updatedAt: string | null;
   events: AutomationEvent[] | null;
+}
+
+/** Worker'in doldurma turunda bir alan icin urettigi rapor satiri (browser-worker FieldReport). */
+export interface AutomationFieldReport {
+  label: string;
+  name: string;
+  /** Doldurulduysa hangi kaynaktan (orn. "candidate.email"); atlandiysa yok. */
+  source?: string | null;
+  /** Atlandiysa neden (orn. "once sorulmali", "profilde karsiligi yok"). */
+  reason?: string | null;
+  required: boolean;
+}
+
+/** Worker'in Fill turu sonunda backend'e yazdigi serbest JSON (submitReview). */
+export interface AutomationReviewReport {
+  outcome: string;
+  message: string;
+  filled: AutomationFieldReport[];
+  skipped: AutomationFieldReport[];
+  missingRequired: AutomationFieldReport[];
+  durationMs: number;
+}
+
+/** GET /automation-jobs/{id}/review yaniti. Henuz Fill turu calismadiysa report null olabilir. */
+export interface AutomationReview {
+  report: AutomationReviewReport | null;
+  hasScreenshot: boolean;
+}
+
+/** POST /automation-jobs/{id}/approve govdesi. answers: { [fieldName]: deger }. */
+export interface ApproveAutomationPayload {
+  answers: Record<string, string> | null;
+  kvkkAccepted: boolean;
 }

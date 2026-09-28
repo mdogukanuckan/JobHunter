@@ -31,7 +31,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Webhook çıktısı: { headers, params, query, body }. Bize lazım olan body.\n// Sonraki node'lar bu bilgilere $('İş bilgisi').first().json.xxx ile ulasir.\nconst body = $input.first().json.body || {};\nif (!body.jobId || !body.statusUrl || !body.payloadUrl || !body.eventsUrl) {\n  throw new Error('Geçersiz mesaj: jobId / statusUrl / payloadUrl / eventsUrl eksik.');\n}\nreturn [{ json: body }];"
+        "jsCode": "// Webhook çıktısı: { headers, params, query, body }. Bize lazım olan body.\n// Sonraki node'lar bu bilgilere $('İş bilgisi').first().json.xxx ile ulasir.\nconst body = $input.first().json.body || {};\nconst required = ['jobId', 'statusUrl', 'payloadUrl', 'eventsUrl', 'phase', 'reviewUrl', 'screenshotUrl', 'approvalAnswersUrl'];\nconst missing = required.filter((k) => !body[k]);\nif (missing.length) {\n  throw new Error(`Geçersiz mesaj: ${missing.join(', ')} eksik.`);\n}\nreturn [{ json: body }];"
       },
       "id": "jh-node-02",
       "name": "İş bilgisi",
@@ -221,7 +221,7 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({\n  jobId: $('İş bilgisi').first().json.jobId,\n  mode: $('İş bilgisi').first().json.mode,\n  jobUrl: $('Veri paketini çek').first().json.application.jobUrl ?? $('İş bilgisi').first().json.jobUrl,\n  payloadUrl: $('İş bilgisi').first().json.payloadUrl,\n  eventsUrl: $('İş bilgisi').first().json.eventsUrl\n}) }}",
+        "jsonBody": "={{ JSON.stringify({\n  jobId: $('İş bilgisi').first().json.jobId,\n  mode: $('İş bilgisi').first().json.mode,\n  jobUrl: $('Veri paketini çek').first().json.application.jobUrl ?? $('İş bilgisi').first().json.jobUrl,\n  payloadUrl: $('İş bilgisi').first().json.payloadUrl,\n  eventsUrl: $('İş bilgisi').first().json.eventsUrl,\n  phase: $('İş bilgisi').first().json.phase,\n  reviewUrl: $('İş bilgisi').first().json.reviewUrl,\n  screenshotUrl: $('İş bilgisi').first().json.screenshotUrl,\n  approvalAnswersUrl: $('İş bilgisi').first().json.approvalAnswersUrl\n}) }}",
         "options": {
           "timeout": 180000
         }

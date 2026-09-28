@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { AutomationJob, AutomationMode } from './types';
+import type { ApproveAutomationPayload, AutomationJob, AutomationMode, AutomationReview } from './types';
 
 /*
  * Otomasyon denemeleri (AutomationJobsController, JWT ile).
@@ -9,6 +9,7 @@ export const automationKeys = {
   all: ['automationJobs'] as const,
   list: () => [...automationKeys.all, 'list'] as const,
   detail: (id: string) => [...automationKeys.all, 'detail', id] as const,
+  review: (id: string) => [...automationKeys.all, 'review', id] as const,
 };
 
 export const automationApi = {
@@ -21,4 +22,14 @@ export const automationApi = {
     api.post<AutomationJob>(`/job-applications/${jobApplicationId}/automation-jobs`, { mode }).then((r) => r.data),
   cancel: (id: string, reason: string | null = null) =>
     api.post<AutomationJob>(`/automation-jobs/${id}/cancel`, { reason }).then((r) => r.data),
+
+  // ---- Faz 11: onay ekrani ----
+  /** Doldurma turunun inceleme raporu. Fill turu henuz calismadiysa report null doner. */
+  getReview: (id: string) => api.get<AutomationReview>(`/automation-jobs/${id}/review`).then((r) => r.data),
+  /** Inceleme ekran goruntusu. JWT gerektigi icin <img src> yerine blob olarak cekilip object URL'e cevrilir. */
+  getReviewScreenshot: (id: string) =>
+    api.get(`/automation-jobs/${id}/review-screenshot`, { responseType: 'blob' }).then((r) => r.data as Blob),
+  /** Onay ekranindan cevaplari (TC kimlik dahil olabilir) ve KVKK onayini gonderir; is Submit icin n8n'e tekrar dusurulur. */
+  approve: (id: string, body: ApproveAutomationPayload) =>
+    api.post<AutomationJob>(`/automation-jobs/${id}/approve`, body).then((r) => r.data),
 };

@@ -9,8 +9,10 @@
 
 import crypto from 'node:crypto';
 import http from 'node:http';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { runApply } from './apply.js';
-import { backend, CancelledError } from './backend.js';
+import { backend, CancelledError, type Reporter } from './backend.js';
 import { config } from './config.js';
 import type { ApplyRequest, ApplyResult } from './types.js';
 
@@ -45,10 +47,43 @@ async function readJson(req: http.IncomingMessage): Promise<unknown> {
 
 function parseRequest(body: unknown): ApplyRequest {
   const b = (body ?? {}) as Partial<ApplyRequest>;
-  const missing = (['jobId', 'mode', 'jobUrl', 'payloadUrl', 'eventsUrl'] as const).filter((k) => !b[k]);
+  const missing = (
+    ['jobId', 'mode', 'jobUrl', 'payloadUrl', 'eventsUrl', 'phase', 'reviewUrl', 'screenshotUrl', 'approvalAnswersUrl'] as const
+  ).filter((k) => !b[k]);
   if (missing.length) throw Object.assign(new Error(`Eksik alan(lar): ${missing.join(', ')}`), { status: 400 });
   if (b.mode !== 'HumanApproval' && b.mode !== 'Automatic') throw Object.assign(new Error('mode: HumanApproval | Automatic'), { status: 400 });
+  if (b.phase !== 'Fill' && b.phase !== 'Submit') throw Object.assign(new Error('phase: Fill | Submit'), { status: 400 });
   return b as ApplyRequest;
+}
+
+/**
+ * Faz 11: Fill turu bittiginde (form dolduruldu ama gonderilmedi / zorunlu alan eksik) inceleme
+ * raporunu ve son ekran goruntusunu backend'e yazar. Bu adim basarisiz olsa da isin sonucunu
+ * etkilemez (n8n zaten ApplyResult'i durum guncellemesine ceviriyor); sadece gunluge uyari duser.
+ */
+async function submitReview(req: ApplyRequest, result: ApplyResult, reporter: Reporter): Promise<void> {
+  const report = {
+    outcome: result.outcome,
+    message: result.message,
+    filled: result.filled,
+    skipped: result.skipped,
+    missingRequired: result.missingRequired,
+    durationMs: result.durationMs,
+  };
+  try {
+    await backend.submitReview(req.reviewUrl, report);
+  } catch (err) {
+    await reporter.event('Warning', 'review', `İnceleme raporu backend'e gönderilemedi: ${(err as Error).message}`);
+  }
+
+  const lastScreenshot = result.screenshots.at(-1);
+  if (!lastScreenshot) return;
+  try {
+    const buffer = await fs.readFile(path.join(config.screenshotDir, lastScreenshot));
+    await backend.uploadScreenshot(req.screenshotUrl, buffer, 'image/png', lastScreenshot);
+  } catch (err) {
+    await reporter.event('Warning', 'review', `Ekran görüntüsü backend'e yüklenemedi: ${(err as Error).message}`);
+  }
 }
 
 async function handleApply(req: ApplyRequest): Promise<ApplyResult> {
@@ -64,7 +99,19 @@ async function handleApply(req: ApplyRequest): Promise<ApplyResult> {
     } else {
       await reporter.event('Warning', 'download_cv', 'CV yok: form CV isterse iş onaya düşecek.');
     }
-    return await runApply({ jobId: req.jobId, mode: req.mode, jobUrl: req.jobUrl, payload, cv, reporter });
+
+    const approvalAnswers = req.phase === 'Submit' ? await backend.approvalAnswers(req.approvalAnswersUrl) : null;
+    if (req.phase === 'Submit' && !approvalAnswers?.answers && !approvalAnswers?.kvkkAccepted) {
+      await reporter.event('Warning', 'approval', 'Submit turu ama onay ekranından cevap/KVKK bulunamadı; eksik alanlar tekrar onaya düşebilir.');
+    }
+
+    const result = await runApply({ jobId: req.jobId, mode: req.mode, phase: req.phase, jobUrl: req.jobUrl, payload, cv, reporter, approvalAnswers });
+
+    if (req.phase === 'Fill' && (result.outcome === 'ReadyForApproval' || result.outcome === 'NeedsInput')) {
+      await submitReview(req, result, reporter);
+    }
+
+    return result;
   } catch (err) {
     if (err instanceof CancelledError) {
       return { outcome: 'Cancelled', message: err.message, filled: [], skipped: [], missingRequired: [], screenshots: [], durationMs: Date.now() - started };

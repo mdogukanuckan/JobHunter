@@ -2,7 +2,7 @@
 // Worker da n8n gibi bu uclari kullanir; boylece gunluk tarayici adimlarini CANLI gosterir.
 
 import { config } from './config.js';
-import type { Payload } from './types.js';
+import type { ApprovalAnswers, Payload } from './types.js';
 
 /** Backend 409 dondu: is iptal edilmis ya da bitmis. Otomasyon hemen durmali. */
 export class CancelledError extends Error {
@@ -38,6 +38,25 @@ export const backend = {
   },
   async cv(url: string): Promise<Buffer> {
     return Buffer.from(await (await call(url)).arrayBuffer());
+  },
+  /** Faz 11: Fill turunun inceleme raporunu backend'e yazar (govde: { report: {...} }). */
+  async submitReview(url: string, report: unknown): Promise<void> {
+    await call(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ report }),
+    });
+  },
+  /** Faz 11: inceleme ekran goruntusunu yukler (multipart/form-data, alan adi "file"). */
+  async uploadScreenshot(url: string, buffer: Buffer, contentType: string, fileName = 'review.png'): Promise<void> {
+    const form = new FormData();
+    form.append('file', new Blob([new Uint8Array(buffer)], { type: contentType }), fileName);
+    await call(url, { method: 'POST', body: form as unknown as BodyInit });
+  },
+  /** Faz 11: Submit turunde onay ekranindan gelen cevaplari + KVKK durumunu okur. */
+  async approvalAnswers(url: string): Promise<ApprovalAnswers> {
+    const json = (await (await call(url)).json()) as { answers: Record<string, string> | null; kvkkAccepted: boolean };
+    return { answers: json.answers ?? null, kvkkAccepted: !!json.kvkkAccepted };
   },
   reporter(eventsUrl: string): Reporter {
     return {

@@ -13,10 +13,10 @@ import type { Payload, PolicyField } from './types.js';
 
 export type Resolution =
   | { kind: 'fill'; value: string | boolean | 'CV'; source: string; note?: string }
-  | { kind: 'skip'; reason: string; askFirst?: boolean };
+  | { kind: 'skip'; reason: string; askFirst?: boolean; consent?: boolean };
 
 const fill = (value: string | boolean | 'CV', source: string, note?: string): Resolution => ({ kind: 'fill', value, source, note });
-const skip = (reason: string, askFirst = false): Resolution => ({ kind: 'skip', reason, askFirst });
+const skip = (reason: string, askFirst = false, consent = false): Resolution => ({ kind: 'skip', reason, askFirst, consent });
 
 /**
  * Bir kural: "text" = etiket + ipuclari (normalize edilmis). match true ise resolve cagrilir.
@@ -32,7 +32,7 @@ interface Rule {
 type Want = string | string[] | Resolution | null | undefined;
 
 const has = (text: string, re: RegExp) => re.test(text);
-const isChoice = (f: FormField) => f.type === 'select' || f.type === 'radio';
+export const isChoice = (f: FormField) => f.type === 'select' || f.type === 'radio';
 
 /** Politikali alan: Auto degilse ya da deger yoksa uygun "skip" sonucunu doner. */
 function policy<T>(p: Payload, key: string, label: string, map: (v: T) => Want): Want {
@@ -231,7 +231,7 @@ const RULES: Rule[] = [
 const CONSENT_RE = /(kvkk|aydinlatma|kisisel veri|privacy|gizlilik|consent|onayliyorum|kabul ediyorum|i agree)/;
 
 /** Secenekli alanda istenen degerlerden (ilk eslesen) gercek secenek etiketini bulur. */
-function toOption(f: FormField, want: string | string[]): string | null {
+export function toOption(f: FormField, want: string | string[]): string | null {
   const wants = Array.isArray(want) ? want : [want];
   for (const w of wants) {
     const hit = pickOption(f.options.map((o) => o.label), w);
@@ -284,7 +284,9 @@ export function resolveField(p: Payload, f: FormField): Resolution {
 
   if (f.type === 'checkbox') {
     if (CONSENT_RE.test(text)) {
-      return fill(true, 'onay kutusu', 'KVKK / aydınlatma metni onayı işaretlendi');
+      // Faz 11: KVKK/aydınlatma metni onayı moda ve faza göre apply.ts'te karara bağlanır
+      // (İnsan onaylıda onay ekranında işaretlenir; Otomatik modda otomatik + günlükte uyarı).
+      return skip('KVKK / aydınlatma metni onayı: onay ekranında işaretlenecek', true, true);
     }
     const sa = fromScreening(p, f);
     return sa ?? skip('Onay kutusu: ne olduğu anlaşılamadı');

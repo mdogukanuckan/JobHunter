@@ -565,6 +565,27 @@
       "Completed": "Tamamlandı",
       "Failed": "Başarısız",
       "Cancelled": "İptal edildi"
+    },
+    "review": {
+      "title": "İnceleme ve onay",
+      "loading": "İnceleme raporu yükleniyor...",
+      "loadError": "İnceleme raporu yüklenemedi.",
+      "noReport": "Bu deneme için inceleme raporu yok. Yine de KVKK onayını verip gönderebilirsin.",
+      "summary": "{{filled}} alan dolduruldu, {{skipped}} alan atlandı.",
+      "screenshotAlt": "Doldurulmuş form ekran görüntüsü",
+      "viewScreenshot": "Büyüt",
+      "noScreenshot": "Ekran görüntüsü yok.",
+      "fieldsTitle": "Tamamlanması gereken alanlar",
+      "noFields": "Ek bilgi girilmesi gereken bir alan yok.",
+      "requiredBadge": "zorunlu",
+      "addToBank": "Hazır cevaplarıma ekle",
+      "consentLabel": "KVKK / Aydınlatma metnini kabul ediyorum",
+      "consentRequired": "Göndermeden önce KVKK / aydınlatma metnini kabul etmelisin.",
+      "fieldRequired": "Bu alan zorunlu.",
+      "approve": "Onayla ve gönder",
+      "approved": "Onaylandı, gönderim için tekrar tetiklendi.",
+      "approveError": "Onaylanamadı.",
+      "bankAddError": "\"{{question}}\" hazır cevaplarına eklenemedi."
     }
   }
 }

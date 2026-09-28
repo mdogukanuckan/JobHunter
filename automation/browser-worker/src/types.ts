@@ -4,6 +4,9 @@
 export type AutomationMode = 'HumanApproval' | 'Automatic';
 export type AutofillPolicy = 'Auto' | 'AskFirst' | 'Never';
 
+/** Faz 11: doldurma (Fill, gonderilmez) ve gonderme (Submit, onaydan sonra) turlari. */
+export type AutomationDispatchPhase = 'Fill' | 'Submit';
+
 export interface PolicyField<T = unknown> {
   policy: AutofillPolicy;
   /** Never ise her zaman null. Kullanici girmemisse de null. */
@@ -41,6 +44,16 @@ export interface Payload {
   warnings: string[];
 }
 
+/**
+ * Faz 11: kullanicinin onay ekranindan gonderdigi cevaplar (backend: ApproveAutomationRequest).
+ * answers anahtarlari form alaninin "name"ine (yoksa etikete) karsilik gelir. answers null ise
+ * henuz onay verilmemis demektir (Submit turu baslamadan once beklenmez, ama guvenlik icin kontrol edilir).
+ */
+export interface ApprovalAnswers {
+  answers: Record<string, string> | null;
+  kvkkAccepted: boolean;
+}
+
 /** n8n → worker istegi (POST /apply). Kisisel veri yok; worker paketi ve CV'yi backend'den kendisi ceker. */
 export interface ApplyRequest {
   jobId: string;
@@ -48,12 +61,17 @@ export interface ApplyRequest {
   jobUrl: string;
   payloadUrl: string;
   eventsUrl: string;
+  /** Faz 11: hangi tur. Fill → asla gonderilmez (inceleme raporu cikar). Submit → onaydan sonra gonderilir. */
+  phase: AutomationDispatchPhase;
+  reviewUrl: string;
+  screenshotUrl: string;
+  approvalAnswersUrl: string;
 }
 
 /**
  * Worker'in sonucu. n8n buna gore isin son durumunu belirler:
  *   Submitted        → Completed (basvuru gonderildi)
- *   ReadyForApproval → AwaitingApproval (form dolu, Gonder'e basilmadi)
+ *   ReadyForApproval → AwaitingApproval (form dolu, Gonder'e basilmadi — sadece Fill turunde)
  *   NeedsInput       → AwaitingApproval (zorunlu alan(lar) doldurulamadi / once sorulmali)
  *   Closed           → Failed (ilan basvuruya kapali)
  *   Failed           → Failed (form bulunamadi, gonderim reddedildi...)

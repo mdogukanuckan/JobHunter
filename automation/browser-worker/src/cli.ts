@@ -5,7 +5,9 @@
 //   npm run try -- http://localhost:8088/ilan/full-stack-developer-react-net --mode Automatic --headed
 //
 // Secenekler:
-//   --mode HumanApproval|Automatic   (varsayilan HumanApproval: Gonder'e basmaz)
+//   --mode HumanApproval|Automatic   (varsayilan HumanApproval)
+//   --phase Fill|Submit              (varsayilan Fill: doldurur ama gondermez; Submit gercekten gonderir)
+//   --answers <dosya.json>           (Submit turu icin: { "answers": {...}, "kvkkAccepted": true })
 //   --payload <dosya.json>           (varsayilan samples/payload.sample.json)
 //   --cv <dosya.pdf>                 (verilmezse kucuk bir test PDF'i uretilir)
 //   --headed                         (tarayiciyi gorunur ac; bilgisayarinda calistirirken izlemek icin)
@@ -16,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import type { Reporter } from './backend.js';
 import { config } from './config.js';
 import { runApply } from './apply.js';
-import type { AutomationMode, Payload } from './types.js';
+import type { ApprovalAnswers, AutomationDispatchPhase, AutomationMode, Payload } from './types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -31,6 +33,11 @@ if (!jobUrl) {
   process.exit(1);
 }
 const mode = (opt('mode') ?? 'HumanApproval') as AutomationMode;
+const phase = (opt('phase') ?? 'Fill') as AutomationDispatchPhase;
+const answersPath = opt('answers');
+const approvalAnswers: ApprovalAnswers | null = answersPath
+  ? (JSON.parse(await fs.readFile(answersPath, 'utf8')) as ApprovalAnswers)
+  : null;
 if (args.includes('--headed')) config.headless = false;
 if (!process.env.SCREENSHOT_DIR) config.screenshotDir = path.join(ROOT, 'data', 'screenshots');
 
@@ -51,7 +58,7 @@ const reporter: Reporter = {
   },
 };
 
-const result = await runApply({ jobId: 'cli-test', mode, jobUrl, payload, cv, reporter });
+const result = await runApply({ jobId: 'cli-test', mode, phase, jobUrl, payload, cv, reporter, approvalAnswers });
 console.log('\nSONUÇ:', result.outcome, '-', result.message);
 console.log('Doldurulan:', result.filled.map((f) => `${f.label} ← ${f.source}`));
 console.log('Boş bırakılan:', result.skipped.map((s) => `${s.label}${s.required ? ' (zorunlu)' : ''} → ${s.reason}`));

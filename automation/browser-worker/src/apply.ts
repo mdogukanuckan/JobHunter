@@ -6,16 +6,20 @@ import { chromium, type Page } from 'playwright';
 import { CancelledError, rewriteLocalhost, type Reporter } from './backend.js';
 import { config } from './config.js';
 import { fillField, readForm, type CvFile, type FormField } from './form.js';
-import { resolveField } from './mapping.js';
-import type { ApplyResult, AutomationMode, FieldReport, Outcome, Payload } from './types.js';
+import { isChoice, resolveField, toOption, type Resolution } from './mapping.js';
+import type { ApplyResult, ApprovalAnswers, AutomationDispatchPhase, AutomationMode, FieldReport, Outcome, Payload } from './types.js';
 
 export interface ApplyInput {
   jobId: string;
   mode: AutomationMode;
+  /** Faz 11: Fill turunde asla gonderilmez (inceleme raporu cikar); Submit turunde onaydan sonra gonderilir. */
+  phase: AutomationDispatchPhase;
   jobUrl: string;
   payload: Payload;
   cv: CvFile | null;
   reporter: Reporter;
+  /** Sadece phase === 'Submit' iken doldurulur (onay ekranindan gelen cevaplar + KVKK durumu). */
+  approvalAnswers?: ApprovalAnswers | null;
 }
 
 const MAX_STEPS = 10;
@@ -36,6 +40,48 @@ export function checkAllowed(jobUrl: string): string | null {
   const host = u.hostname.toLowerCase();
   if (config.allowedHosts.includes('*') || config.allowedHosts.includes(host)) return null;
   return `Güvenlik: "${host}" izinli değil. Faz 12'ye kadar sadece yerel test sitesi açılır (ALLOWED_HOSTS).`;
+}
+
+/**
+ * Faz 11: bir alanin "skip" sonucunu onay turune/moduna ve onay ekranindan gelen cevaplara gore
+ * gunceller. resolveField (mapping.ts) site/form eslestirmesini bilir ama onay akisini bilmez;
+ * karar burada verilir:
+ *   - KVKK/aydinlatma onay kutusu (consent): Fill'de Otomatik modda otomatik isaretlenir (uyari ile),
+ *     Insan onaylida onay ekranina birakilir; Submit'te kullanicinin (ya da Otomatik modda backend'in)
+ *     isaretledigi KvkkAccepted'e gore isaretlenir/bos birakilir.
+ *   - Diger alanlar: Submit turunde, onay ekranindan gelen cevaplarda (alan adi ya da etikete gore)
+ *     karsiligi varsa profildeki degerin onune gecer (TC kimlik no gibi hic saklanmayan alanlar dahil).
+ */
+function withApproval(field: FormField, r: Resolution, input: ApplyInput): Resolution {
+  if (r.kind === 'fill') return r;
+
+  if (r.consent) {
+    if (input.phase === 'Fill') {
+      if (input.mode === 'Automatic') {
+        return { kind: 'fill', value: true, source: 'KVKK: Otomatik modda otomatik onaylandı', note: 'KVKK / aydınlatma metni onayı Otomatik modda otomatik işaretlendi.' };
+      }
+      return r; // İnsan onaylı: onay ekranında işaretlenecek.
+    }
+    // Submit turu: onay ekranindan (ya da Otomatik modda backend'in kendiliginden) gelen karar.
+    if (input.approvalAnswers?.kvkkAccepted) {
+      return { kind: 'fill', value: true, source: input.mode === 'Automatic' ? 'KVKK: Otomatik modda otomatik onaylandı' : 'onay ekranı: KVKK kabul edildi' };
+    }
+    return { ...r, reason: 'KVKK / aydınlatma metni onayı: onay ekranında işaretlenmedi' };
+  }
+
+  if (input.phase === 'Submit' && input.approvalAnswers?.answers) {
+    const raw = input.approvalAnswers.answers[field.name] ?? input.approvalAnswers.answers[field.label];
+    if (raw !== undefined && raw !== null && String(raw).trim() !== '') {
+      if (isChoice(field)) {
+        const opt = toOption(field, raw);
+        if (opt) return { kind: 'fill', value: opt, source: 'onay ekranı cevabı' };
+        return { ...r, reason: `${r.reason} (onay ekranı cevabı seçeneklere uymadı: "${raw}")` };
+      }
+      return { kind: 'fill', value: raw, source: 'onay ekranı cevabı' };
+    }
+  }
+
+  return r;
 }
 
 export async function runApply(input: ApplyInput): Promise<ApplyResult> {
@@ -109,7 +155,7 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
       const stepSkipped: FieldReport[] = [];
 
       for (const field of snap.fields) {
-        const r = resolveField(payload, field);
+        const r = withApproval(field, resolveField(payload, field), input);
         const base = { label: field.label, name: field.name, required: field.required };
         if (r.kind === 'skip') {
           stepSkipped.push({ ...base, reason: r.reason });
@@ -175,13 +221,13 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
 
     // ---- 3. Gonder (ya da onay icin dur) ----
     const beforeFile = await shot(page, 'filled');
-    if (mode === 'HumanApproval') {
+    if (input.phase === 'Fill') {
       const msg = `Form dolduruldu (${filled.length} alan). "Gönder"e basılmadı; onayın bekleniyor.`;
       await reporter.event('Info', 'ready', msg, { screenshot: beforeFile });
       return finish('ReadyForApproval', msg);
     }
 
-    await reporter.event('Info', 'submit', '"Gönder"e basılıyor (Otomatik mod).');
+    await reporter.event('Info', 'submit', `"Gönder"e basılıyor (onay turu, ${mode === 'Automatic' ? 'Otomatik mod' : 'İnsan onaylı mod'}).`);
     const nav = page.waitForNavigation({ timeout: 20_000 }).catch(() => null);
     await page.locator(snap.submitSelector).click();
     const after = await nav;
