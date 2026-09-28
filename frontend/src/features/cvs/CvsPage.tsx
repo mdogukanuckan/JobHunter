@@ -157,7 +157,7 @@ export function CvsPage() {
   const cvs = cvsQuery.data ?? [];
 
   return (
-    <Box sx={{ maxWidth: 1000 }}>
+    <Box>
       <Typography variant="h5" sx={{ fontWeight: 700 }}>
         {t('nav.cvs')}
       </Typography>

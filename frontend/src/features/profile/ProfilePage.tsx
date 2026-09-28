@@ -81,7 +81,7 @@ export function ProfilePage() {
   }
 
   return (
-    <Box sx={{ pb: dirty ? 12 : 0, maxWidth: 1000 }}>
+    <Box sx={{ pb: dirty ? 12 : 0 }}>
       <Typography variant="h5" sx={{ fontWeight: 700 }}>
         {t('nav.profile')}
       </Typography>
@@ -128,7 +128,6 @@ export function ProfilePage() {
             bottom: { xs: 'calc(56px + 12px + env(safe-area-inset-bottom))', md: 16 },
             left: { xs: 12, md: 32 }, // icerikle ayni hizada (ust bar duzeninde yan menu yok)
             right: { xs: 12, md: 16 },
-            maxWidth: 1000,
             px: 2,
             py: 1.5,
             zIndex: (theme) => theme.zIndex.appBar + 1, // alt menunun onunde

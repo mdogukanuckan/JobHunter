@@ -114,7 +114,7 @@ export function TodosPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 900 }}>
+    <Box>
       <Stack direction="row" sx={{ alignItems: 'center', mb: 2, gap: 2, flexWrap: 'wrap' }}>
         <Box sx={{ flexGrow: 1 }}>
           <Typography variant="h5" sx={{ fontWeight: 700 }}>
