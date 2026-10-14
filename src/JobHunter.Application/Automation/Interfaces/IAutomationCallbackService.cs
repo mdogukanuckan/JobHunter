@@ -29,4 +29,9 @@ public interface IAutomationCallbackService
 
     /// <summary>Submit turunda worker'in okuyacagi onay cevaplari + KVKK durumu.</summary>
     Task<AutomationApprovalAnswersResponse> GetApprovalAnswersAsync(Guid jobId, CancellationToken cancellationToken = default);
+
+    // ---- Faz 10b: AI destekli alan eslestirme ----
+
+    /// <summary>Kural tabanli motorun cozemedigi alanlar icin Claude API'ye toplu danisir (onbellekli).</summary>
+    Task<SuggestFieldMappingResponse> SuggestFieldMappingAsync(Guid jobId, SuggestFieldMappingRequest request, CancellationToken cancellationToken = default);
 }

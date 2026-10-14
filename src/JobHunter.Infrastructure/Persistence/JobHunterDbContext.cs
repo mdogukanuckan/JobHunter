@@ -26,6 +26,7 @@ public class JobHunterDbContext : DbContext, IApplicationDbContext
     public DbSet<ProfileFieldPolicy> ProfileFieldPolicies => Set<ProfileFieldPolicy>();
     public DbSet<AutomationJob> AutomationJobs => Set<AutomationJob>();
     public DbSet<AutomationJobEvent> AutomationJobEvents => Set<AutomationJobEvent>();
+    public DbSet<FieldMappingCache> FieldMappingCaches => Set<FieldMappingCache>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

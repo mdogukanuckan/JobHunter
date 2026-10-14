@@ -2,7 +2,7 @@
 // Worker da n8n gibi bu uclari kullanir; boylece gunluk tarayici adimlarini CANLI gosterir.
 
 import { config } from './config.js';
-import type { ApprovalAnswers, Payload } from './types.js';
+import type { ApprovalAnswers, FieldMappingQuery, Payload, SuggestFieldMappingResponse } from './types.js';
 
 /** Backend 409 dondu: is iptal edilmis ya da bitmis. Otomasyon hemen durmali. */
 export class CancelledError extends Error {
@@ -18,11 +18,11 @@ export interface Reporter {
   event(level: EventLevel, step: string, message: string, data?: unknown): Promise<void>;
 }
 
-async function call(url: string, init: RequestInit = {}): Promise<Response> {
+async function call(url: string, init: RequestInit = {}, timeoutMs = 15_000): Promise<Response> {
   const res = await fetch(rewriteLocalhost(url), {
     ...init,
     headers: { 'X-Automation-Key': config.apiKey, ...(init.headers ?? {}) },
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (res.status === 409) throw new CancelledError();
   if (!res.ok) {
@@ -57,6 +57,20 @@ export const backend = {
   async approvalAnswers(url: string): Promise<ApprovalAnswers> {
     const json = (await (await call(url)).json()) as { answers: Record<string, string> | null; kvkkAccepted: boolean };
     return { answers: json.answers ?? null, kvkkAccepted: !!json.kvkkAccepted };
+  },
+  /**
+   * Faz 10b: kural tabanli motorun cozemedigi alanlari TEK istekte backend'e (Claude API'ye) sorar.
+   * Govde sadece alan metadatasi icerir (deger yok). mappingUrl yoksa/istek basarisiz olursa cagiran
+   * taraf (apply.ts) bunu yakalar ve alanlar eskisi gibi "skip" kalir — otomasyon durmaz.
+   */
+  async suggestFieldMapping(url: string, fields: FieldMappingQuery[]): Promise<SuggestFieldMappingResponse> {
+    // Claude API cagrisi n8n webhook'undan daha uzun surebilir (model gecikmesi); 40 sn pay birakiyoruz.
+    const res = await call(
+      url,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) },
+      40_000,
+    );
+    return (await res.json()) as SuggestFieldMappingResponse;
   },
   reporter(eventsUrl: string): Reporter {
     return {

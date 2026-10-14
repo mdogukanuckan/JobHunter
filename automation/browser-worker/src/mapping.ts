@@ -9,7 +9,7 @@
 
 import type { FormField } from './form.js';
 import { norm, pickOption, similarity } from './text.js';
-import type { Payload, PolicyField } from './types.js';
+import type { FieldMappingSuggestion, Payload, PolicyField } from './types.js';
 
 export type Resolution =
   | { kind: 'fill'; value: string | boolean | 'CV'; source: string; note?: string }
@@ -230,6 +230,9 @@ const RULES: Rule[] = [
 /** KVKK / aydinlatma metni / gizlilik onay kutulari. */
 const CONSENT_RE = /(kvkk|aydinlatma|kisisel veri|privacy|gizlilik|consent|onayliyorum|kabul ediyorum|i agree)/;
 
+/** Faz 10b: bu mesaj kural tabanli motorun "artik elimden gelen bir sey yok, AI denenebilir" sinyalidir. */
+export const NO_MATCH_REASON = 'Profilde karşılığı bulunamadı';
+
 /** Secenekli alanda istenen degerlerden (ilk eslesen) gercek secenek etiketini bulur. */
 export function toOption(f: FormField, want: string | string[]): string | null {
   const wants = Array.isArray(want) ? want : [want];
@@ -314,5 +317,82 @@ export function resolveField(p: Payload, f: FormField): Resolution {
     return fill(Array.isArray(want) ? want[0]! : want, `kural: ${rule.id}`);
   }
 
-  return fromCustomFields(p, f) ?? fromScreening(p, f) ?? skip('Profilde karşılığı bulunamadı');
+  return fromCustomFields(p, f) ?? fromScreening(p, f) ?? skip(NO_MATCH_REASON);
+}
+
+/**
+ * Faz 10b: resolveField() "karsiligi yok" (NO_MATCH_REASON) dedigi alanlar icin, Claude API'nin
+ * (backend uzerinden) verdigi karari GERCEK DEGERE cevirir. Deger her zaman worker'daki AutomationPayload'dan
+ * okunur — Claude'a hicbir deger gonderilmemisti, sadece "hangi menu ogesi" karari alinmisti.
+ * Karar gecersiz/bulunamaz ise (uydurma anahtar, hedef artik yok vb.) null doner ve alan skip kalir.
+ */
+const CANDIDATE_ACCESSORS: Record<string, (p: Payload) => string | boolean | null> = {
+  fullName: (p) => p.candidate.fullName,
+  firstName: (p) => p.candidate.firstName,
+  lastName: (p) => p.candidate.lastName,
+  email: (p) => p.candidate.email,
+  phoneNumber: (p) => p.candidate.phoneNumber,
+  headline: (p) => p.candidate.headline,
+  summary: (p) => p.candidate.summary,
+  city: (p) => p.candidate.city,
+  country: (p) => p.candidate.country,
+  linkedInUrl: (p) => p.candidate.linkedInUrl,
+  gitHubUrl: (p) => p.candidate.gitHubUrl,
+  portfolioUrl: (p) => p.candidate.portfolioUrl,
+  yearsOfExperience: (p) => (p.candidate.yearsOfExperience != null ? String(p.candidate.yearsOfExperience) : null),
+  noticePeriodDays: (p) => (p.candidate.noticePeriodDays != null ? String(p.candidate.noticePeriodDays) : null),
+  preferredWorkMode: (p) => p.candidate.preferredWorkMode,
+  openToRelocation: (p) => p.candidate.openToRelocation,
+  requiresVisaSponsorship: (p) => p.candidate.requiresVisaSponsorship,
+  workAuthorization: (p) => p.candidate.workAuthorization,
+  skills: (p) => (p.candidate.skills.length ? p.candidate.skills.join(', ') : null),
+};
+
+function fillBooleanOrChoice(f: FormField, value: boolean, source: string): Resolution {
+  if (!isChoice(f)) return fill(value, source);
+  const opt = toOption(f, value ? ['evet', 'var', 'yes'] : ['hayir', 'yok', 'no']);
+  return opt ? fill(opt, source) : skip(`AI eşleştirdi ama seçeneklere uymadı (${source})`);
+}
+
+export function applyAiSuggestion(p: Payload, f: FormField, s: FieldMappingSuggestion | undefined): Resolution | null {
+  if (!s?.targetKind || !s.targetKey) return null;
+
+  if (s.targetKind === 'Candidate') {
+    const accessor = CANDIDATE_ACCESSORS[s.targetKey];
+    const raw = accessor?.(p);
+    if (raw === null || raw === undefined || raw === '') return null;
+    const source = `AI: candidate.${s.targetKey}`;
+    if (typeof raw === 'boolean') return fillBooleanOrChoice(f, raw, source);
+    if (isChoice(f)) {
+      const opt = toOption(f, raw);
+      return opt ? fill(opt, source) : skip(`AI eşleştirdi ama seçeneklere uymadı: candidate.${s.targetKey}`);
+    }
+    return fill(raw, source);
+  }
+
+  if (s.targetKind === 'Screening') {
+    const qa = (p.screeningAnswers ?? []).find((q) => q.question === s.targetKey);
+    if (!qa) return null;
+    const source = `AI: hazır cevap "${qa.question}"`;
+    if (f.type === 'checkbox') return null;
+    if (isChoice(f)) {
+      const opt = toOption(f, qa.answer);
+      return opt ? fill(opt, source) : skip(`AI eşleştirdi ama hazır cevap seçeneklere uymadı: "${qa.question}"`);
+    }
+    return fill(qa.answer, source);
+  }
+
+  if (s.targetKind === 'CustomField') {
+    const cf = (p.customFields ?? []).find((c) => c.label === s.targetKey);
+    if (!cf) return null;
+    if (cf.policy === 'AskFirst') return skip(`Ek bilgi "${cf.label}": önce sorulmalı (AskFirst)`, true);
+    const source = `AI: ek bilgi ${cf.label}`;
+    if (isChoice(f)) {
+      const opt = toOption(f, cf.value);
+      return opt ? fill(opt, source) : null;
+    }
+    return fill(cf.value, source);
+  }
+
+  return null;
 }

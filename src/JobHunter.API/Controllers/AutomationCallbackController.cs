@@ -93,6 +93,17 @@ public class AutomationCallbackController : ControllerBase
     public Task<ActionResult<AutomationApprovalAnswersResponse>> GetApprovalAnswers(Guid jobId, CancellationToken ct)
         => Handle(() => _service.GetApprovalAnswersAsync(jobId, ct));
 
+    // ---- Faz 10b: AI destekli alan eslestirme ----
+
+    /// <summary>
+    /// Kural tabanli motorun (mapping.ts) cozemedigi alanlari TOPLU (form basina tek istek) sorar.
+    /// Govde sadece alan metadatasi icerir, deger icermez. Onbelleklenmis kararlar aninda doner;
+    /// yeni alanlar icin Claude API'ye tek bir istek atilir.
+    /// </summary>
+    [HttpPost("suggest-field-mapping")]
+    public Task<ActionResult<SuggestFieldMappingResponse>> SuggestFieldMapping(Guid jobId, SuggestFieldMappingRequest request, CancellationToken ct)
+        => Handle(() => _service.SuggestFieldMappingAsync(jobId, request, ct));
+
         private async Task<ActionResult<T>> Handle<T>(Func<Task<T>> action)
     {
         try

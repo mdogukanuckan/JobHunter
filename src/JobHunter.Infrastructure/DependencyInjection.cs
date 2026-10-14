@@ -39,7 +39,11 @@ public static class DependencyInjection
             ApiKey = configuration["Automation:ApiKey"],
             N8nWebhookUrl = configuration["Automation:N8nWebhookUrl"],
             N8nWebhookSecret = configuration["Automation:N8nWebhookSecret"],
-            PublicBaseUrl = configuration["Automation:PublicBaseUrl"]
+            PublicBaseUrl = configuration["Automation:PublicBaseUrl"],
+            AnthropicApiKey = configuration["Automation:AnthropicApiKey"],
+            AnthropicModel = string.IsNullOrWhiteSpace(configuration["Automation:AnthropicModel"])
+                ? new AutomationOptions().AnthropicModel
+                : configuration["Automation:AnthropicModel"]!
         };
         services.AddSingleton(automationOptions);
 
@@ -57,6 +61,14 @@ public static class DependencyInjection
         {
             services.AddScoped<IAutomationDispatcher, LoggingAutomationDispatcher>();
         }
+
+        // Faz 10b: Claude API ile alan eslestirme. Anahtar bossa AnthropicClient CompleteAsync'te
+        // aciklayici bir hata firlatir; FieldMappingService bunu yakalayip "AI kapali" gibi ele alir
+        // (otomasyon kural tabanli motorla calismaya devam eder).
+        services.AddHttpClient<IAnthropicClient, AnthropicClient>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
 
         return services;
     }

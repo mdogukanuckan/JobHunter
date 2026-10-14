@@ -30,6 +30,18 @@ public class AutomationOptions
     /// </summary>
     public string? PublicBaseUrl { get; init; }
 
+    /// <summary>
+    /// Faz 10b: Claude API (Anthropic Messages API) anahtari. Bos ise AI destekli alan
+    /// eslestirmesi devre disi kalir, sadece kural tabanli motor (mapping.ts) calisir.
+    /// Gizli deger: user-secrets / ortam degiskeni.
+    /// </summary>
+    public string? AnthropicApiKey { get; init; }
+
+    /// <summary>
+    /// Faz 10b icin kullanilacak model. Maliyet bilincli varsayilan: Haiku.
+    /// </summary>
+    public string AnthropicModel { get; init; } = "claude-haiku-4-5-20251001";
+
     /// <summary>Goreli yolu (orn. "/api/automation/n8n/jobs/.../cv") PublicBaseUrl ile tam adrese cevirir.</summary>
     public string BuildUrl(string path)
         => string.IsNullOrWhiteSpace(PublicBaseUrl) ? path : PublicBaseUrl.TrimEnd('/') + path;

@@ -33,4 +33,6 @@ public record AutomationDispatchMessage(
     AutomationDispatchPhase Phase,
     string ReviewUrl,
     string ScreenshotUrl,
-    string ApprovalAnswersUrl);
+    string ApprovalAnswersUrl,
+    // Faz 10b: kural tabanli motorun cozemedigi alanlar icin Claude API'ye toplu danisma ucu.
+    string MappingUrl);

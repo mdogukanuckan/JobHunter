@@ -33,6 +33,9 @@ export interface Payload {
     noticePeriodDays: number | null;
     preferredWorkMode: 'Remote' | 'Hybrid' | 'OnSite' | 'Flexible' | null;
     openToRelocation: boolean;
+    /** Faz 10b menusunde de var: AI eslestirmesi bu alanlara da erisebilir. */
+    requiresVisaSponsorship: boolean;
+    workAuthorization: string | null;
     skills: string[];
   };
   /** Anahtarlar: dateOfBirth, gender, maritalStatus, nationality, militaryService, driverLicense, address, travel, smoking, disability, expectedSalary, references */
@@ -66,6 +69,8 @@ export interface ApplyRequest {
   reviewUrl: string;
   screenshotUrl: string;
   approvalAnswersUrl: string;
+  /** Faz 10b: kural tabanli motorun cozemedigi alanlar icin Claude API'ye toplu danisma ucu. Yoksa AI atlanir. */
+  mappingUrl?: string;
 }
 
 /**
@@ -99,4 +104,28 @@ export interface ApplyResult {
   missingRequired: FieldReport[];
   screenshots: string[];
   durationMs: number;
+}
+
+/**
+ * Faz 10b: worker'in kural tabanli motorun cozemedigi alanlar icin backend'e (Claude API'ye)
+ * TOPLU sordugu istek/yanit. Profil DEGERLERI icermez, sadece alan metadatasi gider.
+ */
+export interface FieldMappingQuery {
+  label: string;
+  hints: string;
+  type: string;
+  options?: string[];
+}
+
+export interface FieldMappingSuggestion {
+  label: string;
+  type: string;
+  /** "Candidate" | "Screening" | "CustomField" | null (karsiligi yok / AI kapali). */
+  targetKind: string | null;
+  targetKey: string | null;
+  fromCache: boolean;
+}
+
+export interface SuggestFieldMappingResponse {
+  results: FieldMappingSuggestion[];
 }

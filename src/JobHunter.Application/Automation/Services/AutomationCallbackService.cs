@@ -16,12 +16,15 @@ public class AutomationCallbackService : IAutomationCallbackService
     private readonly IApplicationDbContext _context;
     private readonly IFileStorage _fileStorage;
     private readonly IAutomationPayloadBuilder _payloadBuilder;
+    private readonly IFieldMappingService _fieldMappingService;
 
-    public AutomationCallbackService(IApplicationDbContext context, IFileStorage fileStorage, IAutomationPayloadBuilder payloadBuilder)
+    public AutomationCallbackService(
+        IApplicationDbContext context, IFileStorage fileStorage, IAutomationPayloadBuilder payloadBuilder, IFieldMappingService fieldMappingService)
     {
         _context = context;
         _fileStorage = fileStorage;
         _payloadBuilder = payloadBuilder;
+        _fieldMappingService = fieldMappingService;
     }
 
     public Task<AutomationPayload> GetPayloadAsync(Guid jobId, CancellationToken cancellationToken = default)
@@ -118,6 +121,11 @@ public class AutomationCallbackService : IAutomationCallbackService
 
         return new AutomationApprovalAnswersResponse(answers, job.KvkkAccepted);
     }
+
+    // ---- Faz 10b: AI destekli alan eslestirme ----
+
+    public Task<SuggestFieldMappingResponse> SuggestFieldMappingAsync(Guid jobId, SuggestFieldMappingRequest request, CancellationToken cancellationToken = default)
+        => _fieldMappingService.SuggestAsync(jobId, request, cancellationToken);
 
         private async Task<AutomationJob> FindAsync(Guid jobId, CancellationToken cancellationToken)
         => await _context.AutomationJobs

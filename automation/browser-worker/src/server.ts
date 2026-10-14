@@ -105,7 +105,7 @@ async function handleApply(req: ApplyRequest): Promise<ApplyResult> {
       await reporter.event('Warning', 'approval', 'Submit turu ama onay ekranından cevap/KVKK bulunamadı; eksik alanlar tekrar onaya düşebilir.');
     }
 
-    const result = await runApply({ jobId: req.jobId, mode: req.mode, phase: req.phase, jobUrl: req.jobUrl, payload, cv, reporter, approvalAnswers });
+    const result = await runApply({ jobId: req.jobId, mode: req.mode, phase: req.phase, jobUrl: req.jobUrl, payload, cv, reporter, approvalAnswers, mappingUrl: req.mappingUrl });
 
     if (req.phase === 'Fill' && (result.outcome === 'ReadyForApproval' || result.outcome === 'NeedsInput')) {
       await submitReview(req, result, reporter);

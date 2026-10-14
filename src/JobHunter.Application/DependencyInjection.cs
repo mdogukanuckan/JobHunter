@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<IAutomationPayloadBuilder, AutomationPayloadBuilder>();
         services.AddScoped<IAutomationJobService, AutomationJobService>();
         services.AddScoped<IAutomationCallbackService, AutomationCallbackService>();
+        services.AddScoped<IFieldMappingService, FieldMappingService>();
 
         return services;
     }

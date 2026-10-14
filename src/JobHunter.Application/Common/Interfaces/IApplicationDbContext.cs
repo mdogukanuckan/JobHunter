@@ -23,6 +23,7 @@ public interface IApplicationDbContext
     DbSet<ProfileFieldPolicy> ProfileFieldPolicies { get; }
     DbSet<AutomationJob> AutomationJobs { get; }
     DbSet<AutomationJobEvent> AutomationJobEvents { get; }
+    DbSet<FieldMappingCache> FieldMappingCaches { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

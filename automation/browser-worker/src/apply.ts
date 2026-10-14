@@ -3,10 +3,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { chromium, type Page } from 'playwright';
-import { CancelledError, rewriteLocalhost, type Reporter } from './backend.js';
+import { backend, CancelledError, rewriteLocalhost, type Reporter } from './backend.js';
 import { config } from './config.js';
 import { fillField, readForm, type CvFile, type FormField } from './form.js';
-import { isChoice, resolveField, toOption, type Resolution } from './mapping.js';
+import { applyAiSuggestion, isChoice, NO_MATCH_REASON, resolveField, toOption, type Resolution } from './mapping.js';
 import type { ApplyResult, ApprovalAnswers, AutomationDispatchPhase, AutomationMode, FieldReport, Outcome, Payload } from './types.js';
 
 export interface ApplyInput {
@@ -20,6 +20,8 @@ export interface ApplyInput {
   reporter: Reporter;
   /** Sadece phase === 'Submit' iken doldurulur (onay ekranindan gelen cevaplar + KVKK durumu). */
   approvalAnswers?: ApprovalAnswers | null;
+  /** Faz 10b: verilmisse, kural tabanli motorun cozemedigi alanlar bu adrese TOPLU sorulur. */
+  mappingUrl?: string;
 }
 
 const MAX_STEPS = 10;
@@ -154,8 +156,45 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
       const stepFilled: FieldReport[] = [];
       const stepSkipped: FieldReport[] = [];
 
+      // Faz 10b: once kural tabanli motoru TUM alanlar icin calistir (senkron), sonra "karsiligi
+      // yok" diyenleri TEK toplu istekte Claude API'ye sor (form basina bir cagri). Boylece kural
+      // tabanli motorun zaten cozdugu alanlar icin gereksiz API cagrisi yapilmaz.
+      const baseResolutions = new Map<FormField, Resolution>(snap.fields.map((field) => [field, resolveField(payload, field)]));
+
+      if (input.mappingUrl) {
+        const unresolved = snap.fields.filter((field) => {
+          const r = baseResolutions.get(field);
+          return r?.kind === 'skip' && r.reason === NO_MATCH_REASON;
+        });
+
+        if (unresolved.length > 0) {
+          try {
+            const query = unresolved.map((field) => ({
+              label: field.label,
+              hints: field.hints,
+              type: field.type,
+              options: field.options.length ? field.options.map((o) => o.label) : undefined,
+            }));
+            const resp = await backend.suggestFieldMapping(input.mappingUrl, query);
+            unresolved.forEach((field, i) => {
+              const aiResolution = applyAiSuggestion(payload, field, resp.results[i]);
+              if (aiResolution) baseResolutions.set(field, aiResolution);
+            });
+            await reporter.event('Info', 'ai_mapping', `Claude API'ye ${unresolved.length} alan soruldu.`, {
+              fields: unresolved.map((f) => f.label),
+            });
+          } catch (err) {
+            await reporter.event(
+              'Warning',
+              'ai_mapping',
+              `Claude API alan eşleştirmesi başarısız, kural tabanlı sonuçla devam ediliyor: ${(err as Error).message.split('\n')[0]}`,
+            );
+          }
+        }
+      }
+
       for (const field of snap.fields) {
-        const r = withApproval(field, resolveField(payload, field), input);
+        const r = withApproval(field, baseResolutions.get(field)!, input);
         const base = { label: field.label, name: field.name, required: field.required };
         if (r.kind === 'skip') {
           stepSkipped.push({ ...base, reason: r.reason });

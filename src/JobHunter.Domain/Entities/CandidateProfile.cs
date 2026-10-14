@@ -73,4 +73,7 @@ public class CandidateProfile : BaseEntity
 
     /// <summary>Varsayilandan farkli secilmis otomasyon politikalari (bkz. ProfileFields.Defaults).</summary>
     public ICollection<ProfileFieldPolicy> FieldPolicies { get; set; } = new List<ProfileFieldPolicy>();
+
+    /// <summary>Faz 10b: Claude API'nin daha once bu profil icin verdigi alan eslestirme kararlari (onbellek).</summary>
+    public ICollection<FieldMappingCache> FieldMappingCaches { get; set; } = new List<FieldMappingCache>();
 }

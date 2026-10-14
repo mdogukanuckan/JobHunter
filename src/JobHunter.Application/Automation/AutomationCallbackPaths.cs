@@ -18,4 +18,7 @@ public static class AutomationCallbackPaths
     public static string Review(Guid jobId) => $"/{Base}/{jobId}/review";
     public static string Screenshot(Guid jobId) => $"/{Base}/{jobId}/screenshot";
     public static string ApprovalAnswers(Guid jobId) => $"/{Base}/{jobId}/approval-answers";
+
+    // Faz 10b: kural tabanli motorun cozemedigi alanlar icin Claude API'ye toplu danisma.
+    public static string SuggestFieldMapping(Guid jobId) => $"/{Base}/{jobId}/suggest-field-mapping";
 }

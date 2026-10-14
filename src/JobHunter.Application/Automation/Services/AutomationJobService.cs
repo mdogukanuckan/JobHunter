@@ -106,7 +106,8 @@ public class AutomationJobService : IAutomationJobService
                 AutomationDispatchPhase.Fill,
                 _options.BuildUrl(AutomationCallbackPaths.Review(job.Id)),
                 _options.BuildUrl(AutomationCallbackPaths.Screenshot(job.Id)),
-                _options.BuildUrl(AutomationCallbackPaths.ApprovalAnswers(job.Id))),
+                _options.BuildUrl(AutomationCallbackPaths.ApprovalAnswers(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.SuggestFieldMapping(job.Id))),
                 cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -236,7 +237,8 @@ public class AutomationJobService : IAutomationJobService
                 AutomationDispatchPhase.Submit,
                 _options.BuildUrl(AutomationCallbackPaths.Review(job.Id)),
                 _options.BuildUrl(AutomationCallbackPaths.Screenshot(job.Id)),
-                _options.BuildUrl(AutomationCallbackPaths.ApprovalAnswers(job.Id))),
+                _options.BuildUrl(AutomationCallbackPaths.ApprovalAnswers(job.Id)),
+                _options.BuildUrl(AutomationCallbackPaths.SuggestFieldMapping(job.Id))),
                 cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
