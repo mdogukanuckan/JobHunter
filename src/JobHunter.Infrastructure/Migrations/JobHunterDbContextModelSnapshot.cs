@@ -457,6 +457,47 @@ namespace JobHunter.Infrastructure.Migrations
                     b.ToTable("Educations", (string)null);
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.FieldMappingCache", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CandidateProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FieldType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("NormalizedLabel")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("TargetKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TargetKind")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CandidateProfileId", "NormalizedLabel", "FieldType")
+                        .IsUnique();
+
+                    b.ToTable("FieldMappingCaches", (string)null);
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.Interview", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1053,6 +1094,17 @@ namespace JobHunter.Infrastructure.Migrations
                     b.Navigation("CandidateProfile");
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.FieldMappingCache", b =>
+                {
+                    b.HasOne("JobHunter.Domain.Entities.CandidateProfile", "CandidateProfile")
+                        .WithMany("FieldMappingCaches")
+                        .HasForeignKey("CandidateProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CandidateProfile");
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.Interview", b =>
                 {
                     b.HasOne("JobHunter.Domain.Entities.JobApplication", "JobApplication")
@@ -1196,6 +1248,8 @@ namespace JobHunter.Infrastructure.Migrations
                     b.Navigation("CustomFields");
 
                     b.Navigation("Educations");
+
+                    b.Navigation("FieldMappingCaches");
 
                     b.Navigation("FieldPolicies");
 
