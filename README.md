@@ -7,7 +7,7 @@ AI destekli is basvuru ve basvuru takip platformu.
 - **Backend:** .NET 10, ASP.NET Core Web API, PostgreSQL, EF Core (Clean/Onion Architecture)
 - **Frontend:** React + TypeScript + Vite + MUI
 - **Automation:** n8n + Claude (browser automation) - Human Approval Mode / Automatic Mode
-- **Notification:** WhatsApp Business Cloud API (n8n uzerinden)
+- **Notification:** Telegram Bot API + e-posta (SMTP), n8n uzerinden
 
 ## Proje Yapisi
 
@@ -35,7 +35,7 @@ frontend/src/
 
 | Faz | Kapsam | Durum |
 |---|---|---|
-| Faz 0 | Mimari kararlar (n8n webhook push, WhatsApp n8n uzerinden, custom JWT, AutomationJob 1-N) | Tamamlandi |
+| Faz 0 | Mimari kararlar (n8n webhook push, bildirim n8n uzerinden (Telegram/e-posta), custom JWT, AutomationJob 1-N) | Tamamlandi |
 | Faz 1 | Backend iskeleti: katmanlar, DbContext, PostgreSQL, Swagger, `/health` | Tamamlandi |
 | Faz 2 | Authentication: User/RefreshToken, register/login, JWT middleware | Tamamlandi |
 | Faz 3 | Kanban pipeline: JobApplication, durum gecmisi, surukle-birak siralama | Tamamlandi |
