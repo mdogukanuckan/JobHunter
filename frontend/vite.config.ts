@@ -25,7 +25,7 @@ export default defineConfig({
         short_name: 'JobHunter',
         description: 'İş başvurularını tek yerden yönet',
         lang: 'tr',
-        start_url: '/',
+        start_url: '/board',
         scope: '/',
         display: 'standalone',
         orientation: 'any',

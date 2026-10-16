@@ -8,12 +8,15 @@ import { SettingsPage } from './features/settings/SettingsPage';
 import { TodosPage } from './features/todos/TodosPage';
 import { AppLayout } from './layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
+import { LandingPage } from './pages/landing/LandingPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RegisterPage } from './pages/RegisterPage';
 
 export default function App() {
   return (
     <Routes>
+      <Route index element={<LandingPage />} />
+
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -21,7 +24,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<BoardPage />} />
+          <Route path="board" element={<BoardPage />} />
           <Route path="interviews" element={<InterviewsPage />} />
           <Route path="todos" element={<TodosPage />} />
           <Route path="cvs" element={<CvsPage />} />

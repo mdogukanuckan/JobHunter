@@ -42,7 +42,7 @@ import { getErrorMessage } from '../utils/errors';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 const NAV_ITEMS: { to: string; labelKey: string; shortKey: string; icon: ReactNode }[] = [
-  { to: '/', labelKey: 'nav.board', shortKey: 'nav.board', icon: <ViewKanbanOutlinedIcon /> },
+  { to: '/board', labelKey: 'nav.board', shortKey: 'nav.board', icon: <ViewKanbanOutlinedIcon /> },
   { to: '/interviews', labelKey: 'nav.interviews', shortKey: 'nav.interviewsShort', icon: <EventOutlinedIcon /> },
   { to: '/todos', labelKey: 'nav.todos', shortKey: 'nav.todosShort', icon: <ChecklistIcon /> },
   { to: '/cvs', labelKey: 'nav.cvs', shortKey: 'nav.cvs', icon: <DescriptionOutlinedIcon /> },
@@ -65,7 +65,7 @@ export function AppLayout() {
   const navigate = useNavigate();
   const attention = countAttention(useTodosQuery().data);
 
-  const currentIndex = NAV_ITEMS.findIndex((item) => matchPath({ path: item.to, end: item.to === '/' }, location.pathname));
+  const currentIndex = NAV_ITEMS.findIndex((item) => matchPath({ path: item.to }, location.pathname));
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -74,7 +74,7 @@ export function AppLayout() {
           <Box sx={{ width: { md: SIDE_WIDTH }, display: 'flex', alignItems: 'center', gap: 1.25, flexShrink: 0 }}>
             <Box
               component={RouterLink}
-              to="/"
+              to="/board"
               aria-label={t('app.name')}
               sx={{ display: 'flex', alignItems: 'center', gap: 1.25, color: 'text.primary', textDecoration: 'none' }}
             >
@@ -106,7 +106,6 @@ export function AppLayout() {
                   key={item.to}
                   component={NavLink}
                   to={item.to}
-                  end={item.to === '/'}
                   sx={(th) => ({
                     height: 38,
                     px: 2,

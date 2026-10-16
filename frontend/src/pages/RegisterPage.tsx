@@ -19,7 +19,7 @@ export function RegisterPage() {
 
   const mutation = useMutation({
     mutationFn: register,
-    onSuccess: () => navigate('/', { replace: true }),
+    onSuccess: () => navigate('/board', { replace: true }),
   });
 
   const passwordTooShort = password.length > 0 && password.length < MIN_PASSWORD_LENGTH;

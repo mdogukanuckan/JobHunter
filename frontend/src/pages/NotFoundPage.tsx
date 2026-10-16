@@ -11,7 +11,7 @@ export function NotFoundPage() {
           404
         </Typography>
         <Typography sx={{ mb: 2 }}>{t('notFound.title')}</Typography>
-        <Button component={RouterLink} to="/" variant="contained">
+        <Button component={RouterLink} to="/board" variant="contained">
           {t('notFound.back')}
         </Button>
       </Box>

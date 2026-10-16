@@ -25,6 +25,6 @@ export function PublicOnlyRoute() {
   const { status } = useAuth();
 
   if (status === 'loading') return <FullPageSpinner />;
-  if (status === 'authenticated') return <Navigate to="/" replace />;
+  if (status === 'authenticated') return <Navigate to="/board" replace />;
   return <Outlet />;
 }

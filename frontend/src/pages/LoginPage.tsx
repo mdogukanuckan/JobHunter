@@ -20,7 +20,7 @@ export function LoginPage() {
     mutationFn: login,
     onSuccess: () => {
       // Korumali bir sayfadan yonlendirildiysek oraya geri don.
-      const from = (location.state as { from?: Location } | null)?.from?.pathname ?? '/';
+      const from = (location.state as { from?: Location } | null)?.from?.pathname ?? '/board';
       navigate(from, { replace: true });
     },
   });
