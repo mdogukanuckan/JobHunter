@@ -587,5 +587,34 @@
       "approveError": "Couldn't approve.",
       "bankAddError": "Couldn't add \"{{question}}\" to your saved answers."
     }
+  },
+  "landing": {
+    "eyebrow": "Job search, organised",
+    "heroLine1": "Every application.",
+    "heroLine2": "One calm place.",
+    "heroText": "Track applications, interviews, CVs and to-dos — and let AI fill in the repetitive forms while you stay in control.",
+    "createAccount": "Create free account",
+    "getStarted": "Get started",
+    "openApp": "Open app",
+    "ctaTitle": "Ready to stop juggling spreadsheets?",
+    "footer": "JobHunter · A personal project by Doğukan Uçkan",
+    "features": {
+      "kanban": {
+        "title": "Kanban pipeline",
+        "text": "Drag applications from Wishlist to Offer. Every card keeps its notes, links and history."
+      },
+      "ai": {
+        "title": "AI-assisted applying",
+        "text": "Claude maps your profile to form fields; you review a screenshot and approve before anything is sent."
+      },
+      "calendar": {
+        "title": "Interviews & to-dos",
+        "text": "A calendar for interviews and a task list for follow-ups, so nothing slips through."
+      },
+      "cvs": {
+        "title": "CV library",
+        "text": "Keep every CV version in one place and attach the right one to each application."
+      }
+    }
   }
 }

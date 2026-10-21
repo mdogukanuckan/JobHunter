@@ -4,34 +4,18 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import { Box, Button, Stack, Typography, type SxProps, type Theme } from '@mui/material';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { LanguageSwitcher } from '../../layout/LanguageSwitcher';
 
-/* Landing sayfasi taslaklari icin ortak parcalar. Metinler taslak asamasinda sabit Ingilizce;
- * secilen tasarim netlesince i18n anahtarlarina tasinacak. */
+/** Landing sayfasi icin ortak parcalar. Metinler i18n'de "landing.*" altinda. */
 
-export const FEATURES: { icon: ReactNode; title: string; text: string }[] = [
-  {
-    icon: <ViewKanbanIcon />,
-    title: 'Kanban pipeline',
-    text: 'Drag applications from Wishlist to Offer. Every card keeps its notes, links and history.',
-  },
-  {
-    icon: <AutoAwesomeIcon />,
-    title: 'AI-assisted applying',
-    text: 'Claude maps your profile to form fields; you review a screenshot and approve before anything is sent.',
-  },
-  {
-    icon: <CalendarMonthIcon />,
-    title: 'Interviews & to-dos',
-    text: 'A calendar for interviews and a task list for follow-ups, so nothing slips through.',
-  },
-  {
-    icon: <DescriptionIcon />,
-    title: 'CV library',
-    text: 'Keep every CV version in one place and attach the right one to each application.',
-  },
+export const FEATURES: { key: string; icon: ReactNode }[] = [
+  { key: 'kanban', icon: <ViewKanbanIcon /> },
+  { key: 'ai', icon: <AutoAwesomeIcon /> },
+  { key: 'calendar', icon: <CalendarMonthIcon /> },
+  { key: 'cvs', icon: <DescriptionIcon /> },
 ];
 
 export const BOARD_COLUMNS: { name: string; cards: { role: string; company: string }[] }[] = [
@@ -43,6 +27,8 @@ export const BOARD_COLUMNS: { name: string; cards: { role: string; company: stri
 
 /** Panonun sade bir maketi: gercek veri yok, sadece gorsel. */
 export function MockBoard({ sx }: { sx?: SxProps<Theme> }) {
+  const { t } = useTranslation();
+
   return (
     <Box
       aria-hidden
@@ -62,7 +48,7 @@ export function MockBoard({ sx }: { sx?: SxProps<Theme> }) {
       {BOARD_COLUMNS.map((col) => (
         <Box key={col.name} sx={{ minWidth: 0 }}>
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'block', mb: 1 }}>
-            {col.name} · {col.cards.length}
+            {t(`status.${col.name}`)} · {col.cards.length}
           </Typography>
           <Stack spacing={1}>
             {col.cards.map((c) => (
@@ -83,6 +69,7 @@ export function MockBoard({ sx }: { sx?: SxProps<Theme> }) {
 }
 
 export function LandingNav() {
+  const { t } = useTranslation();
   const { status } = useAuth();
 
   return (
@@ -98,15 +85,15 @@ export function LandingNav() {
         <LanguageSwitcher />
         {status === 'authenticated' ? (
           <Button component={RouterLink} to="/board" variant="contained">
-            Open app
+            {t('landing.openApp')}
           </Button>
         ) : (
           <>
             <Button component={RouterLink} to="/login" variant="text" sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
-              Sign in
+              {t('auth.login')}
             </Button>
             <Button component={RouterLink} to="/register" variant="contained">
-              Get started
+              {t('landing.getStarted')}
             </Button>
           </>
         )}
@@ -116,10 +103,12 @@ export function LandingNav() {
 }
 
 export function LandingFooter() {
+  const { t } = useTranslation();
+
   return (
     <Box component="footer" sx={{ py: 4, px: 2, textAlign: 'center', borderTop: 1, borderColor: 'divider' }}>
       <Typography variant="body2" color="text.secondary">
-        JobHunter · A personal project by Doğukan Üçkan
+        {t('landing.footer')}
       </Typography>
     </Box>
   );

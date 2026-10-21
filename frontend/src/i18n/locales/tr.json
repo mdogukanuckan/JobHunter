@@ -587,5 +587,34 @@
       "approveError": "Onaylanamadı.",
       "bankAddError": "\"{{question}}\" hazır cevaplarına eklenemedi."
     }
+  },
+  "landing": {
+    "eyebrow": "İş aramanız, düzenli",
+    "heroLine1": "Tüm başvurular.",
+    "heroLine2": "Tek sakin yer.",
+    "heroText": "Başvurularınızı, mülakatlarınızı, CV'lerinizi ve yapılacakları takip edin — tekrarlayan formları yapay zekâ doldursun, kontrol sizde kalsın.",
+    "createAccount": "Ücretsiz hesap oluştur",
+    "getStarted": "Başla",
+    "openApp": "Uygulamayı aç",
+    "ctaTitle": "Tablolar arasında kaybolmayı bırakmaya hazır mısınız?",
+    "footer": "JobHunter · Doğukan Uçkan'ın kişisel projesi",
+    "features": {
+      "kanban": {
+        "title": "Kanban akışı",
+        "text": "Başvuruları İstek listesinden Teklif aşamasına sürükleyin. Her kart notlarını, bağlantılarını ve geçmişini tutar."
+      },
+      "ai": {
+        "title": "Yapay zekâ destekli başvuru",
+        "text": "Claude profilinizi form alanlarıyla eşleştirir; hiçbir şey gönderilmeden önce ekran görüntüsünü inceleyip onaylarsınız."
+      },
+      "calendar": {
+        "title": "Mülakatlar ve yapılacaklar",
+        "text": "Mülakatlar için takvim, takipler için görev listesi: hiçbir şey gözden kaçmaz."
+      },
+      "cvs": {
+        "title": "CV kütüphanesi",
+        "text": "Tüm CV sürümlerinizi tek yerde tutun, her başvuruya doğrusunu ekleyin."
+      }
+    }
   }
 }
