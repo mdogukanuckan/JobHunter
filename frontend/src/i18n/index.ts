@@ -7,6 +7,14 @@ import tr from './locales/tr.json';
 export const SUPPORTED_LANGUAGES = ['tr', 'en'] as const;
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
+// <html lang="..."> ekran okuyucular, tarayici ceviri onerisi ve CSS buyuk harf donusumu (tr'de "i" -> "İ") icin
+// guncel tutulur. Dinleyici init()'ten ONCE kayit edilmeli: kaynaklar bellekte oldugu icin dil tespiti init sirasinda
+// (senkron) biter ve "languageChanged" o an tetiklenir; sonradan kayit edilen dinleyici ilk dili hic gormez ve
+// index.html'deki lang="tr" Ingilizce arayuzde de kalirdi.
+i18n.on('languageChanged', (lng) => {
+  document.documentElement.lang = lng;
+});
+
 // Dil secimi: once localStorage'daki tercih, yoksa tarayici dili, o da desteklenmiyorsa Turkce.
 void i18n
   .use(LanguageDetector)
@@ -26,10 +34,5 @@ void i18n
       caches: ['localStorage'],
     },
   });
-
-// <html lang="..."> ekran okuyucular ve tarayici ceviri onerisi icin guncel tutulur.
-i18n.on('languageChanged', (lng) => {
-  document.documentElement.lang = lng;
-});
 
 export default i18n;
