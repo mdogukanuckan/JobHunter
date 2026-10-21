@@ -488,7 +488,22 @@
     "switchToDark": "Switch to dark theme",
     "switchToLight": "Switch to light theme",
     "languageHint": "The interface language is stored in this browser.",
-    "account": "Account"
+    "account": "Account",
+    "apiKey": {
+      "title": "Claude API key",
+      "hint": "Enter your own Anthropic API key to let Claude match form fields. The key is stored encrypted and is never shown again.",
+      "label": "API key",
+      "placeholder": "sk-ant-…",
+      "save": "Verify and save",
+      "replace": "Replace key",
+      "remove": "Remove",
+      "configured": "Saved key: …{{last4}}",
+      "notConfigured": "No key yet. Without one, fields are matched by rules only.",
+      "saved": "Key verified and saved encrypted.",
+      "removed": "Key removed.",
+      "get": "Get a key from the Anthropic Console",
+      "removeConfirm": "Remove the key? AI field matching will turn off."
+    }
   },
   "palettes": {
     "Forest": {

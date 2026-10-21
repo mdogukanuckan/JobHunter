@@ -958,6 +958,44 @@ namespace JobHunter.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("JobHunter.Domain.Entities.UserSecret", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EncryptedValue")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Last4")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Kind")
+                        .IsUnique();
+
+                    b.ToTable("UserSecrets", (string)null);
+                });
+
             modelBuilder.Entity("JobHunter.Domain.Entities.WorkExperience", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1224,6 +1262,17 @@ namespace JobHunter.Infrastructure.Migrations
                     b.Navigation("Interview");
 
                     b.Navigation("JobApplication");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("JobHunter.Domain.Entities.UserSecret", b =>
+                {
+                    b.HasOne("JobHunter.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

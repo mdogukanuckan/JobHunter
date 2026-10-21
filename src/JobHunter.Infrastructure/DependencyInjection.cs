@@ -7,6 +7,7 @@ using JobHunter.Application.Cvs;
 using JobHunter.Infrastructure.Auth;
 using JobHunter.Infrastructure.Automation;
 using JobHunter.Infrastructure.Persistence;
+using JobHunter.Infrastructure.Security;
 using JobHunter.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -70,6 +71,9 @@ public static class DependencyInjection
         {
             client.Timeout = TimeSpan.FromSeconds(30);
         });
+
+        // Kullanici sirlari (API anahtari) AES-GCM ile sifrelenir; ana anahtar yapilandirmada (Secrets:MasterKey), DB'de degil.
+        services.AddSingleton<ISecretProtector>(new AesGcmSecretProtector(configuration["Secrets:MasterKey"]));
 
         // Telegram'dan eksik alan doldurma. Token ve chat id yoksa ozellik tamamen kapali: ne istemci ne dinleyici kaydedilir.
         var telegramOptions = new TelegramOptions

@@ -13,6 +13,7 @@ import { promptInstall, useInstallState } from '../../pwa/installPrompt';
 import { useAppTheme } from '../../theme/AppThemeProvider';
 import { PALETTE_IDS, PALETTES, THEME_MODES, type ColorScheme, type PaletteId, type ThemeMode } from '../../theme/palettes';
 import { getErrorMessage } from '../../utils/errors';
+import { ApiKeySection } from './ApiKeySection';
 
 const MODE_ICONS: Record<ThemeMode, ReactNode> = {
   Light: <LightModeOutlinedIcon fontSize="small" />,
@@ -98,6 +99,10 @@ export function SettingsPage() {
         <Stack spacing={2.5}>
           <Section title={t('common.language')} description={t('settings.languageHint')}>
             <LanguageSwitcher />
+          </Section>
+
+          <Section title={t('settings.apiKey.title')} description={t('settings.apiKey.hint')}>
+            <ApiKeySection />
           </Section>
 
           <InstallSection />

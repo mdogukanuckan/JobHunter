@@ -29,6 +29,10 @@ public static class DependencyInjection
         services.AddScoped<IInterviewService, InterviewService>();
         services.AddScoped<ITodoService, TodoService>();
         services.AddScoped<ISettingsService, SettingsService>();
+        // Ayni sinif iki arayuzle sunulur: kullanici (JWT) yolu ve sistemin kullanici adina okudugu yol.
+        services.AddScoped<UserSecretService>();
+        services.AddScoped<IUserSecretService>(sp => sp.GetRequiredService<UserSecretService>());
+        services.AddScoped<IUserSecretReader>(sp => sp.GetRequiredService<UserSecretService>());
 
         // Faz 8: otomasyon cekirdegi (IAutomationDispatcher + AutomationOptions Infrastructure'da kaydedilir)
         services.AddScoped<IAutomationPayloadBuilder, AutomationPayloadBuilder>();

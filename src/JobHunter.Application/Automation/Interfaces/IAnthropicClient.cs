@@ -6,11 +6,12 @@ namespace JobHunter.Application.Automation.Interfaces;
 /// header, istek/yanit sekli) bilmez; implementasyon Infrastructure'dadir (N8nWebhookDispatcher
 /// ile ayni desen).
 ///
-/// Automation:AnthropicApiKey bos ise implementasyon InvalidOperationException firlatir;
-/// cagiran taraf (FieldMappingService) bunu yakalayip "AI eslestirme kapali" olarak yorumlamalidir.
+/// Anahtar CAGIRAN tarafindan verilir (kullanicinin kendi sifreli anahtari ya da yedek olarak sistem anahtari);
+/// bos ise InvalidOperationException firlatilir, FieldMappingService bunu "AI eslestirme kapali" olarak yorumlar.
 /// </summary>
 public interface IAnthropicClient
 {
     /// <summary>Modelin dondurdugu ham metni (genelde JSON) dondurur.</summary>
-    Task<string> CompleteAsync(string systemPrompt, string userPrompt, CancellationToken cancellationToken = default);
+    /// <param name="maxTokens">Cikti ust siniri; verilmezse eslestirme icin varsayilan (buyuk) deger.</param>
+    Task<string> CompleteAsync(string apiKey, string systemPrompt, string userPrompt, int? maxTokens = null, CancellationToken cancellationToken = default);
 }

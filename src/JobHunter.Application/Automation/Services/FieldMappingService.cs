@@ -5,7 +5,9 @@ using System.Text.Json.Serialization;
 using JobHunter.Application.Automation.Dtos;
 using JobHunter.Application.Automation.Interfaces;
 using JobHunter.Application.Common.Interfaces;
+using JobHunter.Application.Settings.Interfaces;
 using JobHunter.Domain.Entities;
+using JobHunter.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -30,13 +32,31 @@ public class FieldMappingService : IFieldMappingService
 {
     private readonly IApplicationDbContext _context;
     private readonly IAnthropicClient _anthropicClient;
+    private readonly IUserSecretReader _secrets;
+    private readonly AutomationOptions _options;
     private readonly ILogger<FieldMappingService> _logger;
 
-    public FieldMappingService(IApplicationDbContext context, IAnthropicClient anthropicClient, ILogger<FieldMappingService> logger)
+    public FieldMappingService(
+        IApplicationDbContext context, IAnthropicClient anthropicClient, IUserSecretReader secrets,
+        AutomationOptions options, ILogger<FieldMappingService> logger)
     {
         _context = context;
         _anthropicClient = anthropicClient;
+        _secrets = secrets;
+        _options = options;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Once kullanicinin ayarlardan girdigi (sifreli) anahtar; yoksa sistem yapilandirmasindaki yedek anahtar
+    /// (Automation:AnthropicApiKey, genelde bos). Hicbiri yoksa InvalidOperationException: cagiran "AI kapali" der.
+    /// </summary>
+    private async Task<string> ResolveApiKeyAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var key = await _secrets.GetPlaintextAsync(userId, UserSecretKind.Anthropic, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(key)) return key;
+        if (!string.IsNullOrWhiteSpace(_options.AnthropicApiKey)) return _options.AnthropicApiKey;
+        throw new InvalidOperationException("Kullanici icin Anthropic API anahtari tanimli degil; AI destekli alan eslestirmesi kapali.");
     }
 
     /// <summary>v1 kapsami: sadece AutomationPayloadCandidate'daki sade/skaler alanlar. Karmasik deger
@@ -196,7 +216,8 @@ public class FieldMappingService : IFieldMappingService
 
         var user = $"HEDEF MENUSU:\n{menu}\n\nFORM ALANLARI (JSON):\n{fieldsJson}\n\nSadece JSON dizisini don.";
 
-        var raw = await _anthropicClient.CompleteAsync(system, user, cancellationToken);
+        var apiKey = await ResolveApiKeyAsync(profile.UserId, cancellationToken);
+        var raw = await _anthropicClient.CompleteAsync(apiKey, system, user, null, cancellationToken);
         var json = ExtractJsonArray(raw);
 
         var parsed = JsonSerializer.Deserialize<List<ClaudeDecision>>(json, JsonOptions)

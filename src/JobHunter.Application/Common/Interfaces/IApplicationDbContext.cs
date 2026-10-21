@@ -24,6 +24,7 @@ public interface IApplicationDbContext
     DbSet<AutomationJob> AutomationJobs { get; }
     DbSet<AutomationJobEvent> AutomationJobEvents { get; }
     DbSet<FieldMappingCache> FieldMappingCaches { get; }
+    DbSet<UserSecret> UserSecrets { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -488,7 +488,22 @@
     "switchToDark": "Koyu temaya geç",
     "switchToLight": "Açık temaya geç",
     "languageHint": "Arayüz dili bu tarayıcıda saklanır.",
-    "account": "Hesap"
+    "account": "Hesap",
+    "apiKey": {
+      "title": "Claude API anahtarı",
+      "hint": "Başvuru formlarındaki alanları Claude ile eşleştirmek için kendi Anthropic API anahtarınızı girin. Anahtar şifrelenerek saklanır ve bir daha gösterilmez.",
+      "label": "API anahtarı",
+      "placeholder": "sk-ant-…",
+      "save": "Doğrula ve kaydet",
+      "replace": "Anahtarı değiştir",
+      "remove": "Kaldır",
+      "configured": "Kayıtlı anahtar: …{{last4}}",
+      "notConfigured": "Henüz bir anahtar girilmedi. Anahtar yoksa alanlar yalnızca kural tabanlı eşleştirilir.",
+      "saved": "Anahtar doğrulandı ve şifreli olarak kaydedildi.",
+      "removed": "Anahtar kaldırıldı.",
+      "get": "Anahtarı Anthropic Console'dan alın",
+      "removeConfirm": "Anahtar kaldırılsın mı? AI alan eşleştirmesi kapanır."
+    }
   },
   "palettes": {
     "Forest": {

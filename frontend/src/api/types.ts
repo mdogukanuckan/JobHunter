@@ -8,6 +8,14 @@ export interface AppearanceSettings {
   mode: ThemeMode;
 }
 
+/** Gizli deger (orn. kullanicinin Anthropic API anahtari) durumu. Deger ASLA donmez; sadece var mi ve son 4 hane. */
+export interface SecretStatus {
+  configured: boolean;
+  last4: string | null;
+}
+
+export type SecretKind = 'anthropic';
+
 export interface AuthResponse {
   accessToken: string;
   accessTokenExpiresAt: string;

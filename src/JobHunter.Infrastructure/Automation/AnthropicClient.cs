@@ -38,14 +38,14 @@ public class AnthropicClient : IAnthropicClient
         _logger = logger;
     }
 
-    public async Task<string> CompleteAsync(string systemPrompt, string userPrompt, CancellationToken cancellationToken = default)
+    public async Task<string> CompleteAsync(string apiKey, string systemPrompt, string userPrompt, int? maxTokens = null, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(_options.AnthropicApiKey))
-            throw new InvalidOperationException("Automation:AnthropicApiKey yapilandirilmamis; AI destekli alan eslestirmesi kapali.");
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new InvalidOperationException("Anthropic API anahtari yok; AI destekli alan eslestirmesi kapali.");
 
         var body = new AnthropicRequest(
             _options.AnthropicModel,
-            MaxOutputTokens,
+            maxTokens ?? MaxOutputTokens,
             systemPrompt,
             [new AnthropicMessage("user", userPrompt)]);
 
@@ -53,7 +53,7 @@ public class AnthropicClient : IAnthropicClient
         {
             Content = JsonContent.Create(body, options: JsonOptions),
         };
-        request.Headers.Add("x-api-key", _options.AnthropicApiKey);
+        request.Headers.Add("x-api-key", apiKey);
         request.Headers.Add("anthropic-version", ApiVersion);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -74,7 +74,7 @@ public class AnthropicClient : IAnthropicClient
             {
                 var hint = (int)response.StatusCode switch
                 {
-                    401 => " (AnthropicApiKey gecersiz.)",
+                    401 => " (Anthropic API anahtari gecersiz.)",
                     429 => " (Kota/hiz siniri asildi.)",
                     _ => "",
                 };

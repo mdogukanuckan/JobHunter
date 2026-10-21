@@ -121,6 +121,7 @@ frontend/src/
 | GET | `/api/automation-jobs/{id}/review-screenshot` | Doldurulmus formun ekran goruntusu |
 | POST | `/api/automation-jobs/{id}/approve` | Denemeyi onayla (KVKK onayi ve eksik alan cevaplariyla) |
 | GET / PUT | `/api/settings/appearance` | Tema tercihi (`palette`: Forest, Midnight, Coral, Plum, Graphite, Ocean; `mode`: System, Light, Dark). Login/refresh cevabinda `appearance` olarak da doner |
+| GET / PUT / DELETE | `/api/settings/secrets/anthropic` | Kullanicinin kendi Claude API anahtari. PUT `{ "value": "sk-ant-..." }`: once Anthropic'e dogrulatilir, gecersizse 400 ve kayit yapilmaz; sifreli saklanir. GET sadece `{ configured, last4 }` doner, deger ASLA geri donmez |
 
 ### n8n callback endpoint'leri (JWT degil, `X-Automation-Key` header'i)
 
@@ -145,6 +146,7 @@ Durum akisi: `Queued → Running ⇄ AwaitingApproval → Completed / Failed / C
 dotnet user-secrets set "Jwt:Key" "<en-az-32-karakter>" --project src/JobHunter.API
 dotnet user-secrets set "Automation:ApiKey" "<uzun-rastgele-anahtar>" --project src/JobHunter.API
 dotnet user-secrets set "Automation:N8nWebhookSecret" "<uzun-rastgele-anahtar>" --project src/JobHunter.API
+dotnet user-secrets set "Secrets:MasterKey" "<base64, 32 bayt>" --project src/JobHunter.API
 dotnet ef database update --project src/JobHunter.Infrastructure --startup-project src/JobHunter.API
 dotnet run --project src/JobHunter.API
 ```
@@ -158,6 +160,8 @@ npm run dev
 ```
 
 Uygulama: `http://localhost:5173` (Vite, `/api` isteklerini `localhost:5080`'e proxy'ler).
+
+`Secrets:MasterKey`: kullanicilarin Ayarlar'dan girdigi gizli degerleri (orn. Claude API anahtari) veritabaninda AES-256-GCM ile sifrelemek icin ana anahtardir; veritabaninda DEGIL burada tutulur. Uretmek icin (PowerShell): `[Convert]::ToBase64String((1..32 | % { Get-Random -Maximum 256 }) -as [byte[]])`. Tanimli degilse uygulama yine acilir ama sir kaydetme 503 doner. **Kaybolursa kayitli anahtarlar cozulemez** (kullanicilar yeniden girer); degistirirseniz ayni sonuc olur, o yuzden yedekleyin.
 
 n8n (otomasyon): kurulum ve kullanim icin `automation/n8n/README.md`. `appsettings.Development.json` n8n'i `http://localhost:5678` adresinde bekler; `Automation:N8nWebhookUrl` bos birakilirsa backend n8n'e istek atmaz, sadece loglar.
 
