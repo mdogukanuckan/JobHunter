@@ -195,7 +195,13 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
 
       for (const field of snap.fields) {
         const r = withApproval(field, baseResolutions.get(field)!, input);
-        const base = { label: field.label, name: field.name, required: field.required };
+        const base: FieldReport = {
+          label: field.label,
+          name: field.name,
+          required: field.required,
+          type: field.type,
+          ...(field.options.length ? { options: field.options.map((o) => o.label) } : {}),
+        };
         if (r.kind === 'skip') {
           stepSkipped.push({ ...base, reason: r.reason });
           continue;

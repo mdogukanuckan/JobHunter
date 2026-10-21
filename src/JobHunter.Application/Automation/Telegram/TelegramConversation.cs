@@ -6,7 +6,8 @@ namespace JobHunter.Application.Automation.Telegram;
 
 public enum TelegramStep { Question, Consent, Confirm, AppOnly }
 
-public record TelegramQuestion(string Name, string Label, bool Required);
+/// <summary>Options doluysa alan bir secimdir (dropdown/radio): cevap bu listedeki bir deger OLMAK ZORUNDA.</summary>
+public record TelegramQuestion(string Name, string Label, bool Required, List<string>? Options = null, string? Type = null);
 
 /// <summary>Bir onay konusmasinin kalici durumu (AutomationJob.TelegramConversationJson).</summary>
 public class TelegramConversationState
@@ -46,6 +47,11 @@ public static class TelegramConversation
     public const string ActionConsentYes = "k1";
     public const string ActionConsentNo = "k0";
 
+    /// <summary>Secenek butonu: "o{soruSirasi}-{secenekSirasi}". Soru sirasi eski mesajlardaki butonlari eler.</summary>
+    private const string OptionPrefix = "o";
+    /// <summary>Opsiyonel secimli soruyu gecme butonu: "s{soruSirasi}".</summary>
+    private const string SkipPrefix = "s";
+
     public const string SkipToken = "-";
     private const int MaxAnswerLength = 500;
     private const int MaxSummaryValueLength = 60;
@@ -76,7 +82,7 @@ public static class TelegramConversation
                 var folded = Fold(label);
                 if (ConsentRegex.IsMatch(folded)) { state.ConsentLabel ??= label; continue; }
                 if (NationalIdRegex.IsMatch(folded)) { nationalIdLabel ??= label; continue; }
-                if (seen.Add(name)) state.Questions.Add(new TelegramQuestion(name, label, required));
+                if (seen.Add(name)) state.Questions.Add(new TelegramQuestion(name, label, required, ParseOptions(f), ParseType(f)));
             }
         }
 
@@ -119,6 +125,34 @@ public static class TelegramConversation
         {
             return Turn(new TelegramReply("Boş cevap kabul edilmez. Lütfen cevabınızı yazın."));
         }
+        else if (question.Options is { Count: > 0 } options)
+        {
+            // Secimli alan: serbest metin KAYDEDILMEZ. Yazilan, listedeki bir secenekle (buyuk/kucuk harf ve
+            // Turkce karakter farki gozetilmeden) birebir eslesiyorsa o secenek alinir; aksi halde reddedilir.
+            var match = options.FirstOrDefault(o => Fold(o) == Fold(answer));
+            if (match is null)
+            {
+                return new TelegramTurn(new[]
+                {
+                    new TelegramReply("⚠️ Geçersiz cevap. Lütfen aşağıdaki seçeneklerden birini seçin; başka bir değer kabul edilmez."),
+                    Prompt(state, state.Index),
+                });
+            }
+            state.Answers[question.Name] = match;
+        }
+        else if (question.Type == ApprovalAnswerFormats.DateFieldType)
+        {
+            // Tarih alani <input type="date"> sadece ISO bicimini kabul eder: kabul edilen yazimlar cevrilir, digerleri reddedilir.
+            if (!ApprovalAnswerFormats.TryNormalizeDate(answer, out var iso))
+            {
+                return new TelegramTurn(new[]
+                {
+                    new TelegramReply($"⚠️ Geçersiz tarih. Şu biçimde yazın: {ApprovalAnswerFormats.DateHint}"),
+                    Prompt(state, state.Index),
+                });
+            }
+            state.Answers[question.Name] = iso;
+        }
         else
         {
             state.Answers[question.Name] = answer.Length > MaxAnswerLength ? answer[..MaxAnswerLength] : answer;
@@ -152,9 +186,54 @@ public static class TelegramConversation
                 state.ConsentAccepted = false;
                 return new TelegramTurn(Enter(state, 0));
 
+            case var a when a.StartsWith(OptionPrefix) && state.Step == TelegramStep.Question:
+                return HandleOptionButton(state, a);
+
+            case var a when a.StartsWith(SkipPrefix) && state.Step == TelegramStep.Question:
+                return HandleSkipButton(state, a);
+
             default:
                 return Turn(new TelegramReply("Bu buton şu an geçerli değil."));
         }
+    }
+
+    private static TelegramTurn HandleOptionButton(TelegramConversationState state, string action)
+    {
+        // "o{soru}-{secenek}"
+        var parts = action[OptionPrefix.Length..].Split('-');
+        var question = state.Questions[state.Index];
+        if (parts.Length != 2 || !int.TryParse(parts[0], out var q) || !int.TryParse(parts[1], out var o)
+            || q != state.Index || question.Options is null || o < 0 || o >= question.Options.Count)
+            return Turn(new TelegramReply("Bu soru artık geçerli değil. Lütfen son sorudaki seçeneklerden birini seçin."));
+
+        state.Answers[question.Name] = question.Options[o];
+        return new TelegramTurn(Enter(state, state.Index + 1));
+    }
+
+    private static TelegramTurn HandleSkipButton(TelegramConversationState state, string action)
+    {
+        var question = state.Questions[state.Index];
+        if (!int.TryParse(action[SkipPrefix.Length..], out var q) || q != state.Index)
+            return Turn(new TelegramReply("Bu soru artık geçerli değil."));
+        if (question.Required)
+            return Turn(new TelegramReply("Bu alan zorunlu, boş geçilemez."));
+
+        return new TelegramTurn(Enter(state, state.Index + 1));
+    }
+
+    private static string? ParseType(JsonElement field)
+        => field.TryGetProperty("type", out var t) && t.ValueKind == JsonValueKind.String ? t.GetString() : null;
+
+    private static List<string>? ParseOptions(JsonElement field)
+    {
+        if (!field.TryGetProperty("options", out var options) || options.ValueKind != JsonValueKind.Array) return null;
+        var list = options.EnumerateArray()
+            .Where(o => o.ValueKind == JsonValueKind.String)
+            .Select(o => o.GetString()!.Trim())
+            .Where(o => o.Length > 0)
+            .Distinct()
+            .ToList();
+        return list.Count > 0 ? list : null;
     }
 
     /// <summary>Onaylandiginda backend'e gidecek cevaplar (bos ise null).</summary>
@@ -195,7 +274,17 @@ public static class TelegramConversation
     private static TelegramReply Prompt(TelegramConversationState state, int index)
     {
         var q = state.Questions[index];
+
+        if (q.Options is { Count: > 0 } options)
+        {
+            var buttons = options.Select((o, i) => new TelegramButton(o, $"{OptionPrefix}{index}-{i}")).ToList();
+            if (!q.Required) buttons.Add(new TelegramButton("Geç", $"{SkipPrefix}{index}"));
+            var pick = q.Required ? "zorunlu, aşağıdan seçin" : "opsiyonel, aşağıdan seçin ya da geçin";
+            return new TelegramReply($"❓ Soru {index + 1}/{state.Questions.Count} ({pick})\n{q.Label}", buttons);
+        }
+
         var hint = q.Required ? "zorunlu" : $"opsiyonel, geçmek için {SkipToken} yazın";
+        if (q.Type == ApprovalAnswerFormats.DateFieldType) hint += $"; biçim: {ApprovalAnswerFormats.DateHint}";
         return new TelegramReply($"❓ Soru {index + 1}/{state.Questions.Count} ({hint})\n{q.Label}");
     }
 

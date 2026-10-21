@@ -113,8 +113,7 @@ public class TelegramApprovalService : ITelegramApprovalService
 
         var state = Load(job);
         var turn = TelegramConversation.HandleText(state, update.Text);
-        await SaveStateAsync(job, state, cancellationToken);
-        await SendRepliesAsync(chatId, job.Id, turn.Replies, cancellationToken);
+        await ReplyThenSaveAsync(chatId, job, state, turn, cancellationToken);
     }
 
     private async Task HandleButtonAsync(long chatId, string callbackData, CancellationToken cancellationToken)
@@ -140,8 +139,7 @@ public class TelegramApprovalService : ITelegramApprovalService
 
         if (turn.Action == TelegramAction.None)
         {
-            await SaveStateAsync(job, state, cancellationToken);
-            await SendRepliesAsync(chatId, job.Id, turn.Replies, cancellationToken);
+            await ReplyThenSaveAsync(chatId, job, state, turn, cancellationToken);
             return;
         }
 
@@ -171,6 +169,19 @@ public class TelegramApprovalService : ITelegramApprovalService
             // Beklenen is hatalari (orn. is arada uygulamadan onaylandi/iptal edildi): kullaniciya anlasilir mesaj.
             await _gateway.SendMessageAsync(chatId, $"⚠️ {ex.Message}", null, cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// Once cevabi gonder, sonra durumu kaydet. Tersi olursa gonderim basarisiz oldugunda cevap kaydedilmis ama
+    /// kullanici sonraki soruyu hic gormemis olur ve konusma sessizce takilir. Bu sirayla gonderim hatasinda durum
+    /// eski kalir; kullanici ayni cevabi tekrar yazabilir (en kotu ihtimal: kayit hatasinda ayni soru iki kez sorulur).
+    /// </summary>
+    private async Task ReplyThenSaveAsync(
+        long chatId, AutomationJob job, TelegramConversationState state, TelegramTurn turn, CancellationToken cancellationToken)
+    {
+        await SendRepliesAsync(chatId, job.Id, turn.Replies, cancellationToken);
+        await SaveStateAsync(job, state, cancellationToken);
+        _logger.LogInformation("Telegram: is {JobId} konusmasi ilerledi (adim {Step}, soru {Index}).", job.Id, state.Step, state.Index);
     }
 
     private async Task SendRepliesAsync(long chatId, Guid jobId, IReadOnlyList<TelegramReply> replies, CancellationToken cancellationToken)

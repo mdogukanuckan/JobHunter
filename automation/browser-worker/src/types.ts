@@ -91,6 +91,13 @@ export interface FieldReport {
   source?: string;
   reason?: string;
   required: boolean;
+  /**
+   * Alan bir secimse (select/radio) izin verilen secenek etiketleri. Onay ekrani ve Telegram bunu
+   * serbest metin yerine secim olarak sunar; backend onayda cevabin bu listede olmasini zorunlu tutar.
+   */
+  options?: string[];
+  /** Form alaninin turu (text, date, select...). Tarih gibi biçimi sıkı alanlarda cevap bu türe göre doğrulanır. */
+  type?: string;
 }
 
 export interface ApplyResult {

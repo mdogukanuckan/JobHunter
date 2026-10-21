@@ -223,12 +223,16 @@ public class AutomationJobService : IAutomationJobService, IAutomationChannelSer
         if (!request.KvkkAccepted)
             throw new BusinessValidationException("KVKK / aydinlatma metni onay kutusu isaretlenmeli.");
 
-        job.ApprovalAnswersJson = request.Answers?.GetRawText();
+        var validation = ApprovalAnswerValidator.Validate(job.ReviewReportJson, request.Answers);
+        if (validation.Error is not null)
+            throw new BusinessValidationException(validation.Error);
+
+        job.ApprovalAnswersJson = validation.Answers?.GetRawText();
         job.KvkkAccepted = true;
         job.TelegramConversationJson = null;   // onay hangi kanaldan gelirse gelsin, bekleyen konusma biter
 
         // Cevaplarin kendisi (TC kimlik dahil olabilir) gunluge YAZILMAZ, sadece kac tane geldigi.
-        var answerCount = request.Answers is { ValueKind: JsonValueKind.Object } obj ? obj.EnumerateObject().Count() : 0;
+        var answerCount = validation.Answers is { ValueKind: JsonValueKind.Object } obj ? obj.EnumerateObject().Count() : 0;
         AutomationWorkflow.AddEvent(_context, job, AutomationEventLevel.Info, "approved",
             $"Kullanici onayladi ({answerCount} cevap girildi, kanal: {source}). Gonderim icin n8n'e iletiliyor.");
 
