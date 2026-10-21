@@ -14,6 +14,27 @@ for v in "$JOBHUNTER_API_KEY" "$JOBHUNTER_WEBHOOK_SECRET" "$BROWSER_WORKER_SECRE
   esac
 done
 
+# E-posta bildirimi (opsiyonel): SMTP bilgisi yoksa credential yine de yuklenir, boylece workflow
+# calisir; e-posta dugumu hata verirse akis devam eder (onError), Telegram bildirimi etkilenmez.
+SMTP_HOST="${SMTP_HOST:-localhost}"
+SMTP_PORT="${SMTP_PORT:-587}"
+SMTP_USER="${SMTP_USER:-}"
+SMTP_PASSWORD="${SMTP_PASSWORD:-}"
+SMTP_SECURE="${SMTP_SECURE:-false}"
+
+for v in "$SMTP_HOST" "$SMTP_USER" "$SMTP_PASSWORD"; do
+  case "$v" in
+    *'"'*|*'\'*) echo "HATA: SMTP_* degerlerinde tirnak (\") veya ters bolu (\) olamaz." >&2; exit 1 ;;
+  esac
+done
+case "$SMTP_PORT" in
+  ""|*[!0-9]*) echo "HATA: SMTP_PORT sayi olmali." >&2; exit 1 ;;
+esac
+case "$SMTP_SECURE" in
+  true|false) ;;
+  *) echo "HATA: SMTP_SECURE true veya false olmali." >&2; exit 1 ;;
+esac
+
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 
@@ -38,6 +59,12 @@ cat > "$TMP" <<JSON
     "name": "JobHunter Worker Secret",
     "type": "httpHeaderAuth",
     "data": { "name": "X-Worker-Secret", "value": "$BROWSER_WORKER_SECRET" }
+  },
+  {
+    "id": "jhSmtpCred000001",
+    "name": "JobHunter SMTP",
+    "type": "smtp",
+    "data": { "host": "$SMTP_HOST", "port": $SMTP_PORT, "secure": $SMTP_SECURE, "user": "$SMTP_USER", "password": "$SMTP_PASSWORD" }
   }
 ]
 JSON

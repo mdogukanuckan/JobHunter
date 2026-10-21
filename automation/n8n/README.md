@@ -21,6 +21,7 @@ Backend ──POST (X-JobHunter-Secret)──▶ n8n Webhook ──POST /apply (
      dotnet user-secrets set "Automation:N8nWebhookSecret" "<ayni-deger>" --project src/JobHunter.API
      ```
    - `BROWSER_WORKER_SECRET` (Faz 10): yeni uret; sadece n8n ile browser-worker arasinda, backend'e yazilmaz.
+   - `SMTP_*` (opsiyonel): e-posta bildirimi icin; bos birakirsan sadece Telegram calisir. `import.sh` bunlardan `JobHunter SMTP` credential'ini olusturur.
 2. **n8n'i baslat** (Docker Desktop acik olmali):
    ```
    cd automation/n8n
@@ -44,7 +45,7 @@ Backend ──POST (X-JobHunter-Secret)──▶ n8n Webhook ──POST /apply (
 | **Trigger** | Akisi baslatan node. Bizde `Webhook`: backend POST atinca calisir. |
 | **Item / $json** | Node'lar arasinda akan veri. `$json` = onceki node'un ciktisi. |
 | **Expression** | `{{ ... }}` icindeki JavaScript. Ornek: `{{ $('İş bilgisi').first().json.statusUrl }}` → baska bir node'un ciktisina adiyla ulasir. |
-| **Credential** | Sifreli saklanan gizli bilgi. Workflow JSON'unda anahtar yok, sadece credential'in id'si var. Iki tane: `JobHunter API Key` (n8n → backend) ve `JobHunter Webhook Secret` (backend → n8n). |
+| **Credential** | Sifreli saklanan gizli bilgi. Workflow JSON'unda anahtar yok, sadece credential'in id'si var. Dort tane: `JobHunter API Key` (n8n → backend), `JobHunter Webhook Secret` (backend → n8n), `JobHunter Worker Secret` (n8n → worker) ve `JobHunter SMTP` (e-posta bildirimi). |
 | **Execution** | Workflow'un bir calismasi. Sol menu → Executions: her node'un girdi/ciktisini gorursun. Hata ayiklamanin ana araci. |
 | **Error output** | Node ayari "On Error → Continue (using error output)". Node hata verirse akis kirmizi cikistan devam eder. Bizde butun hata cikislari `Hatayı hazırla` → `Durum: Failed` dalina gider (try/catch gibi). |
 

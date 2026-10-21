@@ -357,7 +357,7 @@
       ],
       "credentials": {
         "smtp": {
-          "id": "",
+          "id": "jhSmtpCred000001",
           "name": "JobHunter SMTP"
         }
       },
