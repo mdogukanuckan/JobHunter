@@ -56,5 +56,11 @@ public class AutomationJob : BaseEntity
     /// <summary>KVKK/aydinlatma metni onay kutusu isaretlendi mi (Insan onaylida kullanici, Otomatikte sistem isaretler).</summary>
     public bool KvkkAccepted { get; set; }
 
+    /// <summary>
+    /// Telegram'dan eksik alan doldurma konusmasinin durumu (sira, verilen cevaplar), JSON.
+    /// Cevaplar kisisel veri icerir: onay verilince ya da is bitince (terminal) silinir.
+    /// </summary>
+    public string? TelegramConversationJson { get; set; }
+
     public ICollection<AutomationJobEvent> Events { get; set; } = new List<AutomationJobEvent>();
 }

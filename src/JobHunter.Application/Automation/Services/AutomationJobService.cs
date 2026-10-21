@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace JobHunter.Application.Automation.Services;
 
-public class AutomationJobService : IAutomationJobService
+public class AutomationJobService : IAutomationJobService, IAutomationChannelService
 {
     private const int MaxListSize = 200;
 
@@ -154,9 +154,13 @@ public class AutomationJobService : IAutomationJobService
             .FirstOrDefaultAsync(j => j.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Otomasyon isi bulunamadi.");
 
+        return await CancelCoreAsync(job, request.Reason ?? "Kullanici iptal etti", "user", cancellationToken);
+    }
+
+    private async Task<AutomationJobResponse> CancelCoreAsync(AutomationJob job, string reason, string source, CancellationToken cancellationToken)
+    {
         // Not: n8n calisiyorsa bunu bir sonraki callback'inde 409 alarak ogrenir ve durur (bkz. README).
-        AutomationWorkflow.ChangeStatus(_context, job, AutomationJobStatus.Cancelled,
-            request.Reason ?? "Kullanici iptal etti", "user");
+        AutomationWorkflow.ChangeStatus(_context, job, AutomationJobStatus.Cancelled, reason, source);
         await _context.SaveChangesAsync(cancellationToken);
 
         return AutomationMappings.ToResponse(job, includeEvents: true);
@@ -207,6 +211,12 @@ public class AutomationJobService : IAutomationJobService
             .FirstOrDefaultAsync(j => j.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Otomasyon isi bulunamadi.");
 
+        return await ApproveCoreAsync(job, request, "user", cancellationToken);
+    }
+
+    private async Task<AutomationJobResponse> ApproveCoreAsync(
+        AutomationJob job, ApproveAutomationRequest request, string source, CancellationToken cancellationToken)
+    {
         if (job.Status != AutomationJobStatus.AwaitingApproval)
             throw new AutomationConflictException($"Bu is su an onay bekliyor degil ({job.Status}); onaylanamaz.");
 
@@ -215,14 +225,15 @@ public class AutomationJobService : IAutomationJobService
 
         job.ApprovalAnswersJson = request.Answers?.GetRawText();
         job.KvkkAccepted = true;
+        job.TelegramConversationJson = null;   // onay hangi kanaldan gelirse gelsin, bekleyen konusma biter
 
         // Cevaplarin kendisi (TC kimlik dahil olabilir) gunluge YAZILMAZ, sadece kac tane geldigi.
         var answerCount = request.Answers is { ValueKind: JsonValueKind.Object } obj ? obj.EnumerateObject().Count() : 0;
         AutomationWorkflow.AddEvent(_context, job, AutomationEventLevel.Info, "approved",
-            $"Kullanici onayladi ({answerCount} cevap girildi). Gonderim icin n8n'e iletiliyor.");
+            $"Kullanici onayladi ({answerCount} cevap girildi, kanal: {source}). Gonderim icin n8n'e iletiliyor.");
 
         AutomationWorkflow.ChangeStatus(_context, job, AutomationJobStatus.Running,
-            "Onaylandi, gonderim baslatiliyor.", "user");
+            "Onaylandi, gonderim baslatiliyor.", source);
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -251,6 +262,29 @@ public class AutomationJobService : IAutomationJobService
 
         return AutomationMappings.ToResponse(job, includeEvents: true);
     }
+
+    // ---- Guvenilir kanal (Telegram): JWT yok, kimlik dogrulamasi kanalin kendisinde (sabit chat id) ----
+
+    public async Task<AutomationJobResponse> ApproveFromChannelAsync(
+        Guid jobId, ApproveAutomationRequest request, string channel, CancellationToken cancellationToken = default)
+    {
+        var job = await FindForChannelAsync(jobId, cancellationToken);
+        return await ApproveCoreAsync(job, request, channel, cancellationToken);
+    }
+
+    public async Task<AutomationJobResponse> CancelFromChannelAsync(
+        Guid jobId, string reason, string channel, CancellationToken cancellationToken = default)
+    {
+        var job = await FindForChannelAsync(jobId, cancellationToken);
+        return await CancelCoreAsync(job, reason, channel, cancellationToken);
+    }
+
+    private async Task<AutomationJob> FindForChannelAsync(Guid jobId, CancellationToken cancellationToken)
+        => await _context.AutomationJobs
+               .Include(j => j.JobApplication)
+               .Include(j => j.Events)
+               .FirstOrDefaultAsync(j => j.Id == jobId, cancellationToken)
+           ?? throw new KeyNotFoundException("Otomasyon isi bulunamadi.");
 
         /// <summary>Sadece kullanicinin kendi basvurularina ait denemeler (sahiplik basvuru uzerinden).</summary>
     private IQueryable<AutomationJob> OwnedJobs()

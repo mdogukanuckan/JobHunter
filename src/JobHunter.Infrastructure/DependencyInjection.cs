@@ -1,6 +1,7 @@
 using JobHunter.Application.Auth.Interfaces;
 using JobHunter.Application.Automation;
 using JobHunter.Application.Automation.Interfaces;
+using JobHunter.Application.Automation.Telegram;
 using JobHunter.Application.Common.Interfaces;
 using JobHunter.Application.Cvs;
 using JobHunter.Infrastructure.Auth;
@@ -69,6 +70,26 @@ public static class DependencyInjection
         {
             client.Timeout = TimeSpan.FromSeconds(30);
         });
+
+        // Telegram'dan eksik alan doldurma. Token ve chat id yoksa ozellik tamamen kapali: ne istemci ne dinleyici kaydedilir.
+        var telegramOptions = new TelegramOptions
+        {
+            BotToken = configuration["Telegram:BotToken"],
+            ChatId = long.TryParse(configuration["Telegram:ChatId"], out var chatId) ? chatId : null
+        };
+        services.AddSingleton(telegramOptions);
+        if (telegramOptions.IsEnabled)
+        {
+            // RemoveAllLoggers: Telegram adresi token'i icerir; HttpClient'in istek loglari token'i sizdirirdi.
+            services.AddHttpClient<ITelegramGateway, TelegramBotClient>(client =>
+            {
+                // getUpdates long polling suresinden (5 sn) uzun olmali.
+                client.Timeout = TimeSpan.FromSeconds(30);
+            }).RemoveAllLoggers();
+            // Servis yalnizca bu blokta kaydedilir: ITelegramGateway olmadan cozulemez (kapaliyken uygulama acilisi bozulmasin).
+            services.AddScoped<ITelegramApprovalService, TelegramApprovalService>();
+            services.AddHostedService<TelegramPollingService>();
+        }
 
         return services;
     }

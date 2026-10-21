@@ -42,7 +42,11 @@ internal static class AutomationWorkflow
         if (to == AutomationJobStatus.Failed) job.ErrorMessage = Clean(errorMessage) ?? Clean(message) ?? "Bilinmeyen hata.";
         if (to == AutomationJobStatus.Completed) job.ResultSummary = Clean(resultSummary) ?? Clean(message);
         // Faz 11 gizlilik kurali: onay cevaplari (TC kimlik dahil) is bitince (terminal) silinir.
-        if (AutomationJobTransitions.IsTerminal(to)) job.ApprovalAnswersJson = null;
+        if (AutomationJobTransitions.IsTerminal(to))
+        {
+            job.ApprovalAnswersJson = null;
+            job.TelegramConversationJson = null;
+        }
 
         var text = $"{from} → {to} ({source})";
         if (Clean(message) is { } m) text += $": {m}";

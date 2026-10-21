@@ -32,7 +32,10 @@ public static class DependencyInjection
 
         // Faz 8: otomasyon cekirdegi (IAutomationDispatcher + AutomationOptions Infrastructure'da kaydedilir)
         services.AddScoped<IAutomationPayloadBuilder, AutomationPayloadBuilder>();
-        services.AddScoped<IAutomationJobService, AutomationJobService>();
+        // Ayni sinif iki arayuzle sunulur: kullanici (JWT) yolu ve guvenilir kanal (Telegram) yolu.
+        services.AddScoped<AutomationJobService>();
+        services.AddScoped<IAutomationJobService>(sp => sp.GetRequiredService<AutomationJobService>());
+        services.AddScoped<IAutomationChannelService>(sp => sp.GetRequiredService<AutomationJobService>());
         services.AddScoped<IAutomationCallbackService, AutomationCallbackService>();
         services.AddScoped<IFieldMappingService, FieldMappingService>();
 
