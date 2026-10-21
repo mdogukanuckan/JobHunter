@@ -18,6 +18,11 @@ src/
 ├── JobHunter.Infrastructure  EF Core, repository'ler, auth, storage, notification implementasyonlari
 └── JobHunter.API              Controller'lar, middleware, DI, Swagger
 
+automation/
+├── browser-worker/            Playwright ile form doldurma servisi
+├── mock-careers/              Deneme icin sahte kariyer sitesi
+└── n8n/                       Docker n8n + workflow'lar
+
 tests/
 ├── JobHunter.Domain.Tests
 ├── JobHunter.Application.Tests
@@ -26,7 +31,7 @@ tests/
 frontend/src/
 ├── api/                       Axios istemcisi (token yenileme), endpoint fonksiyonlari, DTO tipleri
 ├── components/                Ortak bilesenler (SchemaFormDialog, ConfirmDialog, Notify)
-├── features/                  Sayfa modulleri: board, cvs, profile, interviews
+├── features/                  Sayfa modulleri: board, cvs, profile, interviews, todos, automation, settings
 ├── auth/ layout/ i18n/        Oturum, uygulama iskeleti, TR/EN ceviriler
 └── utils/                     Hata mesaji, tarih/saat bicimlendirme
 ```
@@ -52,7 +57,11 @@ frontend/src/
 | 7e | Yeni tasarim: ust menulu yerlesim (mobilde alt menu), 6 renk paleti, Acik/Koyu/Sistem modu (varsayilan Okyanus + Acik), Ayarlar sayfasi; tercih hesapta saklanir | Tamamlandi |
 | 7d | PWA (manifest, service worker, guncelleme bildirimi, cevrimdisi uyarisi) + mobil pano (durum sekmeleri) | Tamamlandi |
 | Faz 8 | Otomasyon cekirdegi: AutomationJob (deneme) + AutomationJobEvent (gunluk), durum makinesi, n8n callback'leri (X-Automation-Key), politikaya uyan veri paketi, IAutomationDispatcher (simdilik log) | Tamamlandi |
-| Faz 9 | n8n entegrasyonu: Docker'da n8n, N8nWebhookDispatcher (gercek webhook, X-JobHunter-Secret), iskelet workflow (veri paketi, CV, gunluk, hata dali, moda gore sonuc) | Devam ediyor |
+| Faz 9 | n8n entegrasyonu: Docker'da n8n, N8nWebhookDispatcher (gercek webhook, X-JobHunter-Secret), iskelet workflow (veri paketi, CV, gunluk, hata dali, moda gore sonuc) | Tamamlandi |
+| Faz 10a | `automation/browser-worker` (Node + TS + Playwright): `POST /apply` (X-Worker-Secret), kural tabanli alan eslestirme, Faz 5b politikalari (Auto/AskFirst/Never), cok adimli form, ekran goruntuleri; `automation/mock-careers` deneme sitesi | Tamamlandi |
+| Faz 10b | Claude destekli alan eslestirme: `AnthropicClient`, `FieldMappingService`, eslestirme onbellegi (`FieldMappingCache`), `suggest-field-mapping` callback'i. `Automation:AnthropicApiKey` user-secrets ile verilir | Tamamlandi |
+| Faz 11a | Onay ekrani: inceleme raporu, ekran goruntusu, onay cevaplari (backend); onay paneli, KVKK onayi, eksik alan formu (frontend); bildirim Telegram + e-posta | Tamamlandi |
+| Anasayfa | Landing sayfasi (TR/EN), pano `/board` adresinde | Tamamlandi |
 
 ## API Endpoint'leri
 
@@ -108,6 +117,9 @@ frontend/src/
 | GET | `/api/automation-jobs/{id}` | Deneme detayi + adim adim gunluk (`events`) |
 | POST | `/api/automation-jobs/{id}/cancel` | Iptal (govde opsiyonel: `{ "reason": "..." }`). 409: is zaten bitmis |
 | GET | `/api/automation-jobs/{id}/payload` | n8n'e verilecek veri paketinin onizlemesi |
+| GET | `/api/automation-jobs/{id}/review` | Onay ekrani icin inceleme raporu (doldurulan alanlar, eksikler) |
+| GET | `/api/automation-jobs/{id}/review-screenshot` | Doldurulmus formun ekran goruntusu |
+| POST | `/api/automation-jobs/{id}/approve` | Denemeyi onayla (KVKK onayi ve eksik alan cevaplariyla) |
 | GET / PUT | `/api/settings/appearance` | Tema tercihi (`palette`: Forest, Midnight, Coral, Plum, Graphite, Ocean; `mode`: System, Light, Dark). Login/refresh cevabinda `appearance` olarak da doner |
 
 ### n8n callback endpoint'leri (JWT degil, `X-Automation-Key` header'i)
@@ -118,6 +130,10 @@ frontend/src/
 | GET | `/api/automation/n8n/jobs/{jobId}/cv` | Denemeye sabitlenmis CV dosyasi |
 | PATCH | `/api/automation/n8n/jobs/{jobId}/status` | Durum bildir: `{ "status": "Running" }`, `{ "status": "Failed", "errorMessage": "..." }`, `{ "status": "Completed", "resultSummary": "..." }` |
 | POST | `/api/automation/n8n/jobs/{jobId}/events` | Gunluge satir ekle: `{ "level": "Info", "step": "upload_cv", "message": "CV yuklendi", "data": { } }` |
+| PUT | `/api/automation/n8n/jobs/{jobId}/review` | Inceleme raporunu kaydet |
+| POST | `/api/automation/n8n/jobs/{jobId}/screenshot` | Ekran goruntusunu yukle |
+| GET | `/api/automation/n8n/jobs/{jobId}/approval-answers` | Kullanicinin onay ekraninda verdigi cevaplar |
+| POST | `/api/automation/n8n/jobs/{jobId}/suggest-field-mapping` | Claude ile form alani eslestirme onerisi |
 
 Durum akisi: `Queued → Running ⇄ AwaitingApproval → Completed / Failed / Cancelled`. Bitmis bir ise (veya gecersiz gecise) **409** doner; n8n akisi bunu "dur" sinyali olarak kullanir. Ayni durumu tekrar gondermek hata degildir. Politikasi `Never` olan alanlar pakette `value: null` gelir, `Never` ek bilgiler hic gelmez. Anahtar ayarlanmamissa bu endpoint'ler 503 doner.
 
