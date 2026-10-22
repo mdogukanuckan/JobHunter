@@ -25,6 +25,9 @@ export interface ApplyInput {
 }
 
 const MAX_STEPS = 10;
+/** Onay ekranindan gelen cevabin kaynak etiketi (withApproval ve izleme icin tek yer). */
+const APPROVED_ANSWER_SOURCE = 'onay ekranı cevabı';
+const APPROVED_ANSWER_MISMATCH = 'onay ekranı cevabı seçeneklere uymadı';
 const CLOSED_RE = /(basvurular(i)? kapan|basvuruya kapali|ilan kapan|suresi dol|no longer accept|position (has been )?filled|closed)/;
 const SUCCESS_RE = /(basvurunuz (alindi|iletildi|basariyla)|thank you for (your )?appl|application (has been )?(received|submitted))/;
 const fold = (s: string) =>
@@ -76,10 +79,10 @@ function withApproval(field: FormField, r: Resolution, input: ApplyInput): Resol
     if (raw !== undefined && raw !== null && String(raw).trim() !== '') {
       if (isChoice(field)) {
         const opt = toOption(field, raw);
-        if (opt) return { kind: 'fill', value: opt, source: 'onay ekranı cevabı' };
-        return { ...r, reason: `${r.reason} (onay ekranı cevabı seçeneklere uymadı: "${raw}")` };
+        if (opt) return { kind: 'fill', value: opt, source: APPROVED_ANSWER_SOURCE };
+        return { ...r, reason: `${r.reason} (${APPROVED_ANSWER_MISMATCH}: "${raw}")` };
       }
-      return { kind: 'fill', value: raw, source: 'onay ekranı cevabı' };
+      return { kind: 'fill', value: raw, source: APPROVED_ANSWER_SOURCE };
     }
   }
 
@@ -93,6 +96,9 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
   const skipped: FieldReport[] = [];
   const missingRequired: FieldReport[] = [];
   const screenshots: string[] = [];
+  /** Submit turunda forma gercekten yazilan onay cevaplari (alan adi ve etiketi); hic yazilmayanlar icin uyari verilir. */
+  const appliedAnswerKeys = new Set<string>();
+  const submitting = input.phase === 'Submit';
 
   const finish = (outcome: Outcome, message: string, referenceNumber?: string): ApplyResult => ({
     outcome, message, referenceNumber, filled, skipped, missingRequired, screenshots, durationMs: Date.now() - started,
@@ -122,6 +128,14 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
     } catch {
       return null;
     }
+  };
+
+  /** Gonderim turunda forma veri yazilamadiysa: ekran goruntusu al, hatayi gunluge yaz, GONDERMEDEN Failed don. */
+  const abortSubmit = async (page: Page, what: string, detail: string): Promise<ApplyResult> => {
+    const file = await shot(page, 'fill-failed');
+    const msg = `${what}: ${detail}. Yanlış ya da eksik veriyle göndermemek için başvuru gönderilmedi.`;
+    await reporter.event('Error', 'fill', msg, { screenshot: file });
+    return finish('Failed', msg);
   };
 
   try {
@@ -203,6 +217,11 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
           ...(field.options.length ? { options: field.options.map((o) => o.label) } : {}),
         };
         if (r.kind === 'skip') {
+          // Kullanici onay ekraninda bu alana bir cevap verdi ama alanin seceneklerine uymuyor: sessizce bos birakip
+          // gondermek yerine dur (backend de onayda bunu reddeder; bu ikinci savunma hatti).
+          if (submitting && r.reason.includes(APPROVED_ANSWER_MISMATCH)) {
+            return abortSubmit(page, `Onaylanan cevap "${field.label}" alanının seçeneklerine uymuyor`, r.reason);
+          }
           stepSkipped.push({ ...base, reason: r.reason });
           continue;
         }
@@ -211,9 +230,17 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
           if (value === null) throw new Error('CV dosyası indirilemedi');
           await fillField(page, field, value);
           stepFilled.push({ ...base, source: r.source });
+          if (r.source === APPROVED_ANSWER_SOURCE) {
+            appliedAnswerKeys.add(field.name);
+            appliedAnswerKeys.add(field.label);
+          }
           if (r.note) await reporter.event('Warning', 'fill', r.note, { field: field.label });
         } catch (err) {
-          stepSkipped.push({ ...base, reason: `Doldurulamadı: ${(err as Error).message.split('\n')[0]}` });
+          const reason = `Doldurulamadı: ${(err as Error).message.split('\n')[0]}`;
+          // Gonderim turunda doldurulamayan bir alan, kullanicinin onayladigi formdan farkli (eksik) veri gonderilmesi
+          // demektir (orn. tarih alani yanlis bicim): bos birakip gondermek yerine dur.
+          if (submitting) return abortSubmit(page, `"${field.label}" alanı forma yazılamadı`, reason);
+          stepSkipped.push({ ...base, reason });
         }
       }
 
@@ -270,6 +297,14 @@ export async function runApply(input: ApplyInput): Promise<ApplyResult> {
       const msg = `Form dolduruldu (${filled.length} alan). "Gönder"e basılmadı; onayın bekleniyor.`;
       await reporter.event('Info', 'ready', msg, { screenshot: beforeFile });
       return finish('ReadyForApproval', msg);
+    }
+
+    // Onay ekraninda girilen ama hicbir alana yazilmayan cevaplar (alan formda bulunamadi) sessizce kaybolmasin.
+    const unusedAnswers = Object.entries(input.approvalAnswers?.answers ?? {})
+      .filter(([key, value]) => String(value ?? '').trim() !== '' && !appliedAnswerKeys.has(key))
+      .map(([key]) => key);
+    if (unusedAnswers.length) {
+      await reporter.event('Warning', 'submit', `Onay ekranı cevaplarından bazıları forma yazılmadı (alan formda bulunamadı ya da profil verisi öncelikli oldu): ${unusedAnswers.join(', ')}.`, { fields: unusedAnswers });
     }
 
     await reporter.event('Info', 'submit', `"Gönder"e basılıyor (onay turu, ${mode === 'Automatic' ? 'Otomatik mod' : 'İnsan onaylı mod'}).`);
