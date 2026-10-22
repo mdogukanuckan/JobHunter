@@ -20,6 +20,7 @@ import {
   Divider,
   FormControlLabel,
   IconButton,
+  MenuItem,
   Radio,
   RadioGroup,
   Stack,
@@ -447,17 +448,35 @@ function ReviewPanel({ job }: { job: AutomationJob }) {
           <Stack spacing={1.5}>
             {editableFields.map((f) => {
               const empty = !(answers[f.name] ?? '').trim();
+              // Secimli alan (dropdown/radio) acilir liste, tarih alani tarih secici olur: serbest metin yazimi yok,
+              // boylece sunucunun dogruladigi degerler (secenek listesi, ISO tarih) hatasiz gonderilir.
+              const options = f.options ?? [];
+              const isSelect = options.length > 0;
+              const isDate = !isSelect && f.type === 'date';
               return (
                 <Box key={f.name}>
                   <TextField
                     size="small"
                     fullWidth
+                    select={isSelect}
+                    type={isDate ? 'date' : undefined}
                     label={f.label + (f.required ? ` (${t('automation.review.requiredBadge')})` : '')}
                     value={answers[f.name] ?? ''}
                     onChange={(e) => setAnswers((prev) => ({ ...prev, [f.name]: e.target.value }))}
                     error={touched && f.required && empty}
                     helperText={touched && f.required && empty ? t('automation.review.fieldRequired') : f.reason || undefined}
-                  />
+                    slotProps={isDate ? { inputLabel: { shrink: true } } : undefined}
+                  >
+                    {isSelect && [
+                      // Opsiyonel alan bos birakilabilsin; zorunlu alanda bos secenek yok.
+                      ...(f.required ? [] : [<MenuItem key="" value="">—</MenuItem>]),
+                      ...options.map((o) => (
+                        <MenuItem key={o} value={o}>
+                          {o}
+                        </MenuItem>
+                      )),
+                    ]}
+                  </TextField>
                   {!isNationalIdField(f) && (
                     <FormControlLabel
                       sx={{ mt: 0.25 }}

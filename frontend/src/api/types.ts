@@ -365,6 +365,10 @@ export interface AutomationFieldReport {
   /** Atlandiysa neden (orn. "once sorulmali", "profilde karsiligi yok"). */
   reason?: string | null;
   required: boolean;
+  /** Form alaninin turu (text, date, select, radio...). Eski raporlarda yok. */
+  type?: string | null;
+  /** Secimli alanlarda (select/radio) izin verilen secenekler; cevap bunlardan biri olmali. Eski raporlarda yok. */
+  options?: string[] | null;
 }
 
 /** Worker'in Fill turu sonunda backend'e yazdigi serbest JSON (submitReview). */
