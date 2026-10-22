@@ -18,7 +18,10 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.12" />
+    <!-- EF Core Design (migration araci) -> Build.Tasks.Core uzerinden gelen gecisli paketlerin acik surumleri:
+         eski surumler bilinen guvenlik aciklari (NU1902/NU1903) tasiyor. Gecisli surum yukseltilene kadar burada sabit. -->
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.13" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
